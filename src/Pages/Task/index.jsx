@@ -86,11 +86,8 @@ const Task= () => {
   };
 
 
-  
 
-  const filteredContent = datacontent?.filter((post) =>
-    post.tasks?.some(taskItem => taskItem.task._id === newUser?.task)
-  );
+
   
   const fetchCategory = async () => {
     setLoading(true);
@@ -160,7 +157,7 @@ const Task= () => {
 
     try {
       // Fetch task data first based on pager.currentPage
-      const taskResponse = await axios.get(`${SERVER_URL}/task/view-task?page=${pager.currentPage}&limit=${pager.pageSize}&brand=${searchQuery}`, {
+      const taskResponse = await axios.get(`${SERVER_URL}/task/view-task?page=${pager.currentPage}&limit=${pager.pageSize}`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: token,
@@ -231,15 +228,14 @@ const Task= () => {
       setLoading(false);
     }
   };
-
+// console.log(Content)
   const fetchCalendar = async () => {
     setLoading(true);
     const token = localStorage.getItem("token");
 
     try {
-      const start=new Date(newUser.start_date)
-      const end=new Date(newUser.end_date)
-      const taskResponse = await axios.get(`${SERVER_URL}/task/view-task?brand=${newUser.brand}&startDate=${start}&endDate=${end}`, {
+  
+      const taskResponse = await axios.get(`${SERVER_URL}/task/view-task?page=1&limit=200`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: token,
@@ -248,7 +244,7 @@ const Task= () => {
 
       const taskData = taskResponse.data?.data.currentDatas[0];
 
-      setContent(taskData?.content);
+      setContent(taskData?.headline);
      
      
 
@@ -271,14 +267,11 @@ const Task= () => {
 
 
     React.useEffect(() => {
-  if(type==="content" && newUser.brand && newUser.start_date && newUser.end_date){
-if(newUser?.end_date !==undefined){
-  fetchCalendar()
-}
-  }
+      fetchCalendar()
+  
   
    
-  }, [newUser]);
+  }, [dataHeadline]);
 
   
     React.useEffect(() => {
@@ -349,6 +342,7 @@ if(newUser?.end_date !==undefined){
     setType(typetask)
     setOpenEditDialog(true);
   };
+
 
  
 
@@ -439,7 +433,17 @@ setOpenDialog(false)
     setType("headline")
   };
 
-
+  const filteredBrand = Content.flatMap(item =>
+    item.tasks?.filter(task => {
+      const brandMatch = task.brand?._id === newUser.brand;
+      const taskDate = new Date(task.deadline); // or task.deadline
+      const startDate = new Date(newUser.start_date);
+      const endDate = new Date(newUser.end_date);
+      const dateInRange = taskDate >= startDate && taskDate <= endDate;
+      return brandMatch && dateInRange;
+    }) || []
+  );
+console.log("brand",filteredBrand)
   const handleCreateUserSubmit = async () => {
     setCreate(true);
     const token = localStorage.getItem("token");
@@ -471,24 +475,9 @@ setOpenDialog(false)
           }
         );
       } else if (type === "content") {
-        if(filteredPost?.length===0){
-          toast.error("task is required", {
-            position: 'top-right',
-            duration: 5000,
-          });
-          setCreate(false)
-          return false
-        }
+     
       
-        if (datacontent!==undefined && filteredContent?.length !==0 ){
-          toast.error("Already created for this headline", {
-            position: 'top-right',
-            duration: 5000,
-          });
-          setCreate(false)
-          return false
-       
-        }
+    
         response = await axios.post(
           `${SERVER_URL}/task/create-task`, // Replace with the correct URL for content
           {
@@ -661,13 +650,13 @@ setOpenDialog(false)
   
  
    };
-console.log("edit",editUser)
+// console.log("edit",editUser)
   //  const handleHeadline = (row,name) => {
   //   setRowType(name)
   //   setExpandedRow(expandedRow === `${row?._id?.brand}-${row?._id?.month}-${row?._id?.year}-${name}` ? null : `${row?._id?.brand}-${row?._id?.month}-${row?._id?.year}-${name}`);
   // };
 
-console.log(datacontent)
+// console.log(datacontent)
   return (
     <div className="mt-24 lg:mx-4 mx-2">
        <div className='hidden lg:block'>
@@ -676,7 +665,7 @@ console.log(datacontent)
         {
           role ==="admin" && (
             <div className='flex gap-3 items-center'>
-      <FormControl sx={{ width: 200 }} margin="normal">
+      {/* <FormControl sx={{ width: 200 }} margin="normal">
   <InputLabel id="role-label">Select Brand</InputLabel>
   <Select
     labelId="role-label"
@@ -700,7 +689,7 @@ console.log(datacontent)
       ))
     )}
   </Select>
-</FormControl>
+</FormControl> */}
 
 
           <Button
@@ -1055,7 +1044,7 @@ console.log(datacontent)
        
 
       {
-    type==="content" && (
+    type==="content" &&  (
       <Box display="flex" gap={2} mt={2}>
       {/* Start Date */}
       <Box flex={1}>
@@ -1084,10 +1073,10 @@ console.log(datacontent)
   newUser.start_date &&
   newUser.end_date && type === "content" && (
     <div className="my-5">
-      {Content.length === 0 ? (
+      {filteredBrand.length === 0 ? (
         <div>There is no post</div>
       ) : (
-        Content?.[0]?.tasks?.map((post) => (
+        filteredBrand.map((post) => (
           <div key={post._id || ""}>
             <RadioGroup
               row

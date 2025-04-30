@@ -98,9 +98,15 @@ console.log(state)
       <div className=" font-bold text-secondaryColor mt-8">Headline</div>
             <p className="text-sm text-bodyColor mt-5 mb-8">{state?.task?.headline || state.headline}</p>
 
-    
-    
-      </div>
+     </div>
+
+     <div className="mt-10 lg:w-[70%] w-[95%]">
+
+<div className=" font-bold text-secondaryColor mt-8">Description</div>
+      <p className="text-sm text-bodyColor mt-5 mb-8">{ state.description}</p>
+
+</div>
+      
 
       <div className="h-[100px]"></div>
     </div>
