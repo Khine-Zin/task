@@ -111,7 +111,7 @@ const Task= () => {
 
       const taskData = taskResponse.data?.data.currentDatas[0];
 
-      setDataContent(taskData?.content?.[0]?.tasks);
+      setDataContent(taskData?.content);
       setDataHeadline(taskData?.headline);
       settotal(taskResponse.data?.data?.totalPages)
      
@@ -125,6 +125,7 @@ const Task= () => {
       setLoading(false);
     }
   };
+  console.log(datacontent)
   const fetchBrand = async () => {
     setLoading(true);
     const token = localStorage.getItem("token");
@@ -313,8 +314,8 @@ const handleCreateUserSubmit = async () => {
   const token = localStorage.getItem("token");
 
   const endpoints = {
-    headline: `${SERVER_URL}/content-calendar/download-headline`,
-    content: `${SERVER_URL}/content-calendar/download-content`,
+    headline: `${SERVER_URL}/content-calendar/download-headline-content-calendar`,
+    content: `${SERVER_URL}/content-calendar/download-content-content-calendar`,
     calendar: `${SERVER_URL}/content-calendar/download-content-calendar`,
   };
 
@@ -548,6 +549,68 @@ const handleCreateUserSubmit = async () => {
       </TableRow>
     </TableHead>
     <TableBody>
+  {datacontent === undefined || datacontent.length===0 ? (
+    <StyledTableRow>
+      <StyledTableCell colSpan={5} align="center">
+        There is no content  task
+      </StyledTableCell>
+    </StyledTableRow>
+  ) : (
+    datacontent?.map((row) =>
+      row?.tasks.map((item, index) => (
+        <StyledTableRow key={index}>
+            <StyledTableCell align="left">post - {item?.post}</StyledTableCell>
+          <StyledTableCell align="left">{item?.task?.brand?.name}</StyledTableCell>
+          <StyledTableCell
+            align="center"
+            sx={{ display: 'flex', justifyContent: 'center', gap: 1 }}
+          >
+            <Button
+              onClick={() => handleClick("confirm", item,"headline")}
+              variant="outlined"
+              sx={{
+                textTransform: 'none',
+                backgroundColor: 'green',
+                color: 'white',
+                padding: '2px 4px',
+                fontSize: '0.75rem',
+              }}
+            >
+              Confirm
+            </Button>
+
+            <Button
+              onClick={() => handleClick("revise", item,"content")}
+              variant="outlined"
+              sx={{
+                textTransform: 'none',
+                backgroundColor: 'red',
+                color: 'white',
+                padding: '2px 4px',
+                fontSize: '0.75rem',
+              }}
+            >
+              Revise
+            </Button>
+
+            <Button
+              onClick={() => navigate("/calendar/headline", { state: item })}
+              sx={{
+                textTransform: 'none',
+                backgroundColor: 'orange',
+                color: 'white',
+                padding: '2px 4px',
+                fontSize: '0.75rem',
+              }}
+            >
+              Details
+            </Button>
+          </StyledTableCell>
+        </StyledTableRow>
+      ))
+    )
+  )}
+</TableBody> <TableBody>
       {datacontent ===undefined ? (
          <StyledTableRow>
          <StyledTableCell colSpan={5} align="center">
