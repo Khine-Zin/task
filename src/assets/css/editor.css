@@ -1,0 +1,24 @@
+h1 {
+    font-size: 2em; /* Adjust size for Heading 1 */
+    font-weight: bold; /* Optional */
+}
+
+h2 {
+    font-size: 1.5em; /* Adjust size for Heading 2 */
+}
+
+h3 {
+    font-size: 1.17em; /* Adjust size for Heading 3 */
+}
+
+ul, ol {
+    margin-left: 20px; /* Indent lists */
+}
+
+.ck-powered-by-balloon {
+    display: none !important; /* Use !important to ensure these styles take precedence */
+}
+
+.ck.ck-balloon-panel.ck-balloon-panel_position_border-side_left.ck-balloon-panel_visible.ck-evaluation-badge-balloon {
+    display: none !important;
+}

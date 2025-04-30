@@ -1,0 +1,78 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Firefox */
+.hide-scrollbar::-webkit-scrollbar {
+  width: 8px; /* Adjust scrollbar width */
+}
+
+.hide-scrollbar::-webkit-scrollbar-thumb {
+  background-color: transparent; /* Hides the thumb */
+}
+
+.hide-scrollbar::-webkit-scrollbar-track {
+  background-color: transparent; /* Hides the track (background) */
+}
+
+.hide-scrollbar {
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: transparent transparent; /* Firefox */
+}
+
+
+
+
+/* 1. Remove native appearance and default styles from the select */
+select {
+    background-color: #f9fafb;
+    border: 1px solid #d1d5db;
+    padding: 8px;
+    font-size: 14px;
+    color: #333;
+    width: 100%;
+    border-radius: 8px;
+    outline: none; /* Remove focus outline */
+    -webkit-appearance: none; /* Remove default appearance in WebKit browsers (Chrome, Safari) */
+    -moz-appearance: none;    /* Remove default appearance in Firefox */
+    appearance: none;         /* Remove default appearance in all browsers */
+  }
+  
+  /* 2. Remove blue outline on focus (no blue border when focused) */
+  select:focus {
+    outline: none !important;  /* Force removal of the blue focus outline */
+    border-color: #d1d5db;     /* Keep the border color the same */
+  }
+  
+  /* 3. Remove any background color change or blue effect on hover */
+  select:hover {
+    background-color: #f9fafb !important; /* Ensure no background change on hover */
+  }
+  
+  /* 4. Remove default background color and text color when the option is selected */
+  select option:checked {
+    background-color: transparent !important; /* Remove blue background for selected options */
+    color: inherit; /* Keep the text color consistent */
+  }
+  
+  /* 5. Remove background color when hovering over options */
+  option:hover {
+    background-color: transparent !important; /* Ensure no hover background effect */
+    color: inherit; /* Keep the text color consistent */
+  }
+  
+  /* 6. Add a fallback for the option selected state if needed */
+  select option:checked {
+    background-color: transparent;  /* Ensure no background color change for checked options */
+    color: inherit; /* Inherit text color to avoid the blue text selection */
+  }
+  
+  
+  .custom-image {
+    width: 00px; /* or any size you want */
+    height: auto; /* keeps the aspect ratio */
+  }
+  .css-1b1fjlj-MuiFormControl-root-MuiTextField-root {
+    width: 100% !important;
+  
+  }
