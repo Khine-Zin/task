@@ -549,24 +549,24 @@ const handleCreateUserSubmit = async () => {
       </TableRow>
     </TableHead>
     <TableBody>
-  {datacontent === undefined || datacontent.length===0 ? (
+  {datacontent === undefined || datacontent.length === 0 ? (
     <StyledTableRow>
       <StyledTableCell colSpan={5} align="center">
-        There is no content  task
+        There is no content task
       </StyledTableCell>
     </StyledTableRow>
   ) : (
-    datacontent?.map((row) =>
+    datacontent?.flatMap((row) =>
       row?.tasks.map((item, index) => (
-        <StyledTableRow key={index}>
-            <StyledTableCell align="left">post - {item?.post}</StyledTableCell>
+        <StyledTableRow key={item._id || index}>
+          <StyledTableCell align="left">post - {item?.post}</StyledTableCell>
           <StyledTableCell align="left">{item?.task?.brand?.name}</StyledTableCell>
           <StyledTableCell
             align="center"
             sx={{ display: 'flex', justifyContent: 'center', gap: 1 }}
           >
             <Button
-              onClick={() => handleClick("confirm", item,"headline")}
+              onClick={() => handleClick("confirm", item, "content")}
               variant="outlined"
               sx={{
                 textTransform: 'none',
@@ -580,7 +580,7 @@ const handleCreateUserSubmit = async () => {
             </Button>
 
             <Button
-              onClick={() => handleClick("revise", item,"content")}
+              onClick={() => handleClick("revise", item, "content")}
               variant="outlined"
               sx={{
                 textTransform: 'none',
@@ -594,7 +594,7 @@ const handleCreateUserSubmit = async () => {
             </Button>
 
             <Button
-              onClick={() => navigate("/calendar/headline", { state: item })}
+              onClick={() => navigate("/calendar/content", { state: item })}
               sx={{
                 textTransform: 'none',
                 backgroundColor: 'orange',
@@ -610,65 +610,8 @@ const handleCreateUserSubmit = async () => {
       ))
     )
   )}
-</TableBody> <TableBody>
-      {datacontent ===undefined ? (
-         <StyledTableRow>
-         <StyledTableCell colSpan={5} align="center">
-           There is no content task
-         </StyledTableCell>
-       </StyledTableRow>
-      ):datacontent?.map((row) => (
-          <StyledTableRow key={row._id}>
-               <StyledTableCell align="left">post -{row?.post}</StyledTableCell>
-            <StyledTableCell align="left">{row?.task?.brand?.name}</StyledTableCell>
-            <StyledTableCell align="center" sx={{ display: 'flex', justifyContent: 'center', gap: 1 }}> {/* Added 'center' and 'justifyContent' */}
-              <Button
-               onClick={() => handleClick("confirm",row,"content")}
-                variant="outlined"
-                sx={{
-                  textTransform: 'none',
-                  backgroundColor: 'green',
-                  color: 'white',
-                  padding: '2px 4px',
-                  fontSize: '0.75rem',
-                }}
-              >
-                Confirm
-              </Button>
+</TableBody>
 
-              <Button
-                 onClick={() => handleClick("revise",row,"headline")}
-                variant="outlined"
-                sx={{
-                  textTransform: 'none',
-                  backgroundColor: 'red',
-                  color: 'white',
-                  padding: '2px 4px',
-                  fontSize: '0.75rem',
-                }}
-              >
-                Revise
-              </Button>
-
-              <Button
-                onClick={(e) => {
-                 
-                  navigate("/calendar/content", { state: row });
-                }}
-                sx={{
-                  textTransform: 'none',
-                  backgroundColor: 'orange',
-                  color: 'white',
-                  padding: '2px 4px',
-                  fontSize: '0.75rem',
-                }}
-              >
-                Details
-              </Button>
-            </StyledTableCell>
-          </StyledTableRow>
-        ))}
-    </TableBody>
   </Table>
 </TableContainer>
 
