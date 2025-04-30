@@ -31,14 +31,15 @@ const handleSubmit = async () => {
       `${SERVER_URL}/media-buyer/create-media-buyer/${state._id}`,
       {
         "budget": data?.budget,
-        "paid_reach": 5000,
-        "organic_reach": 3000,
-        "reactions": 4000,
+        "paid_reach": data?.paid,
+        "organic_reach": data?.organic,
+        "reactions": data?.reaction,
         "comments": 5000,
-        "shares": 1000,
+        "shares": data?.total,
         "page_visitor": 10000,
         "page_new_follower": 1000000,
-        "page_total_reach": 150000
+        "page_total_reach": 150000,
+        "ads":data?.ads,
     },
       {
         headers: {
@@ -143,7 +144,7 @@ const handleSubmit = async () => {
               />
 
               <TextField
-                label="Paid Reach"
+                label="Reactions"
                 value={data.paid || ""}
                 onChange={(e) => setData({ ...data, paid: e.target.value })}
                 fullWidth
@@ -171,19 +172,19 @@ const handleSubmit = async () => {
               />
 
               <TextField
-                label="Comments"
-                value={data.comment || ""}
+                label="ads"
+                value={data.ads || ""}
                 onChange={(e) =>
-                  setData({ ...data, comment: e.target.value })
+                  setData({ ...data, ads: e.target.value })
                 }
                 fullWidth
                 margin="normal"
               />
 
               <TextField
-                label="Shares"
-                value={data.share || ""}
-                onChange={(e) => setData({ ...data, share: e.target.value })}
+                label="Total Reach"
+                value={data.total || ""}
+                onChange={(e) => setData({ ...data, total: e.target.value })}
                 fullWidth
                 margin="normal"
               />
@@ -210,53 +211,63 @@ const handleSubmit = async () => {
 
       {/* Mobile View Inputs */}
       <div className="mt-10 flex gap-3 w-full lg:hidden">
-        <div className="w-full">
-          <TextField
-            label="Budget"
-            value={data.budget || ""}
-            onChange={(e) => setData({ ...data, budget: e.target.value })}
-            fullWidth
-            margin="normal"
-          />
-          <TextField
-            label="Paid Reach"
-            value={data.paid || ""}
-            onChange={(e) => setData({ ...data, paid: e.target.value })}
-            fullWidth
-            margin="normal"
-          />
-          <TextField
-            label="Organic Reach"
-            value={data.organic || ""}
-            onChange={(e) => setData({ ...data, organic: e.target.value })}
-            fullWidth
-            margin="normal"
-          />
-        </div>
+      <div className="w-full">
+              <TextField
+                label="Budget"
+                value={data.budget || ""}
+                onChange={(e) => setData({ ...data, budget: e.target.value })}
+                fullWidth
+                margin="normal"
+              />
 
-        <div className="w-full">
-          <TextField
-            label="Reactions"
-            value={data.reaction || ""}
-            onChange={(e) => setData({ ...data, reaction: e.target.value })}
-            fullWidth
-            margin="normal"
-          />
-          <TextField
-            label="Comments"
-            value={data.comment || ""}
-            onChange={(e) => setData({ ...data, comment: e.target.value })}
-            fullWidth
-            margin="normal"
-          />
-          <TextField
-            label="Shares"
-            value={data.share || ""}
-            onChange={(e) => setData({ ...data, share: e.target.value })}
-            fullWidth
-            margin="normal"
-          />
-        </div>
+              <TextField
+                label="Reactions"
+                value={data.paid || ""}
+                onChange={(e) => setData({ ...data, paid: e.target.value })}
+                fullWidth
+                margin="normal"
+              />
+
+              <TextField
+                label="Organic Reach"
+                value={data.organic || ""}
+                onChange={(e) => setData({ ...data, organic: e.target.value })}
+                fullWidth
+                margin="normal"
+              />
+            </div>
+
+            <div className="w-full">
+              <TextField
+                label="Reactions"
+                value={data.reaction || ""}
+                onChange={(e) =>
+                  setData({ ...data, reaction: e.target.value })
+                }
+                fullWidth
+                margin="normal"
+              />
+
+              <TextField
+                label="ads"
+                value={data.ads || ""}
+                onChange={(e) =>
+                  setData({ ...data, ads: e.target.value })
+                }
+                fullWidth
+                margin="normal"
+              />
+
+              <TextField
+                label="Total Reach"
+                value={data.total || ""}
+                onChange={(e) => setData({ ...data, total: e.target.value })}
+                fullWidth
+                margin="normal"
+              />
+
+            
+            </div>
       </div>
 
       <div className="flex justify-end mt-5 lg:hidden">

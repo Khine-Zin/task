@@ -1217,9 +1217,6 @@ label="Select Media"
       </Box>
     </Box>
 
-   </>
-    )
-  }
     <FormControl fullWidth margin="normal">
       <InputLabel id="role-label">Select Category</InputLabel>
       <Select
@@ -1243,6 +1240,11 @@ label="Select Category"
 </Select>
 
     </FormControl>
+
+   </>
+    )
+  }
+  
 
 
         <TextField

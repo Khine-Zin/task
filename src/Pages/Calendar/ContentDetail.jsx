@@ -106,6 +106,15 @@ console.log(state)
               <p className="text-sm text-bodyColor mt-5 mb-8" dangerouslySetInnerHTML={{ __html:state?.content || "<p>No content available</p>" }}/></>
             )
            }
+
+{
+            state?.content && (
+             <>
+              <div className=" font-bold text-secondaryColor mt-8">Design Brief</div>
+              <p className="text-sm text-bodyColor mt-5 mb-8">{state?.design_brief}</p>
+              </>
+            )
+           }
     
       </div>
 
