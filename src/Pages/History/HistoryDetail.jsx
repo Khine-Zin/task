@@ -15,6 +15,7 @@ const HistoryDetail = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const { state } = location || {};
+    console.log(state)
      const [bannerImage, setBannerImage] = React.useState(state?.design);
     const [headline, setHeadline] = useState(state?.task?.headline);
       const [content, setContent] = useState(state?.content);
@@ -143,7 +144,7 @@ const HistoryDetail = () => {
                       ) : (
                         <FaInstagram />
                       )}
-                      <span>{state?.task?.soical_media}</span>
+                      <span>{state?.task?.social_media}</span>
                     </div>
                   ),
                 },
@@ -185,7 +186,7 @@ const HistoryDetail = () => {
           <Box mt={2}>
       <FileUpload setBannerImage={setBannerImage} image={bannerImage} />
     </Box>
-       <div className="mt-5 flex gap-3 w-full hidden lg:block">
+       <div className="mt-5  w-full ">
                  <div className="w-full">
                    <TextField
                      label="Budget"
