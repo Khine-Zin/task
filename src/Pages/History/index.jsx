@@ -19,7 +19,7 @@ import Button from '@mui/material/Button';
 
 import toast, { Toaster } from 'react-hot-toast';  // Import toast and Toaster
 
-import { FormControl, InputLabel, MenuItem, Select, useMediaQuery } from '@mui/material';
+import { Box, FormControl, InputLabel, MenuItem, Select, useMediaQuery } from '@mui/material';
 import axios from 'axios';
 import { SERVER_URL } from '../../api/url';
 import userStore from '../../store/userStore';
@@ -27,6 +27,7 @@ import { useNavigate } from 'react-router-dom';
 import { HiChevronLeft, HiChevronRight } from 'react-icons/hi';
 import { Info, Storefront, UploadFile } from '@mui/icons-material';
 import FileUpload from '../../components/FileUpload';
+import Datepicker from '../../components/DatePicker';
 
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
@@ -63,10 +64,12 @@ const History = () => {
   const [loading,setLoading]=React.useState(false)
   const [Create,setCreate]=React.useState(false)
     const navigate = useNavigate();
-
+const [startDate,setStartDate]=React.useState("")
+const [endDate,setEndDate]=React.useState("")
   const [data, setData] = React.useState([]);
   const [pager, setPager] = React.useState({ currentPage: 1, pageSize: 9 });
   const debounceTimer = React.useRef(null);
+    const [brand,setBrand]=React.useState([])
   const [bannerImage, setBannerImage] = React.useState("");
   const formatDate = (dateString) => {
     const options = { day: '2-digit', month: 'short', year: 'numeric' };
@@ -78,7 +81,7 @@ const History = () => {
     setLoading(true);
     const token = localStorage.getItem("token");
     try {
-      const response = await axios.get(`${SERVER_URL}/history/view-history?page=${pager.currentPage}&limit=${pager.pageSize}&status=confirm&search=${searchQuery}`, {
+      const response = await axios.get(`${SERVER_URL}/history/view-history?page=${pager.currentPage}&limit=${pager.pageSize}&status=confirm&brandId=${searchQuery}`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: token,
@@ -124,13 +127,38 @@ const History = () => {
     }
   };
 
+  const fetchBrand = async () => {
+    setLoading(true);
+    const token = localStorage.getItem("token");
 
+    try {
+     
+      const brandResponse = await axios.get(`${SERVER_URL}/brand/view-brand?page=${pager.currentPage}&limit=${pager.pageSize}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: token,
+        },
+      });
+      setBrand(brandResponse.data.data?.currentDatas);
+
+
+    } catch (err) {
+      if (!errorShown) { // Show error only if it hasn't been shown yet
+        handleError(err);
+        setErrorShown(true); // Mark that the error has been shown
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
   
   
    const handleSearchChange = (event) => {
     setSearchQuery(event.target.value);
   };
-
+  React.useEffect(() => {
+   fetchBrand()
+    }, []); 
 
   React.useEffect(() => {
  fetchData()
@@ -154,8 +182,50 @@ console.log(data)
       <div className='hidden lg:block'>
       <div className='flex justify-between gap-3 items-center mb-5 mt-[100px]'>
       <h2 className="text-xl text-gray-700">Total: {loading ? "0":data.total        }</h2>
-      <div className="relative">
-            <form className="flex items-center max-w-sm">
+      <div className="relative flex gap-5">
+          <FormControl sx={{ width: 200 }} margin="normal">
+  <InputLabel id="role-label">Select Brand</InputLabel>
+  <Select
+    labelId="role-label"
+    id="role"
+    value={searchQuery}
+    onChange={(e) => setSearchQuery(e.target.value)}
+    label="Select Brand"
+     
+  >
+    {brand.length === 0 ? (
+      <MenuItem disabled>No option</MenuItem>
+    ) : (
+      brand.map((user) => (
+        <MenuItem key={user._id} value={user._id}>
+          {user.name}
+        </MenuItem>
+      ))
+    )}
+  </Select>
+</FormControl>
+  <Box display="flex" gap={2} mt={2}>
+      {/* Start Date */}
+      <Box flex={1}>
+       
+        <Datepicker
+          value={startDate}
+          onChange={(e) => setStartDate(e.target.value)}
+          name="startDate"
+        />
+      </Box>
+    
+      {/* End Date */}
+      <Box flex={1}>
+      
+        <Datepicker
+          value={endDate}
+          onChange={(e) => setEndDate(e.target.value)}
+          name="endDate"
+        />
+      </Box>
+    </Box>
+            {/* <form className="flex items-center max-w-sm">
               <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
                 <svg className="w-4 h-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
                   <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
@@ -169,7 +239,7 @@ console.log(data)
                 onChange={handleSearchChange}
                 required
               />
-            </form>
+            </form> */}
           </div>
       </div>
       </div>
@@ -190,7 +260,7 @@ console.log(data)
             </TableRow>
           </TableHead>
           <TableBody>
-            {data?.currentDatas?.length===0? (
+            {data?.currentDatas?.[0]?.content?.length===0? (
                <StyledTableRow>
                <StyledTableCell colSpan={5} align="center">
                  There is no data found
