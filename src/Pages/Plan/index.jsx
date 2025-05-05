@@ -16,6 +16,7 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import Button from '@mui/material/Button';
+import Tooltip from '@mui/material/Tooltip';
 
 import toast, { Toaster } from 'react-hot-toast';  // Import toast and Toaster
 
@@ -31,6 +32,7 @@ import { FiUploadCloud } from 'react-icons/fi';
 import { RiUploadCloud2Fill } from 'react-icons/ri';
 import { MdCloudUpload } from 'react-icons/md';
 import Datepicker from '../../components/DatePicker';
+import Monthpicker from '../../components/Monthpicker';
 
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
@@ -62,8 +64,8 @@ const Plan = () => {
  const setUser = userStore((state) => state.setUser);
   const [openCreateDialog, setOpenCreateDialog] = React.useState(false);
   const [newUser, setNewUser] = React.useState({ name: '', email: '', role: '', password: '' });
-
-
+const [month,setMonth]=React.useState("")
+const [brand,setBrand]=React.useState([])
   const [loading,setLoading]=React.useState(false)
   const [Create,setCreate]=React.useState(false)
     const navigate = useNavigate();
@@ -232,28 +234,81 @@ const Plan = () => {
 
   };
 
+    const fetchBrand = async () => {
+      setLoading(true);
+      const token = localStorage.getItem("token");
+  
+      try {
+       
+        const brandResponse = await axios.get(`${SERVER_URL}/brand/view-brand?page=${pager.currentPage}&limit=${pager.pageSize}`, {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: token,
+          },
+        });
+        setBrand(brandResponse.data.data?.currentDatas);
+  
+  
+      } catch (err) {
+        if (!errorShown) { // Show error only if it hasn't been shown yet
+          handleError(err);
+          setErrorShown(true); // Mark that the error has been shown
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+     React.useEffect(() => {
+          const timeoutId = setTimeout(() => {
+            fetchBrand();
+          }, 1000); // Set the delay in milliseconds (e.g., 1000ms = 1 second)
+        
+          return () => clearTimeout(timeoutId); // Cleanup the timeout on unmount
+        }, []); // Empty dependency array ensures it runs only once
+
 
   return (
     <div className="mt-24 lg:mx-4 mx-2">
       <div className='hidden lg:block'>
       <div className='flex justify-between gap-3 items-center mb-5 mt-[100px]'>
       <h2 className="text-xl text-gray-700">Total: {loading ? "0":data.total        }</h2>
-      <div className="relative">
-            <form className="flex items-center max-w-sm">
-              <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
-                <svg className="w-4 h-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-                  <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
-                </svg>
-              </div>
-              <input
-                type="text"
-                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5"
-                placeholder="Search..."
-                value={searchQuery}
-                onChange={handleSearchChange}
-                required
-              />
-            </form>
+      <div className="relative flex gap-5">
+          <FormControl sx={{ width: 200 }} margin="normal">
+  <InputLabel id="role-label">Select Brand</InputLabel>
+  <Select
+    labelId="role-label"
+    id="role"
+    value={searchQuery}
+    onChange={(e) => setSearchQuery(e.target.value)}
+    label="Select Brand"
+     
+  >
+    {brand.length === 0 ? (
+      <MenuItem disabled>No option</MenuItem>
+    ) : (
+      brand.map((user) => (
+        <MenuItem key={user._id} value={user._id}>
+          {user.name}
+        </MenuItem>
+      ))
+    )}
+  </Select>
+</FormControl>
+  <Box display="flex" gap={2} mt={2}>
+      {/* Start Date */}
+      <Box flex={1}>
+       
+        <Monthpicker
+          value={month}
+          onChange={(e) => setMonth(e.target.value)}
+          name="month"
+        />
+      </Box>
+    
+    
+    </Box>
+        
           </div>
       </div>
       </div>
@@ -267,6 +322,7 @@ const Plan = () => {
             <TableRow>
             <StyledTableCell align="left">Post</StyledTableCell>
             <StyledTableCell align="left">Brand Name</StyledTableCell>
+            <StyledTableCell align="left">Month</StyledTableCell>
             <StyledTableCell align="left">Action</StyledTableCell>
             </TableRow>
           </TableHead>
@@ -287,13 +343,20 @@ const Plan = () => {
                <StyledTableCell align="left">post - {taskItem?.post}</StyledTableCell>
               <StyledTableCell align="left">{task?.brand?.name}</StyledTableCell>
               <StyledTableCell align="left">
+  {task?.month ? new Date(task.month).toLocaleString('en-US', {
+    month: 'long',
+    year: 'numeric',
+  }) : ''}
+</StyledTableCell>
+              <StyledTableCell align="left">
                 <IconButton
                   onClick={() => handleCreateAccountClick(taskItem?._id)}
                   aria-label="update"
                 >
                   <MdCloudUpload />
                 </IconButton>
-                <IconButton
+           <Tooltip title={task?.headline ? task?.headline:"No headline" } >
+           <IconButton
                   onClick={() =>
                     navigate("/plan/detail", { state: taskItem })
                   }
@@ -301,6 +364,7 @@ const Plan = () => {
                 >
                   <Info />
                 </IconButton>
+           </Tooltip>
               </StyledTableCell>
             </StyledTableRow>
           );

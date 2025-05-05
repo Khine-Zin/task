@@ -32,6 +32,8 @@ import { CheckCircle } from '@mui/icons-material';
 import { useState } from 'react';
 import Datepicker from '../../components/DatePicker';
 import Monthpicker from '../../components/Monthpicker';
+import Tooltip from '@mui/material/Tooltip';
+
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -54,7 +56,7 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 
 
 
-const Task= () => {
+const Content= () => {
 
 
   const [searchQuery, setSearchQuery] = React.useState("");
@@ -78,7 +80,7 @@ const Task= () => {
   const [Content,setContent]=React.useState([])
   const [brandview,setBrandView]=React.useState("")
   const role = localStorage.getItem("userRole");
-  const [type, setType] = React.useState("headline");
+  const [type, setType] = React.useState("content");
   const [month,setMonth]=useState("")
   const formatDate = (dateString) => {
     const options = { day: '2-digit', month: 'short', year: 'numeric' };
@@ -87,7 +89,7 @@ const Task= () => {
   };
 
 
-
+console.log(type)
 
   
   const fetchCategory = async () => {
@@ -340,7 +342,7 @@ const Task= () => {
 
   const handleEdit = (user,typetask) => {
     setEditUser(user);
-    setType(typetask)
+    setType("content")
     setOpenEditDialog(true);
   };
 
@@ -420,9 +422,7 @@ setOpenDialog(false)
   }
   };
 
-  const handleTypeChange = (e) => {
-    setType(e.target.value);
-  };
+ 
 
   const cancelDelete = () => {
     setOpenDialog(false);
@@ -431,7 +431,7 @@ setOpenDialog(false)
   const handleCreateAccountClick = () => {
     setOpenCreateDialog(true);
     setNewUser("")
-    setType("headline")
+    setType("content")
   };
 console.log(newUser)
 const filteredBrand = Content.flatMap(item =>
@@ -667,8 +667,8 @@ console.log("brand",filteredBrand)
     <div className="mt-24 lg:mx-4 mx-2">
        <div className='hidden lg:block'>
      <div className='flex justify-between gap-3 items-center mb-5 mt-[100px]'>
-     <h2 className="text-xl text-gray-700">Total Headline: {loading ? "0":total?.total?.headline       }</h2>
-        {
+     <h2 className="text-xl text-gray-700">Total Content: {loading ? "0":total?.total?.content       }</h2>
+     {
           role ==="admin" && (
             <div className='flex gap-3 items-center'>
      <div className="relative flex gap-5">
@@ -732,7 +732,7 @@ console.log("brand",filteredBrand)
       </div>
      </div>
      <div className='flex justify-between gap-3 items-center mb-5 mt-[100px] lg:hidden'>
-     <h2 className="text-xl text-gray-700">Total Headline: {loading ? "0":total?.total?.headline       }</h2>
+     <h2 className="text-xl text-gray-700">Total Content: {loading ? "0":total?.total?.content       }</h2>
         <div className='flex gap-3 items-center'>
           
           {
@@ -756,6 +756,9 @@ console.log("brand",filteredBrand)
           }
         </div>
       </div>
+
+
+
       <TableContainer component={Paper}>
       <Table sx={{ minWidth: role === "admin" ? 600 : 200 }} aria-label="customized table">
         <TableHead>
@@ -772,27 +775,27 @@ console.log("brand",filteredBrand)
           </TableRow>
         </TableHead>
         <TableBody>
-  {dataHeadline?.length === 0 || dataHeadline === undefined ? (
+  {datacontent?.length === 0 || dataHeadline === undefined ? (
     <StyledTableRow>
       <StyledTableCell colSpan={role === "admin" ? 6 : 5} align="center">
-        There is no headline task
+        There is no content task
       </StyledTableCell>
     </StyledTableRow>
   ) : (
-   dataHeadline?.map((row, index) =>
-      row?.tasks?.map((item, subIndex) => (
+    datacontent.map((row, index) =>
+      row.tasks.map((item, subIndex) => (
         <TableRow key={`${index}-${subIndex}`}>
           <TableCell align="left">post - {item?.post}</TableCell>
-          <TableCell align="left">{item?.user?.name}</TableCell>
-          <TableCell align="left">{item?.brand?.name}</TableCell>
-          <TableCell align="left">{formatDate(item?.deadline)}</TableCell>
+          <TableCell align="left">{item?.task?.user?.name}</TableCell>
+          <TableCell align="left">{row?._id?.brand}</TableCell>
+          <TableCell align="left">{formatDate(item?.task?.deadline)}</TableCell>
           
           <TableCell align="left">{`${dayjs().month(row?._id?.month - 1).format("MMMM")} ${row?._id?.year}`}</TableCell>
           <TableCell align="left">
             <IconButton
               onClick={(e) => {
                 e.stopPropagation();
-                handleEdit(item, "headline");
+                handleEdit(item, "content");
               }}
               aria-label="edit"
             >
@@ -808,15 +811,17 @@ console.log("brand",filteredBrand)
             >
               <DeleteIcon />
             </IconButton>
-            <IconButton
+            <Tooltip title={item?.task?.headline ? item?.task?.headline:"No headline" } >
+           <IconButton
               onClick={(e) => {
                 e.stopPropagation();
-                navigate("/task/detail", { state: item });
+                navigate("/detail", { state: item });
               }}
               aria-label="detail"
             >
               <InfoIcon />
             </IconButton>
+           </Tooltip>
           </TableCell>
         </TableRow>
       ))
@@ -829,16 +834,14 @@ console.log("brand",filteredBrand)
 
 
 
-
-
    <div className="flex gap-5 justify-end items-center mt-4">
-        <p>Headline Page {pager.currentPage} of {total?.totalPages?.headline}</p>
-      
+       
+        <p>Content Page {pager.currentPage} of {total?.totalPages?.content}</p>
         <div className="flex gap-2">
           <button disabled={pager.currentPage === 1} onClick={() => handlePageChange(-1)} className="p-2 bg-gray-200 rounded-l hover:bg-gray-300">
             <HiChevronLeft />
           </button>
-          <button disabled={pager.currentPage === total?.totalPages?.headline } onClick={() => handlePageChange(1)} className="p-2 bg-gray-200 rounded-r hover:bg-gray-300">
+          <button disabled={pager.currentPage ===  total?.totalPages?.content} onClick={() => handlePageChange(1)} className="p-2 bg-gray-200 rounded-r hover:bg-gray-300">
             <HiChevronRight />
           </button>
         </div>
@@ -864,34 +867,8 @@ console.log("brand",filteredBrand)
       <Dialog open={openCreateDialog} onClose={() => setOpenCreateDialog(false)} fullWidth maxWidth="sm">
         <DialogTitle>Create New Task</DialogTitle>
         <DialogContent style={{ width: '100%' }}>
-      
- {
-  type==="headline" && (
-    <FormControl fullWidth margin="normal">
-    <InputLabel id="role-label">Select Content Writer</InputLabel>
-    <Select
-            labelId="role-label"
-            id="role"
-            value={newUser.user}
-            onChange={(e) => setNewUser({ ...newUser, user: e.target.value })}
-            label="Select Content Writer"
-          >
-           
-              {userinfo.length ===0 ?(
-                  <MenuItem disabled>No option </MenuItem>
-              ): userinfo?.map((user) => (
-         
-          user?.role !=="admin" && (
-            <MenuItem key={user._id} value={user._id}>
-            {user.name}
-          </MenuItem>
-          )
-         
-        ))}
-          </Select>
-  </FormControl>
-  )
- }
+     
+
         
       <FormControl fullWidth margin="normal">
         <InputLabel id="role-label">Select Brand</InputLabel>
@@ -913,53 +890,11 @@ console.log("brand",filteredBrand)
               </Select>
       </FormControl>
 
-     
-           {
-            type==="headline" && (
-              <>
-              <FormControl fullWidth margin="normal">
-              <InputLabel id="role-label">Select Media</InputLabel>
-              <Select
-                labelId="role-label"
-                id="role"
-                value={newUser.soical_media}
-                onChange={(e) => setNewUser({ ...newUser, soical_media: e.target.value })}
-                label="Select Media"
-              >
-                <MenuItem value="tiktok">Tiktok</MenuItem>
-                <MenuItem value="facebook">Facebook</MenuItem>
-               
-                <MenuItem value="instagram">Instagram</MenuItem>
-              </Select>
-            </FormControl>
-              <TextField
-              label="Quantity"
-              value={newUser.quantity}
-              onChange={(e) => setNewUser({ ...newUser, quantity: e.target.value })}
-              fullWidth
-              margin='normal'
-              type="number"
-            />
-                 <FormControl fullWidth margin="normal">
-        <InputLabel id="role-label">Select Category</InputLabel>
-        <Select
-                labelId="role-label"
-                id="role"
-                value={newUser.category}
-                onChange={(e) => setNewUser({ ...newUser, category: e.target.value })}
-                label="Select Category"
-              >
-               
-                  {category.length ===0 ? (
-                       <MenuItem disabled>No option </MenuItem>
-                  ):category?.map((user) => (
-              <MenuItem key={user._id} value={user._id}>
-                {user.name}
-              </MenuItem>
-            ))}
-              </Select>
-      </FormControl>
-                    <Box display="flex" gap={2} mt={2}>
+       
+
+      {
+    type==="content" &&  (
+      <Box display="flex" gap={2} mt={2}>
       {/* Start Date */}
       <Box flex={1}>
         <InputLabel shrink>Month</InputLabel>
@@ -970,21 +905,36 @@ console.log("brand",filteredBrand)
         />
       </Box>
     
-      {/* End Date */}
-      <Box flex={1}>
-        <InputLabel shrink>Deadline</InputLabel>
-        <Datepicker
-          value={newUser.endDate}
-          onChange={(e) => setNewUser({ ...newUser, deadline: e.target.value })}
-          name="endDate"
-        />
-      </Box>
+   
     </Box>
-              </>
-            )
-           }
-       
+    )
+   }
 
+{
+  newUser.month && type === "content" && (
+    <div className="my-5">
+      {filteredBrand.length === 0 ? (
+        <div>There is no post</div>
+      ) : (
+        filteredBrand.map((post) => (
+          <div key={post._id || ""}>
+            <RadioGroup
+              row
+              value={newUser.task || ""} // Track the selected task's ID
+              onChange={(e) => setNewUser({ ...newUser, task: e.target.value })} // Update task selection
+            >
+              <FormControlLabel
+                value={post._id} // Post ID as value
+                control={<Radio />}
+                label={`Post: ${post.post}`} // Dynamic label
+              />
+            </RadioGroup>
+          </div>
+        ))
+      )}
+    </div>
+  )
+}
 
 
  <TextField
@@ -1169,4 +1119,4 @@ label="Select Category"
   );
 };
 
-export default Task;
+export default Content;

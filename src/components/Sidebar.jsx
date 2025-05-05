@@ -1,5 +1,5 @@
-import React from "react";
-import { HiOutlineViewGrid, HiUserAdd,HiOutlineBriefcase, HiPencilAlt, HiClock, HiOutlineClock, HiDocumentDownload, HiOutlineDocumentText  } from 'react-icons/hi';
+import React, { useState } from "react";
+import { HiOutlineViewGrid, HiUserAdd,HiOutlineBriefcase, HiPencilAlt, HiClock, HiOutlineClock, HiDocumentDownload, HiOutlineDocumentText, HiChevronRight  } from 'react-icons/hi';
 import { Link, useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { HiDocumentCheck, HiDocumentText, HiMiniComputerDesktop, HiOutlineDocumentCheck } from "react-icons/hi2";
@@ -12,13 +12,15 @@ import { MdOutlineWorkHistory } from "react-icons/md";
 const SideBar = ({ isOpen, setIsOpen,toggleHidden }) => {
   const Location = useLocation();
   const isTabletOrSmaller = useMediaQuery('(max-width: 420px)');
+  const [openIndex, setOpenIndex] = useState(null); // Track which sub-item is open
 
-  const handleToggle = () => {
-   
-     setIsOpen(!isOpen)
-   
-   
-  };
+  const handleToggle = (index) => {
+ 
+    setOpenIndex(openIndex === index ? null : index); // Toggle the open index
+  setIsOpen(true)
+
+
+};
 
   const handleClick=()=>{
       if(isTabletOrSmaller){
@@ -131,7 +133,7 @@ const SideBar = ({ isOpen, setIsOpen,toggleHidden }) => {
               </motion.div>
             </Link>
           </motion.div>
-          <motion.div whileHover={{ x: 5 }}  onClick={handleClick}>
+          {/* <motion.div whileHover={{ x: 5 }}  onClick={handleClick}>
             <Link to="/task">
               <motion.div
                 className={`flex items-center p-2 gap-3 my-2 text-lg rounded-lg transition-colors mb-2  ${Location.pathname==="/task" ||Location.pathname==="/detail" || Location.pathname==="/task/detail"? "border border-white" :""}`}
@@ -154,7 +156,84 @@ const SideBar = ({ isOpen, setIsOpen,toggleHidden }) => {
                 </div>
               </motion.div>
             </Link>
-          </motion.div>
+          </motion.div> */}
+          <motion.div  whileHover={{ x: 5 }} >
+           
+           <motion.div onClick={()=>handleToggle(1)}  className={`cursor-pointer flex items-center p-2 gap-3 my-2 text-lg rounded-lg transition-colors mb-2  ${Location.pathname==="/task" ||Location.pathname==="/detail" || Location.pathname==="/task/detail" || Location.pathname==="/content"? "border border-white" :""}`}>
+           <RiCalendarScheduleLine size={24} className="text-white"/>
+             <div className={`flex justify-between items-center w-full ${isOpen ? "" : "hidden"}`} >
+               <AnimatePresence>
+                 {isOpen && (
+                   <motion.span 
+                     className='whitespace-nowrap text-white'
+                     initial={{ opacity: 0, width: 0 }} 
+                     animate={{ opacity: 1, width: "auto" }}
+                     exit={{ opacity: 0, width: 0 }}
+                     transition={{ duration: 0.2, delay: 0.2 }}>
+                    Task
+                   </motion.span>
+                 )}
+               </AnimatePresence>
+             
+                 <motion.div className={`ml-auto transition-transform duration-300 ${openIndex===1? 'rotate-90' : ''} ${!isOpen && "hidden"}`}>
+                   <HiChevronRight size={20} className="text-white"/>
+                 </motion.div>
+           
+             </div>
+           </motion.div>
+        
+
+         <AnimatePresence>
+           {isOpen && openIndex===1 &&  (
+             <motion.div
+               initial={{ opacity: 0, height: 0 }}
+               animate={{ opacity: 1, height: "auto" }}
+               exit={{ opacity: 0, height: 0 }}
+               transition={{ duration: 0.2 }}
+             >
+            <Link to="/task">
+                   <motion.div whileHover={{ x: 5 }}
+                       onClick={()=>{setIsOpen(false)}} className={`flex text-gray-100 items-center pl-8 p-2 gap-3 my-2 rounded-lg transition-colors ${Location.pathname==="/task"? "text-white font-bold" :"hover:bg-gray-200 hover:text-black"}`}>
+                     <AnimatePresence>
+                       {isOpen && (
+                         <motion.span  
+                           className='whitespace-nowrap'
+                           initial={{ opacity: 0, width: 0 }} 
+                           animate={{ opacity: 1, width: "auto" }}
+                           exit={{ opacity: 0, width: 0 }}
+                           transition={{ duration: 0.2, delay: 0.2 }}>
+                          Headline
+                         </motion.span>
+                       )}
+                     </AnimatePresence>
+                   </motion.div>
+             </Link>
+            
+            <Link to="/content">
+                   <motion.div whileHover={{ x: 5 }}
+                    onClick={()=>{setIsOpen(false)}} className={`flex text-gray-100 items-center pl-8 p-2 gap-3 my-2 rounded-lg transition-colors ${Location.pathname==="/content"? "text-white font-bold" :"hover:bg-gray-200 hover:text-black"}`}>
+                     <AnimatePresence>
+                       {isOpen && (
+                         <motion.span  
+                           className='whitespace-nowrap'
+                           initial={{ opacity: 0, width: 0 }} 
+                           animate={{ opacity: 1, width: "auto" }}
+                           exit={{ opacity: 0, width: 0 }}
+                           transition={{ duration: 0.2, delay: 0.2 }}>
+                      Content
+                         </motion.span>
+                       )}
+                     </AnimatePresence>
+                   </motion.div>
+             </Link>
+            
+          
+        
+             </motion.div>
+           )}
+         </AnimatePresence>
+        </motion.div>
+     
           <motion.div whileHover={{ x: 5 }}  onClick={handleClick}>
             <Link to="/plan">
               <motion.div
@@ -203,7 +282,7 @@ const SideBar = ({ isOpen, setIsOpen,toggleHidden }) => {
               </motion.div>
             </Link>
           </motion.div>
-          <motion.div whileHover={{ x: 5 }}  onClick={handleClick}>
+          {/* <motion.div whileHover={{ x: 5 }}  onClick={handleClick}>
             <Link to="/calendar">
               <motion.div
                 className={`flex items-center p-2 gap-3 my-2 text-lg rounded-lg transition-colors mb-2  ${Location.pathname==="/calendar/headline"||Location.pathname==="/calendar/design"||Location.pathname==="/calendar"||Location.pathname==="/calendar/content"? "border border-white" :""}`}
@@ -226,7 +305,99 @@ const SideBar = ({ isOpen, setIsOpen,toggleHidden }) => {
                 </div>
               </motion.div>
             </Link>
-          </motion.div>
+          </motion.div> */}
+          <motion.div  whileHover={{ x: 5 }} >
+           
+           <motion.div onClick={()=>handleToggle(2)}  className={`cursor-pointer flex items-center p-2 gap-3 my-2 text-lg rounded-lg transition-colors mb-2  ${Location.pathname==="/calendar/headline"||Location.pathname==="/calendarContent" || Location.pathname==="/calendarPlan" || Location.pathname==="/calendarContent/detail"||Location.pathname==="/calendar"||Location.pathname==="/calendar/content"? "border border-white" :""}`}>
+           <HiOutlineClock size={24} className="text-white"/>
+             <div className={`flex justify-between items-center w-full ${isOpen ? "" : "hidden"}`} >
+               <AnimatePresence>
+                 {isOpen && (
+                   <motion.span 
+                     className='whitespace-nowrap text-white'
+                     initial={{ opacity: 0, width: 0 }} 
+                     animate={{ opacity: 1, width: "auto" }}
+                     exit={{ opacity: 0, width: 0 }}
+                     transition={{ duration: 0.2, delay: 0.2 }}>
+                  Content Calendar
+                   </motion.span>
+                 )}
+               </AnimatePresence>
+             
+                 <motion.div className={`ml-auto transition-transform duration-300 ${openIndex===2? 'rotate-90' : ''} ${!isOpen && "hidden"}`}>
+                   <HiChevronRight size={20} className="text-white"/>
+                 </motion.div>
+           
+             </div>
+           </motion.div>
+        
+
+         <AnimatePresence>
+           {isOpen && openIndex===2 &&  (
+             <motion.div
+               initial={{ opacity: 0, height: 0 }}
+               animate={{ opacity: 1, height: "auto" }}
+               exit={{ opacity: 0, height: 0 }}
+               transition={{ duration: 0.2 }}
+             >
+            <Link to="/calendar">
+                   <motion.div whileHover={{ x: 5 }}
+                       onClick={()=>{setIsOpen(false)}} className={`flex text-gray-100 items-center pl-8 p-2 gap-3 my-2 rounded-lg transition-colors ${Location.pathname==="/calendar"? "text-white font-bold" :"hover:bg-gray-200 hover:text-black"}`}>
+                     <AnimatePresence>
+                       {isOpen && (
+                         <motion.span  
+                           className='whitespace-nowrap'
+                           initial={{ opacity: 0, width: 0 }} 
+                           animate={{ opacity: 1, width: "auto" }}
+                           exit={{ opacity: 0, width: 0 }}
+                           transition={{ duration: 0.2, delay: 0.2 }}>
+                          Headline
+                         </motion.span>
+                       )}
+                     </AnimatePresence>
+                   </motion.div>
+             </Link>
+            
+            <Link to="/calendarContent">
+                   <motion.div whileHover={{ x: 5 }}
+                    onClick={()=>{setIsOpen(false)}} className={`flex text-gray-100 items-center pl-8 p-2 gap-3 my-2 rounded-lg transition-colors ${Location.pathname==="/content"? "text-white font-bold" :"hover:bg-gray-200 hover:text-black"}`}>
+                     <AnimatePresence>
+                       {isOpen && (
+                         <motion.span  
+                           className='whitespace-nowrap'
+                           initial={{ opacity: 0, width: 0 }} 
+                           animate={{ opacity: 1, width: "auto" }}
+                           exit={{ opacity: 0, width: 0 }}
+                           transition={{ duration: 0.2, delay: 0.2 }}>
+                      Content
+                         </motion.span>
+                       )}
+                     </AnimatePresence>
+                   </motion.div>
+             </Link>
+            
+             <Link to="/calendarPlan">
+                   <motion.div whileHover={{ x: 5 }}
+                    onClick={()=>{setIsOpen(false)}} className={`flex text-gray-100 items-center pl-8 p-2 gap-3 my-2 rounded-lg transition-colors ${Location.pathname==="/calendarPlan"? "text-white font-bold" :"hover:bg-gray-200 hover:text-black"}`}>
+                     <AnimatePresence>
+                       {isOpen && (
+                         <motion.span  
+                           className='whitespace-nowrap'
+                           initial={{ opacity: 0, width: 0 }} 
+                           animate={{ opacity: 1, width: "auto" }}
+                           exit={{ opacity: 0, width: 0 }}
+                           transition={{ duration: 0.2, delay: 0.2 }}>
+                     Plan
+                         </motion.span>
+                       )}
+                     </AnimatePresence>
+                   </motion.div>
+             </Link>
+        
+             </motion.div>
+           )}
+         </AnimatePresence>
+        </motion.div>
           <motion.div whileHover={{ x: 5 }}  onClick={handleClick}>
             <Link to="/report">
               <motion.div

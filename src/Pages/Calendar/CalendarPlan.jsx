@@ -48,7 +48,7 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 
 
 
-const Task= () => {
+const CalendarPlan= () => {
 
 
  
@@ -513,23 +513,11 @@ const handleCreateUserSubmit = async () => {
               Confirm
             </Button>
 
-            <Button
-              onClick={() => handleClick("revise", item,"headline")}
-              variant="outlined"
-              sx={{
-                textTransform: 'none',
-                backgroundColor: 'red',
-                color: 'white',
-                padding: '2px 4px',
-                fontSize: '0.75rem',
-              }}
-            >
-              Revise
-            </Button>
+        
 
          <Tooltip title={item?.headline ? item?.headline:"No headline" } >
          <Button
-              onClick={() => navigate("/calendar/headline", { state: item })}
+              onClick={() => navigate("/calendarContent/detail", { state: item })}
               sx={{
                 textTransform: 'none',
                 backgroundColor: 'orange',
@@ -671,4 +659,4 @@ const handleCreateUserSubmit = async () => {
   );
 };
 
-export default Task;
+export default CalendarPlan;

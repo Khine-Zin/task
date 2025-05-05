@@ -7,13 +7,14 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
-import Tooltip from '@mui/material/Tooltip';
+
+import TextField from '@mui/material/TextField';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import Button from '@mui/material/Button';
-
+import Tooltip from '@mui/material/Tooltip';
 import toast, { Toaster } from 'react-hot-toast';  // Import toast and Toaster
 
 import { Box, FormControl, FormControlLabel, InputLabel, MenuItem, Radio, RadioGroup, Select, useMediaQuery } from '@mui/material';
@@ -48,7 +49,7 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 
 
 
-const Task= () => {
+const ContentCalendar= () => {
 
 
  
@@ -75,14 +76,27 @@ const Task= () => {
     return new Date(dateString).toLocaleDateString('en-GB', options);
 
   };
+  const filteredPost = dataHeadline?.filter((post) => {
+    const postBrand = post.brand?.name === newUser.brand;
+    const deadlineDate = new Date(post.deadline);
+    const startDate = new Date(newUser.start_date);
+    const endDate = new Date(newUser.end_date);
+ 
 
+    // Deadline က start နဲ့ end ကြားမှာရှိလား စစ်မယ်
+    const isWithinDateRange = deadlineDate >= startDate && deadlineDate <= endDate;
+  
+    return postBrand && isWithinDateRange;
+  });
   const [item,setItem]=useState("")
     
   const [errorShown, setErrorShown] = React.useState(false);
 
   const [total,settotal]=useState([])
   
-
+  const handleTypeChange = (e) => {
+    setType(e.target.value);
+  };
   const fetchData = async () => {
     setLoading(true);
     const token = localStorage.getItem("token");
@@ -112,7 +126,7 @@ const Task= () => {
       setLoading(false);
     }
   };
-  console.log(dataHeadline)
+  console.log(datacontent)
   const fetchBrand = async () => {
     setLoading(true);
     const token = localStorage.getItem("token");
@@ -192,7 +206,6 @@ const Task= () => {
       duration: 5000,
     });
   };
-  
   const handlePageChange = (direction) => {
     setPager(prev => {
       const newPage = prev.currentPage + direction;
@@ -291,84 +304,101 @@ setOpenDialog(false)
     setOpenDialog(false);
   };
 
-  const handleDownload = () => {
-    setOpenCreateDialog(true);
-    setNewUser("")
-    setType("headline")
-  };
-console.log(type)
-const handleCreateUserSubmit = async () => {
-  setCreate(true);
-  const token = localStorage.getItem("token");
+//   const handleDownload = () => {
+//     setOpenCreateDialog(true);
+//     setNewUser("")
+//     setType("headline")
+//   };
+// console.log(type)
+// const handleCreateUserSubmit = async () => {
+//   setCreate(true);
+//   const token = localStorage.getItem("token");
 
+//   const endpoints = {
+//     headline: `${SERVER_URL}/content-calendar/download-headline-content-calendar`,
+//     content: `${SERVER_URL}/content-calendar/download-content-content-calendar`,
+//     calendar: `${SERVER_URL}/content-calendar/download-content-calendar`,
+//   };
 
-  try {
-    const response = await axios.get(
-      `${SERVER_URL}/content-calendar/download-headline-content-calendar?startdate=${newUser?.start_date}&enddate=${newUser?.end_date}&brandId=${newUser?.brand}`,
-      {
-        headers: {
-          Authorization: token,
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-        },
-      }
-    );
+//   const selectedEndpoint = endpoints[type];
 
-    setCreate(false);
+//   if (!selectedEndpoint) {
+//     toast.error("Invalid type selected", {
+//       position: 'top-right',
+//       duration: 5000,
+//     });
+//     setCreate(false);
+//     return;
+//   }
 
-    if (response.data?.statusCode === 201) {
-      fetchData();
-      toast.success('Successfully Created!', {
-        position: 'top-right',
-        duration: 5000,
-      });
-      setOpenCreateDialog(false);
-      setNewUser("");
-      setBannerImage("");
-    } else if (response.data?.statusCode === 203) {
-      toast.error(response.data?.message || "Request failed", {
-        position: 'top-right',
-        duration: 5000,
-      });
-    }
+//   try {
+//     const response = await axios.get(
+//       `${selectedEndpoint}?startdate=${newUser?.start_date}&enddate=${newUser?.end_date}&brandId=${newUser?.brand}`,
+//       {
+//         headers: {
+//           Authorization: token,
+//           Accept: 'application/json',
+//           'Content-Type': 'application/json',
+//         },
+//       }
+//     );
 
-  } catch (err) {
-    setCreate(false);
-    let errorMessage = 'An error occurred. Please try again later.';
+//     setCreate(false);
 
-    if (err.response) {
-      switch (err.response.status) {
-        case 401:
-        case 400:
-          errorMessage = err.response.data?.message || 'Unauthorized';
-          localStorage.clear();
-          setUser(null);
-          navigate("/"); // Redirect to login
-          break;
-        case 500:
-          errorMessage = err.response.data?.message || 'Server error. Please try again later.';
-          break;
-        case 503:
-          errorMessage = 'Service is temporarily unavailable. Please try again later.';
-          break;
-        case 502:
-          errorMessage = 'Bad Gateway: The server is down. Please try again later.';
-          break;
-        default:
-          errorMessage = err.response.data?.message || 'An error occurred.';
-      }
-    } else if (err.request) {
-      errorMessage = 'Network error. Please check your internet connection.';
-    } else {
-      errorMessage = `Error: ${err.message}`;
-    }
+//     if (response.data?.statusCode === 201) {
+//       fetchData();
+//       toast.success('Successfully Created!', {
+//         position: 'top-right',
+//         duration: 5000,
+//       });
+//       setOpenCreateDialog(false);
+//       setNewUser("");
+//       setBannerImage("");
+//     } else if (response.data?.statusCode === 203) {
+//       toast.error(response.data?.message || "Request failed", {
+//         position: 'top-right',
+//         duration: 5000,
+//       });
+//     }
 
-    toast.error(errorMessage, {
-      position: 'top-right',
-      duration: 5000,
-    });
-  }
-};
+//   } catch (err) {
+//     setCreate(false);
+//     let errorMessage = 'An error occurred. Please try again later.';
+
+//     if (err.response) {
+//       switch (err.response.status) {
+//         case 401:
+//         case 400:
+//           errorMessage = err.response.data?.message || 'Unauthorized';
+//           localStorage.clear();
+//           setUser(null);
+//           navigate("/"); // Redirect to login
+//           break;
+//         case 500:
+//           errorMessage = err.response.data?.message || 'Server error. Please try again later.';
+//           break;
+//         case 503:
+//           errorMessage = 'Service is temporarily unavailable. Please try again later.';
+//           break;
+//         case 502:
+//           errorMessage = 'Bad Gateway: The server is down. Please try again later.';
+//           break;
+//         default:
+//           errorMessage = err.response.data?.message || 'An error occurred.';
+//       }
+//     } else if (err.request) {
+//       errorMessage = 'Network error. Please check your internet connection.';
+//     } else {
+//       errorMessage = `Error: ${err.message}`;
+//     }
+
+//     toast.error(errorMessage, {
+//       position: 'top-right',
+//       duration: 5000,
+//     });
+//   }
+// };
+
 
 
 
@@ -377,7 +407,7 @@ const handleCreateUserSubmit = async () => {
     <div className="mt-24 lg:mx-4 mx-2">
        <div className='hidden lg:block'>
      <div className='flex justify-between gap-3 items-center mb-5 mt-[100px]'>
-     <h2 className="text-xl text-gray-700">Total: {loading ? "0":total?.total?.headline}</h2>
+     <h2 className="text-xl text-gray-700">Total: {loading ? "0":total?.total?.content}</h2>
      {
           role ==="admin" && (
             <div className='flex gap-3 items-center'>
@@ -420,31 +450,16 @@ const handleCreateUserSubmit = async () => {
           </div>
 
 
-          <Button
-            variant="contained"
-            sx={{
-              height: '55px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              backgroundColor: "#000000",
-              textTransform: 'none',
-              marginTop:1
-            }}
-            startIcon={<CheckCircle />}
-            onClick={handleDownload} 
-          >
-           Download
-          </Button>
+      
         </div>
           )
         }
       </div>
      </div>
      <div className='flex justify-between gap-3 items-center mb-5 mt-[100px] lg:hidden'>
-     <h2 className="text-xl text-gray-700">Total: {loading ? "0":total?.total?.headline}</h2>
+     <h2 className="text-xl text-gray-700">Total: {loading ? "0":total?.total?.content}</h2>
         <div className='flex gap-3 items-center'>
-          
+{/*           
           {
             role==="admin" && (
               <Button
@@ -463,11 +478,15 @@ const handleCreateUserSubmit = async () => {
            Download
           </Button>
             )
-          }
+          } */}
         </div>
       </div>
+
+
+
+
       <TableContainer component={Paper}>
-  <Table sx={{ minWidth: 500 }} aria-label="customized table">
+      <Table sx={{ minWidth: 500 }} aria-label="customized table">
     <TableHead>
       <TableRow>
       <StyledTableCell align="left">Post</StyledTableCell>
@@ -477,20 +496,20 @@ const handleCreateUserSubmit = async () => {
       </TableRow>
     </TableHead>
     <TableBody>
-  {dataHeadline === undefined || dataHeadline.length===0 ? (
+  {datacontent === undefined || datacontent.length === 0 ? (
     <StyledTableRow>
       <StyledTableCell colSpan={5} align="center">
-        There is no headline task
+        There is no content task
       </StyledTableCell>
     </StyledTableRow>
   ) : (
-    dataHeadline?.map((row) =>
+    datacontent?.flatMap((row) =>
       row?.tasks.map((item, index) => (
-        <StyledTableRow key={index}>
-            <StyledTableCell align="left">post - {item?.post}</StyledTableCell>
-          <StyledTableCell align="left">{item?.brand?.name}</StyledTableCell>
+        <StyledTableRow key={item._id || index}>
+          <StyledTableCell align="left">post - {item?.post}</StyledTableCell>
+          <StyledTableCell align="left">{item?.task?.brand?.name}</StyledTableCell>
           <StyledTableCell align="left">
-  {item?.month ? new Date(item?.month).toLocaleString('en-US', {
+  {item?.task?.month ? new Date(item?.task?.month).toLocaleString('en-US', {
     month: 'long',
     year: 'numeric',
   }) : ''}
@@ -500,7 +519,7 @@ const handleCreateUserSubmit = async () => {
             sx={{ display: 'flex', justifyContent: 'center', gap: 1 }}
           >
             <Button
-              onClick={() => handleClick("confirm", item,"headline")}
+              onClick={() => handleClick("confirm", item, "content")}
               variant="outlined"
               sx={{
                 textTransform: 'none',
@@ -514,7 +533,7 @@ const handleCreateUserSubmit = async () => {
             </Button>
 
             <Button
-              onClick={() => handleClick("revise", item,"headline")}
+              onClick={() => handleClick("revise", item, "content")}
               variant="outlined"
               sx={{
                 textTransform: 'none',
@@ -527,9 +546,9 @@ const handleCreateUserSubmit = async () => {
               Revise
             </Button>
 
-         <Tooltip title={item?.headline ? item?.headline:"No headline" } >
-         <Button
-              onClick={() => navigate("/calendar/headline", { state: item })}
+         <Tooltip title={item?.task?.headline ? item?.task?.headline:"No headline" } >
+            <Button
+              onClick={() => navigate("/calendar/content", { state: item })}
               sx={{
                 textTransform: 'none',
                 backgroundColor: 'orange',
@@ -540,7 +559,7 @@ const handleCreateUserSubmit = async () => {
             >
               Details
             </Button>
-         </Tooltip>
+            </Tooltip>
           </StyledTableCell>
         </StyledTableRow>
       ))
@@ -553,16 +572,14 @@ const handleCreateUserSubmit = async () => {
 
 
 
-
-
    <div className="flex gap-5 justify-end items-center mt-4">
-        <p>Headline Page {pager.currentPage} of {total?.totalPages?.headline}</p>
-      
+        
+        <p>Content Page {pager.currentPage} of {total?.totalPages?.content}</p>
         <div className="flex gap-2">
           <button disabled={pager.currentPage === 1} onClick={() => handlePageChange(-1)} className="p-2 bg-gray-200 rounded-l hover:bg-gray-300">
             <HiChevronLeft />
           </button>
-          <button disabled={pager.currentPage === total?.totalPages?.headline } onClick={() => handlePageChange(1)} className="p-2 bg-gray-200 rounded-r hover:bg-gray-300">
+          <button disabled={pager.currentPage === total?.totalPages?.content} onClick={() => handlePageChange(1)} className="p-2 bg-gray-200 rounded-r hover:bg-gray-300">
             <HiChevronRight />
           </button>
         </div>
@@ -585,90 +602,11 @@ const handleCreateUserSubmit = async () => {
       </Dialog>
 
       {/* Create User Form Dialog */}
-      <Dialog open={openCreateDialog} onClose={() => setOpenCreateDialog(false)} fullWidth maxWidth="sm">
-        {/* <DialogTitle>Download</DialogTitle> */}
-        <Dialog open={openCreateDialog} onClose={() => setOpenCreateDialog(false)} fullWidth maxWidth="sm">
-               <DialogTitle>Download Pdf</DialogTitle>
-               <DialogContent style={{ width: '100%' }}>
-           
-      
-               
-             <FormControl fullWidth margin="normal">
-               <InputLabel id="role-label">Select Brand</InputLabel>
-               <Select
-                       labelId="role-label"
-                       id="role"
-                       value={newUser.brand}
-                       onChange={(e) => setNewUser({ ...newUser, brand: e.target.value })}
-                       label="Select Brand"
-                     >
-                      
-                         {brand.length ===0 ? (
-                              <MenuItem disabled>No option </MenuItem>
-                         ):brand?.map((user) => (
-                     <MenuItem key={user._id} value={user._id}>
-                       {user.name}
-                     </MenuItem>
-                   ))}
-                     </Select>
-             </FormControl>
-       
-             <Box display="flex" gap={2} mt={2}>
-             {/* Start Date */}
-             <Box flex={1}>
-               <InputLabel shrink>Month</InputLabel>
-               <Monthpicker
-                 value={newUser.start_date}
-                 onChange={(e) => setNewUser({ ...newUser, start_date: e.target.value })}
-                 name="startDate"
-               />
-             </Box>
-         
-           </Box>
-       
    
-       
-       
-   
-       
-       
-            
-               
-               </DialogContent>
-               <DialogActions sx={{ mb: 2, mr: 2 }}>
-                 <Button onClick={() => {
-                   setNewUser("")
-                   setOpenCreateDialog(false)
-                   }} sx={{ color: "#666464" }}>
-                   Cancel
-                 </Button>
-                 <Button
-                   onClick={handleCreateUserSubmit}
-                   sx={{ backgroundColor: "#262323", color: "#ffffff" }}
-                 >
-                 {Create ? "loading...":"Download"}
-                 </Button>
-               </DialogActions>
-             </Dialog>
-        <DialogActions sx={{ mb: 2, mr: 2 }}>
-          <Button onClick={() => {
-            setNewUser("")
-            setOpenCreateDialog(false)
-            }} sx={{ color: "#666464" }}>
-            Cancel
-          </Button>
-          <Button
-            onClick={handleCreateUserSubmit}
-            sx={{ backgroundColor: "#262323", color: "#ffffff" }}
-          >
-          {Create ? "loading...":"Download"}
-          </Button>
-        </DialogActions>
-      </Dialog>
    
      
     </div>
   );
 };
 
-export default Task;
+export default ContentCalendar;

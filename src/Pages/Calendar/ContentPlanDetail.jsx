@@ -12,9 +12,10 @@ import SmallBreadcrumbs from "../../components/BreadCrumbs";
 
 import { useLocation, useNavigate } from "react-router-dom";
 import userStore from "../../store/userStore";
+import Gallery from "../../components/Gallery";
 
 // Component Start
-const PlanDetail = () => {
+const ContentPlanDetail = () => {
   const setUser = userStore((state) => state.setUser);
   const location = useLocation();
   const navigate = useNavigate();
@@ -22,7 +23,7 @@ const PlanDetail = () => {
   const [content, setContent] = useState("");
 
 
-
+console.log(state)
 
   // Format Date Function
   const formatDate = (dateString) => {
@@ -48,36 +49,36 @@ const PlanDetail = () => {
       <table className="mt-8 font-medium text-bodyColor">
         <tbody>
           {[
-            { icon: <HiUsers />, label: "Assignee", value: state?.task?.user?.name },
+            { icon: <HiUsers />, label: "Assignee", value: state.user?.name },
             {
               icon: <HiOutlineBriefcase />,
               label: "Brand Name",
-              value: state?.task?.brand?.name,
+              value: state?.brand?.name,
             },
             {
               icon: <IoShareSocialOutline />,
               label: "Social Media",
               value: (
                 <div className="flex items-center gap-2">
-                  {state.task?.soical_media === "facebook" ? (
+                  {state?.soical_media === "facebook" ? (
                     <FaFacebook />
-                  ) : state?.task?.soical_media === "tiktok" ? (
+                  ) : state?.soical_media === "tiktok" ? (
                     <FaTiktok />
                   ) : (
                     <FaInstagram />
                   )}
-                  <span>{state?.task?.soical_media}</span>
+                  <span>{state?.soical_media}</span>
                 </div>
               ),
             },
             { icon: <PiListNumbers />, label: "Post No", value: state.post },
             {
               icon: <HiOutlineCalendar />,
-              label: "Deadline",
-              value: formatDate(state?.task?.deadline),
+              label: "Month",
+              value: formatDate(state?.month),
             },
             { icon: <PiNotePencilDuotone />, label: "Note", value: state?.note },
-            { icon: <HiChartBar />, label: "Category", value: state?.task?.category?.name },
+            { icon: <HiChartBar />, label: "Category", value: state?.category?.name },
           ].map((row, index) => (
             <tr key={index} className="border-none ">
               <td className="flex items-center gap-2 lg:w-[200px] w-[130px] p-3">
@@ -109,9 +110,13 @@ const PlanDetail = () => {
     
       </div>
 
+     <div className="mt-10">
+     <Gallery/>
+     </div>
+
       <div className="h-[100px]"></div>
     </div>
   );
 };
 
-export default PlanDetail;
+export default ContentPlanDetail;

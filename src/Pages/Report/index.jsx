@@ -27,10 +27,7 @@ import { useNavigate } from 'react-router-dom';
 import { HiChevronLeft, HiChevronRight } from 'react-icons/hi';
 import { Info, Storefront, UploadFile } from '@mui/icons-material';
 import FileUpload from '../../components/FileUpload';
-import { FiUploadCloud } from 'react-icons/fi';
-import { RiUploadCloud2Fill } from 'react-icons/ri';
-import { MdCloudUpload } from 'react-icons/md';
-import Datepicker from '../../components/DatePicker';
+import Tooltip from '@mui/material/Tooltip';
 import Monthpicker from '../../components/Monthpicker';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
@@ -74,7 +71,16 @@ const Report = () => {
   const [bannerImage, setBannerImage] = React.useState("");
     const [brand,setBrand]=React.useState([])
 
-
+    const formatMonth = (dateString) => {
+      const options = {  month: 'short', year: 'numeric' };
+      return new Date(dateString).toLocaleDateString('en-GB', options);
+  
+    };
+    const formatDate = (dateString) => {
+      const options = { day: '2-digit', month: 'short', year: 'numeric' };
+      return new Date(dateString).toLocaleDateString('en-GB', options);
+  
+    };
   const fetchData= async () => {
     setLoading(true);
     const token = localStorage.getItem("token");
@@ -299,6 +305,8 @@ const Report = () => {
             <TableRow>
             <StyledTableCell align="left">Post</StyledTableCell>
             <StyledTableCell align="left">Brand Name</StyledTableCell>
+            <StyledTableCell align="left">Month</StyledTableCell>
+            <StyledTableCell align="left">Post Deadline</StyledTableCell>
             <StyledTableCell align="left">Action</StyledTableCell>
             </TableRow>
           </TableHead>
@@ -319,9 +327,12 @@ const Report = () => {
             <StyledTableRow key={index}>
                <StyledTableCell align="left">post - {taskItem?.post}</StyledTableCell>
               <StyledTableCell align="left">{task?.brand?.name}</StyledTableCell>
+              <StyledTableCell align="left">{formatMonth(task?.month)}</StyledTableCell>
+              <StyledTableCell align="left">{formatDate(taskItem?.design_date)}</StyledTableCell>
               <StyledTableCell align="left">
              
-                <IconButton
+               <Tooltip title={task?.headline ? task?.headline:"No headline" } >
+              <IconButton
                   onClick={() =>
                     navigate("/report/detail", { state: taskItem })
                   }
@@ -329,6 +340,7 @@ const Report = () => {
                 >
                   <Info />
                 </IconButton>
+              </Tooltip>
               </StyledTableCell>
             </StyledTableRow>
           );

@@ -9,13 +9,7 @@ import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 
 import IconButton from '@mui/material/IconButton';
-
-import TextField from '@mui/material/TextField';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogTitle from '@mui/material/DialogTitle';
-import Button from '@mui/material/Button';
+import Tooltip from '@mui/material/Tooltip';
 
 import toast, { Toaster } from 'react-hot-toast';  // Import toast and Toaster
 
@@ -28,6 +22,7 @@ import { HiChevronLeft, HiChevronRight } from 'react-icons/hi';
 import { Info, Storefront, UploadFile } from '@mui/icons-material';
 import FileUpload from '../../components/FileUpload';
 import Datepicker from '../../components/DatePicker';
+import Monthpicker from '../../components/Monthpicker';
 
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
@@ -67,11 +62,18 @@ const History = () => {
 const [startDate,setStartDate]=React.useState("")
 const [endDate,setEndDate]=React.useState("")
   const [data, setData] = React.useState([]);
+  
   const [pager, setPager] = React.useState({ currentPage: 1, pageSize: 9 });
   const debounceTimer = React.useRef(null);
     const [brand,setBrand]=React.useState([])
   const [bannerImage, setBannerImage] = React.useState("");
   const formatDate = (dateString) => {
+    const options = { day: '2-digit', month: 'short', year: 'numeric' };
+    return new Date(dateString).toLocaleDateString('en-GB', options);
+
+  };
+
+  const formatMonth = (dateString) => {
     const options = { day: '2-digit', month: 'short', year: 'numeric' };
     return new Date(dateString).toLocaleDateString('en-GB', options);
 
@@ -218,7 +220,7 @@ console.log(data)
       {/* End Date */}
       <Box flex={1}>
       
-        <Datepicker
+        <Monthpicker
           value={endDate}
           onChange={(e) => setEndDate(e.target.value)}
           name="endDate"
@@ -253,7 +255,7 @@ console.log(data)
             <TableRow>
             <StyledTableCell align="left">Post</StyledTableCell>
             <StyledTableCell align="left">Brand Name</StyledTableCell>
-           
+            <StyledTableCell align="left">Month</StyledTableCell>
             <StyledTableCell align="left">Post Deadline</StyledTableCell>
              
               <StyledTableCell align="left">Action</StyledTableCell>
@@ -274,11 +276,11 @@ console.log(data)
                           <StyledTableRow key={row._id}>
                               <StyledTableCell align="left">post -{taskItem.post}</StyledTableCell>
                           <StyledTableCell align="left">{task?.brand?.name}</StyledTableCell>
-                     
+                          <StyledTableCell align="left">{formatMonth(task?.month)}</StyledTableCell>
                    
                        <StyledTableCell align="left">{formatDate(taskItem?.design_date)}</StyledTableCell>
                        <StyledTableCell align="left">
-                       
+                          <Tooltip title={task?.headline ? task?.headline:"No headline" } >
                          <IconButton   onClick={(e) => {
                       
                       navigate("/history/detail",{ state: taskItem });
@@ -286,6 +288,7 @@ console.log(data)
                       aria-label="delete">
                            <Info />
                          </IconButton>
+                         </Tooltip>
                        </StyledTableCell>
                      </StyledTableRow>
                         );
