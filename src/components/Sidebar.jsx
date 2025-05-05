@@ -26,13 +26,14 @@ const SideBar = ({ isOpen, setIsOpen,toggleHidden }) => {
       if(isTabletOrSmaller){
         toggleHidden(false),
       setIsOpen(false)
+      }else{
+        setIsOpen(false)
       }
   }
 
   return (
     <div
-      onMouseEnter={handleToggle}  // Trigger handleToggle on hover
-      onMouseLeave={handleToggle}
+     
       className={`absolute  z-50 bg-[#000000]  transition-all delay-200 duration-300 flex  ${isOpen ? 'w-62' : 'lg:w-20 '} lg:overflow-scroll flex-shrink-0  text-gray-800 h-screen p-3 lg:p-5 hide-scrollbar`}
     >
       <div className="flex flex-col h-full">
