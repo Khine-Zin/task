@@ -55,7 +55,7 @@ const History = () => {
   const [openCreateDialog, setOpenCreateDialog] = React.useState(false);
   const [newUser, setNewUser] = React.useState({ name: '', email: '', role: '', password: '' });
 
-
+const [post,setPost]=React.useState("")
   const [loading,setLoading]=React.useState(false)
   const [Create,setCreate]=React.useState(false)
     const navigate = useNavigate();
@@ -178,7 +178,30 @@ const [endDate,setEndDate]=React.useState("")
 
 
 
-console.log(data)
+const postData=[
+  {
+    "_id": "681024e842e877196335e070",
+    "name": "post1",
+    "business_name": "hi",
+    "start_date": "2025-04-01 0:0:0 AM",
+    "end_date": "2025-04-30 0:0:0 AM",
+    "logo": "brand/image-1745888488005-542323861.png",
+    "color": "#000000",
+    "createdAt": "2025-04-29 7:31:28 AM",
+    "updatedAt": "2025-04-29 7:31:28 AM"
+},
+{
+    "_id": "680f2dc0ed1f05c698d3e74c",
+    "name": "post2",
+    "business_name": "hello",
+    "start_date": "2025-04-01 0:0:0 AM",
+    "end_date": "2025-04-30 0:0:0 AM",
+    "logo": "brand/image-1745825210179-420027389.png",
+    "color": "#000000",
+    "createdAt": "2025-04-28 1:56:56 PM",
+    "updatedAt": "2025-04-28 1:56:56 PM"
+}
+]
   return (
     <div className="mt-24 lg:mx-4 mx-2">
       <div className='hidden lg:block'>
@@ -206,25 +229,41 @@ console.log(data)
     )}
   </Select>
 </FormControl>
-  <Box display="flex" gap={2} mt={2}>
+  <Box display="flex" gap={2} >
       {/* Start Date */}
-      <Box flex={1}>
+      <Box flex={1} mt={2}>
        
-        <Datepicker
+        <Monthpicker
           value={startDate}
           onChange={(e) => setStartDate(e.target.value)}
           name="startDate"
         />
       </Box>
     
-      {/* End Date */}
+   
       <Box flex={1}>
-      
-        <Monthpicker
-          value={endDate}
-          onChange={(e) => setEndDate(e.target.value)}
-          name="endDate"
-        />
+      <FormControl sx={{ width: 200 }} margin="normal">
+  <InputLabel id="role-label">Select Post</InputLabel>
+  <Select
+    labelId="role-label"
+    id="role"
+    value={post}
+    onChange={(e) => setPost(e.target.value)}
+    label="Select Post"
+     
+  >
+    {postData.length === 0 ? (
+      <MenuItem disabled>No option</MenuItem>
+    ) : (
+      postData.map((user) => (
+        <MenuItem key={user._id} value={user._id}>
+          {user.name}
+        </MenuItem>
+      ))
+    )}
+  </Select>
+</FormControl>
+     
       </Box>
     </Box>
             {/* <form className="flex items-center max-w-sm">
