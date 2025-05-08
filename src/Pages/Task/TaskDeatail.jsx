@@ -26,13 +26,13 @@ const TaskDetail = () => {
   const [loading, setLoading] = useState(false);
 
   const [create,setCreate]=useState(false)
-
+  const [category, setCategory] = useState([]);
   const [taskData, setTaskData] = useState({
-    category: state?.category?._id || "",
+   category:state?.category?._id|| "",
     headline: state?.headline || "",
     description: state?.description || ""
   });
-  console.log(state)
+
 
   // Format Date Function
   const formatDate = (dateString) => {
@@ -44,6 +44,64 @@ const TaskDetail = () => {
   };
 
   
+const fetchCategory = async () => {
+    setLoading(true);
+    const token = localStorage.getItem("token");
+
+    try {
+      const response = await axios.get(
+        `${SERVER_URL}/category/view-category?page=1&limit=20`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: token,
+          },
+        }
+      );
+      setCategory(response.data.data?.currentDatas);
+    
+    } catch (err) {
+      let errorMessage = "An error occurred. Please try again later.";
+
+      if (err.response) {
+        switch (err.response.status) {
+          case 401:
+          case 400:
+            errorMessage =
+              err.response.data?.message || "Your Token is blacklist.";
+            localStorage.clear();
+            setUser(null);
+            navigate("/");
+            break;
+          case 500:
+            errorMessage =
+              err.response.data?.message || "Server error. Please try again.";
+            break;
+          case 503:
+            errorMessage =
+              "Service is temporarily unavailable. Please try again later.";
+            break;
+          case 502:
+            errorMessage = "Bad Gateway: Server is down. Please try later.";
+            break;
+          default:
+            errorMessage = err.response.data?.message || "An error occurred.";
+        }
+      } else if (err.request) {
+        errorMessage = "Network error. Please check your internet connection.";
+      } else {
+        errorMessage = `Error: ${err.message}`;
+      }
+
+      toast.error(errorMessage, { position: "top-right", duration: 5000 });
+    } finally {
+      setLoading(false);
+    }
+  };
+console.log("state>>>",state)
+  React.useEffect(() => {
+    fetchCategory();
+  }, []);
 
 
   const handleSubmit = async() => {
@@ -55,7 +113,7 @@ const TaskDetail = () => {
        const response = await axios.put(
            `${SERVER_URL}/task/edit-task/${state?._id}`, 
            {
-            category:state?.category?._id,
+            category:taskData?.category,
             headline:taskData.headline,
             description:taskData.description
              }, 
@@ -156,14 +214,14 @@ const TaskDetail = () => {
                 </div>
               ),
             },
-            { icon: <PiListNumbers />, label: "Post No", value: state.post },
+            { icon: <PiListNumbers />, label: "Post No", value: state.postNumber },
             {
               icon: <HiOutlineCalendar />,
               label: "Deadline",
               value: formatDate(state?.deadline),
             },
             { icon: <PiNotePencilDuotone />, label: "Note", value: state?.note },
-             { icon: <HiChartBar />, label: "Category", value: state?.category.name},
+           
           ].map((row, index) => (
             <tr key={index} className="border-none ">
               <td className="flex items-center gap-2 lg:w-[200px] w-[130px] p-3">
@@ -180,6 +238,29 @@ const TaskDetail = () => {
 
       {/* Headline */}
       <div className="mt-10 lg:w-[70%] w-[95%]">
+            <FormControl fullWidth margin="normal">
+      <InputLabel id="role-label">Select Category</InputLabel>
+      <Select
+labelId="role-label"
+id="role"
+value={taskData.category } // Set value dynamically from state
+onChange={(e) => setTaskData({ ...taskData, category:e.target.value})} // Update state on change
+label="Select Category"
+>
+{category.length === 0 ? (
+  <MenuItem disabled>No option</MenuItem>
+) : (
+  category.map((user) =>
+    user?.role !== 'admin' && (
+      <MenuItem key={user._id} value={user._id}>
+        {user.name}
+      </MenuItem>
+    )
+  )
+)}
+</Select>
+
+    </FormControl>
     
         <TextField
                      label="Headline"

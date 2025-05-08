@@ -21,9 +21,9 @@ import ReportDetail from "./Pages/Report/ReportDetail.jsx";
 import { ProtectedRoute } from './ProtectedRoute';
 import History from "./Pages/History/index.jsx";
 import HistoryDetail from "./Pages/History/HistoryDetail.jsx";
-import ContentDetail from "./Pages/Calendar/ContentDetail.jsx";
+// import ContentDetail from "./Pages/Calendar/ContentDetail.jsx";
 import Content from "./Pages/Task/content.jsx";
-import ContentCalendar from "./Pages/Calendar/ContentCalendar.jsx";
+// import ContentCalendar from "./Pages/Calendar/ContentCalendar.jsx";
 import CalendarPlan from "./Pages/Calendar/CalendarPlan.jsx";
 import ContentPlanDetail from "./Pages/Calendar/ContentPlanDetail.jsx";
 
@@ -145,14 +145,8 @@ const router = createBrowserRouter([
           </ProtectedRoute>
         ),
       },
-      {
-        path: "/calendarContent",
-        element: (
-          <ProtectedRoute >
-            <ContentCalendar />
-          </ProtectedRoute>
-        ),
-      },
+      
+   
       {
         path: "/calendarPlan",
         element: (
@@ -170,14 +164,14 @@ const router = createBrowserRouter([
           </ProtectedRoute>
         ),
       },
-      {
-        path: "/calendar/content",
-        element: (
-          <ProtectedRoute >
-            <ContentDetail/>
-          </ProtectedRoute>
-        ),
-      },
+      // {
+      //   path: "/calendar/content",
+      //   element: (
+      //     <ProtectedRoute >
+      //       <ContentDetail/>
+      //     </ProtectedRoute>
+      //   ),
+      // },
     
       {
         path: "/report",

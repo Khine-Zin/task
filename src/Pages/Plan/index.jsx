@@ -64,7 +64,7 @@ const Plan = () => {
  const setUser = userStore((state) => state.setUser);
   const [openCreateDialog, setOpenCreateDialog] = React.useState(false);
   const [newUser, setNewUser] = React.useState({ name: '', email: '', role: '', password: '' });
-const [month,setMonth]=React.useState("")
+const [monthsearch,setMonthSearch]=React.useState("")
 const [brand,setBrand]=React.useState([])
   const [loading,setLoading]=React.useState(false)
   const [Create,setCreate]=React.useState(false)
@@ -75,12 +75,28 @@ const [brand,setBrand]=React.useState([])
   const debounceTimer = React.useRef(null);
   const [bannerImage, setBannerImage] = React.useState("");
 
+  const date = new Date(monthsearch); // e.g., May 6, 2025
+
+const year = date.getFullYear();
+const month = date.getMonth(); // May = 4
+
+const startDate = new Date(year, month, 1);
+const endDate = new Date(year, month + 1, 0); // last day of the month
+
+const options = { month: 'long', day: 'numeric', year: 'numeric' };
+
+// Remove the comma in the formatted date string
+const startDateFormatted = startDate.toLocaleString('en-US', options).replace(',', '');
+const endDateFormatted = endDate.toLocaleString('en-US', options).replace(',', '');
+
+// console.log("Start Date:", startDateFormatted);
+// console.log("End Date:", endDateFormatted);
 
   const fetchData= async () => {
     setLoading(true);
     const token = localStorage.getItem("token");
     try {
-      const response = await axios.get(`${SERVER_URL}/plan/view-plan?page=${pager.currentPage}&limit=${pager.pageSize}&status=confirm&search=${searchQuery}`, {
+      const response = await axios.get(`${SERVER_URL}/plan/view-plan?page=${pager.currentPage}&limit=${pager.pageSize}&status=confirm&brand=${searchQuery}&startDate=${startDateFormatted ==="Invalid Date" ? "" :startDateFormatted}&endDate=${endDateFormatted==="Invalid Date"? "":endDateFormatted}`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: token,
@@ -126,15 +142,10 @@ const [brand,setBrand]=React.useState([])
     }
   };
 
-  const handleSearchChange = (event) => {
-    setSearchQuery(event.target.value);
-  };
-  
-
 
   React.useEffect(() => {
     fetchData();
-  }, [pager.currentPage,searchQuery]);
+  }, [pager.currentPage,searchQuery,monthsearch]);
 
   const handlePageChange = (direction) => {
     setPager(prev => {
@@ -288,7 +299,7 @@ const [brand,setBrand]=React.useState([])
       <MenuItem disabled>No option</MenuItem>
     ) : (
       brand.map((user) => (
-        <MenuItem key={user._id} value={user._id}>
+        <MenuItem key={user._id} value={user.name}>
           {user.name}
         </MenuItem>
       ))
@@ -300,8 +311,8 @@ const [brand,setBrand]=React.useState([])
       <Box flex={1}>
        
         <Monthpicker
-          value={month}
-          onChange={(e) => setMonth(e.target.value)}
+          value={monthsearch}
+          onChange={(e) => setMonthSearch(e.target.value)}
           name="month"
         />
       </Box>
@@ -327,7 +338,7 @@ const [brand,setBrand]=React.useState([])
             </TableRow>
           </TableHead>
           <TableBody>
-  {data?.currentDatas?.length === 0 ? (
+  {data?.currentDatas?.[0]?.content?.length === 0 ? (
     <StyledTableRow>
       <StyledTableCell colSpan={5} align="center">
         There is no plan found
@@ -340,7 +351,7 @@ const [brand,setBrand]=React.useState([])
           const task = taskItem?.task;
           return (
             <StyledTableRow key={index}>
-               <StyledTableCell align="left">post - {taskItem?.post}</StyledTableCell>
+               <StyledTableCell align="left">post - {task.postNumber}</StyledTableCell>
               <StyledTableCell align="left">{task?.brand?.name}</StyledTableCell>
               <StyledTableCell align="left">
   {task?.month ? new Date(task.month).toLocaleString('en-US', {

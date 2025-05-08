@@ -7,65 +7,100 @@ import { FaInstagram, FaTiktok } from "react-icons/fa6";
 import SmallBreadcrumbs from "../../components/BreadCrumbs";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { Box, TextField } from "@mui/material";
+import { Box, FormControl, InputLabel, MenuItem, Select, TextField } from "@mui/material";
 import FileUpload from "../../components/FileUpload";
-
+import toast, { Toaster } from 'react-hot-toast'; 
+import userStore from '../../store/userStore';
+import axios from "axios";
+import { SERVER_URL } from "../../api/url";
 
 const HistoryDetail = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const { state } = location || {};
+     const setUser = userStore((state) => state.setUser);
     console.log(state)
      const [bannerImage, setBannerImage] = React.useState(state?.design);
     const [headline, setHeadline] = useState(state?.task?.headline);
       const [content, setContent] = useState(state?.content);
+       const [category, setCategory] = useState([]);
       const [data,setData]=useState({
-        budget:state.budget,
-        paid:state.paid_reach
+        budget:state?.budget,
+        paid:state?.reaction,
+        organic:state?.organic,
+        reaction:state?.reactions,
+        ads:state.ads,
+        total:state.total_reach,
+        category:state?.task?.category?._id,
+        description:state?.task?.description,
+        design_brief:state?.design_brief
 
       })
       const [create,setCreate]=useState(false)
+      const [loading,setLoading]=useState(false)
+    
       const handleSubmit = async () => {
         setCreate(true);
         const token = localStorage.getItem("token");
-      
+      if(content?.length <800){
+        toast.error("Content is need at least 700 word", {
+          position: "top-right",
+          duration: 5000,
+        });
+        return false
+      }
         try {
-        
-        
+          const formData = new FormData();
       
-          const response = await axios.post(
-            `${SERVER_URL}/media-buyer/create-media-buyer/${state._id}`,
-            {
-              "budget": data?.budget,
-              "paid_reach": 5000,
-              "organic_reach": 3000,
-              "reactions": 4000,
-              "comments": 5000,
-              "shares": 1000,
-              "page_visitor": 10000,
-              "page_new_follower": 1000000,
-              "page_total_reach": 150000
-          },
+         if(data?.budget!==undefined){
+          formData.append("budget", data?.budget);
+         }
+         if(data?.reaction!==undefined){
+          formData.append("reaction", data?.paid);
+         }
+         if(data?.organic!==undefined){
+          formData.append("organic", data?.organic);
+         }
+         
+         if(data?.reaction!==undefined){
+          formData.append("reactions", data?.reaction);
+         }
+         if(data?.total_reach!==undefined){
+          formData.append("total_reach", data?.total);
+         }
+          
+         if(data?.ads!==undefined){
+          formData.append("ads", data?.ads);
+         }
+         
+          formData.append("category", data?.category);
+          formData.append("headline", headline);
+          formData.append("description", data?.description);
+          formData.append("design_brief", data?.design_brief);
+          formData.append("content", content); // if this is a file or text
+          if(bannerImage){
+            formData.append("image", bannerImage);
+           }
+          const response = await axios.put(
+            `${SERVER_URL}/history/edit-history/${state._id}`,
+            formData,
             {
               headers: {
                 Authorization: token,
                 Accept: "application/json",
-                "Content-Type": "application/json",
+                "Content-Type": "multipart/form-data", // must use this for FormData
               },
             }
           );
       
           setCreate(false);
       
-          if (response.data?.statusCode === 201) {
-       
-            toast.success("Successful Created!", {
+          if (response.data?.statusCode === 200) {
+            toast.success("Successfully Updated!", {
               position: "top-right",
               duration: 5000,
             });
-         
-         
-       navigate("/media")
+            navigate("/history");
           } else if (response.data?.statusCode === 203) {
             toast.error(`${response.data?.message}`, {
               position: "top-right",
@@ -86,20 +121,19 @@ const HistoryDetail = () => {
                 navigate("/");
                 break;
               case 500:
-                errorMessage =
-                  err.response.data?.message || "Server error. Please try again later.";
+                errorMessage = err.response.data?.message || "Server error.";
                 break;
               case 503:
-                errorMessage = "Service is temporarily unavailable. Please try again later.";
+                errorMessage = "Service is temporarily unavailable.";
                 break;
               case 502:
-                errorMessage = "Bad Gateway: The server is down. Please try again later.";
+                errorMessage = "Bad Gateway.";
                 break;
               default:
                 errorMessage = err.response.data?.message || "An error occurred.";
             }
           } else if (err.request) {
-            errorMessage = "Network error. Please check your internet connection.";
+            errorMessage = "Network error.";
           } else {
             errorMessage = `Error: ${err.message}`;
           }
@@ -110,6 +144,64 @@ const HistoryDetail = () => {
           });
         }
       };
+      
+      const fetchCategory = async () => {
+          setLoading(true);
+          const token = localStorage.getItem("token");
+      
+          try {
+            const response = await axios.get(
+              `${SERVER_URL}/category/view-category?page=1&limit=20`,
+              {
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: token,
+                },
+              }
+            );
+            setCategory(response.data.data?.currentDatas);
+          
+          } catch (err) {
+            let errorMessage = "An error occurred. Please try again later.";
+      
+            if (err.response) {
+              switch (err.response.status) {
+                case 401:
+                case 400:
+                  errorMessage =
+                    err.response.data?.message || "Your Token is blacklist.";
+                  localStorage.clear();
+                  setUser(null);
+                  navigate("/");
+                  break;
+                case 500:
+                  errorMessage =
+                    err.response.data?.message || "Server error. Please try again.";
+                  break;
+                case 503:
+                  errorMessage =
+                    "Service is temporarily unavailable. Please try again later.";
+                  break;
+                case 502:
+                  errorMessage = "Bad Gateway: Server is down. Please try later.";
+                  break;
+                default:
+                  errorMessage = err.response.data?.message || "An error occurred.";
+              }
+            } else if (err.request) {
+              errorMessage = "Network error. Please check your internet connection.";
+            } else {
+              errorMessage = `Error: ${err.message}`;
+            }
+      
+            toast.error(errorMessage, { position: "top-right", duration: 5000 });
+          } finally {
+            setLoading(false);
+          }
+        };
+          React.useEffect(() => {
+            fetchCategory();
+          }, []);
     const formatDate = (dateString) => {
       return new Date(dateString).toLocaleDateString("en-GB", {
         day: "2-digit",
@@ -155,7 +247,7 @@ const HistoryDetail = () => {
                   value: formatDate(state?.task?.deadline),
                 },
                 { icon: <PiNotePencilDuotone />, label: "Note", value: state?.note },
-                { icon: <HiChartBar />, label: "Category", value: state?.task?.category?.name },
+               
               ].map((row, index) => (
                 <tr key={index} className="border-none ">
                   <td className="flex items-center gap-2 lg:w-[200px] w-[130px] p-3">
@@ -170,12 +262,53 @@ const HistoryDetail = () => {
         
        
         <div className="mt-10 lg:w-[70%] w-[95%]">
+                  <FormControl fullWidth margin="normal">
+                <InputLabel id="role-label">Select Category</InputLabel>
+                <Select
+          labelId="role-label"
+          id="role"
+          value={data.category } // Set value dynamically from state
+          onChange={(e) => setData({ ...data, category:e.target.value})} // Update state on change
+          label="Select Category"
+          >
+          {category.length === 0 ? (
+            <MenuItem disabled>No option</MenuItem>
+          ) : (
+            category.map((user) =>
+              user?.role !== 'admin' && (
+                <MenuItem key={user._id} value={user._id}>
+                  {user.name}
+                </MenuItem>
+              )
+            )
+          )}
+          </Select>
+          
+              </FormControl>
            <TextField
                               label="Headline"
                               multiline
                               rows={3} // Set the number of visible rows in the textarea
                               value={headline}
                               onChange={(e) => setHeadline(e.target.value)}
+                              fullWidth
+                              margin="normal"
+                            />
+                              <TextField
+                              label="Description"
+                              multiline
+                              rows={3} // Set the number of visible rows in the textarea
+                              value={data.description}
+                              onChange={(e) => setData({ ...data, description: e.target.value })}
+                              fullWidth
+                              margin="normal"
+                            />
+                              <TextField
+                              label="Design Brief"
+                              multiline
+                              rows={3} // Set the number of visible rows in the textarea
+                              value={data.design_brief}
+                              onChange={(e) => setData({ ...data, design_brief: e.target.value })}
                               fullWidth
                               margin="normal"
                             />
@@ -186,72 +319,72 @@ const HistoryDetail = () => {
           <Box mt={2}>
       <FileUpload setBannerImage={setBannerImage} image={bannerImage} />
     </Box>
-       <div className="mt-5  w-full ">
-                 <div className="w-full">
-                   <TextField
-                     label="Budget"
-                     value={data.budget || ""}
-                     onChange={(e) => setData({ ...data, budget: e.target.value })}
-                     fullWidth
-                     margin="normal"
-                   />
-     
-                   <TextField
-                     label="Paid Reach"
-                     value={data.paid || ""}
-                     onChange={(e) => setData({ ...data, paid: e.target.value })}
-                     fullWidth
-                     margin="normal"
-                   />
-     
-                   <TextField
-                     label="Organic Reach"
-                     value={data.organic || ""}
-                     onChange={(e) => setData({ ...data, organic: e.target.value })}
-                     fullWidth
-                     margin="normal"
-                   />
-                 </div>
-     
-                 <div className="w-full">
-                   <TextField
-                     label="Reactions"
-                     value={data.reaction || ""}
-                     onChange={(e) =>
-                       setData({ ...data, reaction: e.target.value })
-                     }
-                     fullWidth
-                     margin="normal"
-                   />
-     
-                   <TextField
-                     label="Comments"
-                     value={data.comment || ""}
-                     onChange={(e) =>
-                       setData({ ...data, comment: e.target.value })
-                     }
-                     fullWidth
-                     margin="normal"
-                   />
-     
-                   <TextField
-                     label="Shares"
-                     value={data.share || ""}
-                     onChange={(e) => setData({ ...data, share: e.target.value })}
-                     fullWidth
-                     margin="normal"
-                   />
-     
-                   <div className="flex justify-end mt-5">
-                     <button
-                       className="bg-primaryColor hover:secondaryColor text-white font-bold py-2 px-6 rounded mt-5"
-                       onClick={handleSubmit}
-                     >
-                      {create ? "Loading" :" Submit"}
-                     </button>
-                   </div>
-                 </div>
-               </div>
+         <div className="mt-5 flex gap-3 w-full ">
+                  <div className="w-full">
+                    <TextField
+                      label="Budget"
+                      value={data.budget || ""}
+                      onChange={(e) => setData({ ...data, budget: e.target.value })}
+                      fullWidth
+                      margin="normal"
+                    />
+      
+                    <TextField
+                      label="Share"
+                      value={data.paid || ""}
+                      onChange={(e) => setData({ ...data, paid: e.target.value })}
+                      fullWidth
+                      margin="normal"
+                    />
+      
+                    <TextField
+                      label="Organic Reach"
+                      value={data.organic || ""}
+                      onChange={(e) => setData({ ...data, organic: e.target.value })}
+                      fullWidth
+                      margin="normal"
+                    />
+                  </div>
+      
+                  <div className="w-full">
+                    <TextField
+                      label="Reactions"
+                      value={data.reaction || ""}
+                      onChange={(e) =>
+                        setData({ ...data, reaction: e.target.value })
+                      }
+                      fullWidth
+                      margin="normal"
+                    />
+      
+                    <TextField
+                      label="ads"
+                      value={data.ads || ""}
+                      onChange={(e) =>
+                        setData({ ...data, ads: e.target.value })
+                      }
+                      fullWidth
+                      margin="normal"
+                    />
+      
+                    <TextField
+                      label="Total Reach"
+                      value={data.total || ""}
+                      onChange={(e) => setData({ ...data, total: e.target.value })}
+                      fullWidth
+                      margin="normal"
+                    />
+      
+                    <div className="flex justify-end mt-5">
+                      <button
+                        className="bg-primaryColor hover:secondaryColor text-white font-bold py-2 px-6 rounded mt-5"
+                        onClick={handleSubmit}
+                      >
+                       {create ? "Loading" :" Submit"}
+                      </button>
+                    </div>
+                  </div>
+                </div>
              
        
        

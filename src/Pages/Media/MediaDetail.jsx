@@ -31,14 +31,10 @@ const handleSubmit = async () => {
       `${SERVER_URL}/media-buyer/create-media-buyer/${state._id}`,
       {
         "budget": data?.budget,
-        "paid_reach": data?.paid,
-        "organic_reach": data?.organic,
+        "reaction": data?.paid,
+        "organic": data?.organic,
         "reactions": data?.reaction,
-        "comments": 5000,
-        "shares": data?.total,
-        "page_visitor": 10000,
-        "page_new_follower": 1000000,
-        "page_total_reach": 150000,
+        "total_reach": data?.total,
         "ads":data?.ads,
     },
       {
@@ -144,7 +140,7 @@ const handleSubmit = async () => {
               />
 
               <TextField
-                label="Reactions"
+                label="Share"
                 value={data.paid || ""}
                 onChange={(e) => setData({ ...data, paid: e.target.value })}
                 fullWidth
@@ -202,9 +198,9 @@ const handleSubmit = async () => {
         </div>
 
         <div>
-          <div className="font-bold text-secondaryColor mt-8">Graphic</div>
+          <div className="font-bold text-secondaryColor mt-8 ">Graphic</div>
           <div className="flex gap-2 my-5">
-            <Gallery />
+            <Gallery image={state?.design}/>
           </div>
         </div>
       </div>
@@ -221,7 +217,7 @@ const handleSubmit = async () => {
               />
 
               <TextField
-                label="Reactions"
+                label="Share"
                 value={data.paid || ""}
                 onChange={(e) => setData({ ...data, paid: e.target.value })}
                 fullWidth

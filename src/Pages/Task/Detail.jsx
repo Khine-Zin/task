@@ -51,7 +51,13 @@ const Detail = () => {
   const handleSubmit = async() => {
     setCreate(true)
      const token = localStorage.getItem("token");
- 
+     if(content?.length <800){
+      toast.error("Content is need at least 700 word", {
+        position: "top-right",
+        duration: 5000,
+      });
+      return false
+    }
  
      try {
        const response = await axios.put(
@@ -72,7 +78,7 @@ const Detail = () => {
        );
      setCreate(false)
       if(response.data?.statusCode===200){
-       navigate("/task")
+       navigate("/content")
        toast.success('Successful Added Content!', {
          position: 'top-right',
          duration: 5000,
@@ -120,12 +126,12 @@ const Detail = () => {
    }
  
    };
-console.log(state)
+console.log("detailstate",state)
   return (
     <div className="mt-24 lg:mx-4 mx-2 hide-scrollbar flex-row justify-center items-center">
       {/* Breadcrumb */}
       <div className="flex justify-end m-8">
-        <SmallBreadcrumbs title="Task" ActiveTitle="Details" link="/task" />
+        <SmallBreadcrumbs title="Task" ActiveTitle="Details" link="/content" />
       </div>
 
       {/* Title */}
@@ -164,14 +170,18 @@ console.log(state)
               value: formatDate(state?.task?.deadline),
             },
             { icon: <PiNotePencilDuotone />, label: "Note", value: state?.note },
-            { icon: <HiChartBar />, label: "Category", value: state?.task?.category?.name },
+            state?.task?.category?.name && {
+              icon: <HiChartBar />,
+              label: "Category",
+              value: state?.task?.category?.name,
+            },
           ].map((row, index) => (
             <tr key={index} className="border-none ">
               <td className="flex items-center gap-2 lg:w-[200px] w-[130px] p-3">
-                {row.icon}
-                <span>{row.label}</span>
+                {row?.icon}
+                <span>{row?.label}</span>
               </td>
-              <td className="">{row.value}</td>
+              <td className="">{row?.value}</td>
             </tr>
           ))}
         </tbody>
@@ -182,8 +192,13 @@ console.log(state)
       {/* Headline */}
       <div className="mt-10 lg:w-[70%] w-[95%]">
 
-      <div className=" font-bold text-secondaryColor mt-8">Headline</div>
-            <p className=" text-bodyColor mt-5 mb-8">{state?.task?.headline}</p>
+     {
+      state?.task?.headline && (
+       <>
+        <div className=" font-bold text-secondaryColor mt-8">Headline</div>
+        <p className=" text-bodyColor mt-5 mb-8">{state?.task?.headline}</p></>
+      )
+     }
 
           <div className="mb-8">
           <div className=" font-bold text-secondaryColor my-8">Content</div>
@@ -200,11 +215,15 @@ console.log(state)
                      fullWidth
                      margin="normal"
                    />
-        <div className="flex justify-end">
+       {
+        state?.task?.status ==="confirm" && (
+          <div className="flex justify-end">
           <button onClick={handleSubmit} className="bg-primaryColor hover:secondaryColor text-white font-bold py-2 px-6 rounded mt-5">
            {create ? "Loading" :"Submit"}
           </button>
         </div>
+        )
+       }
       </div>
 
       <div className="h-[100px]"></div>

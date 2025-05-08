@@ -35,7 +35,7 @@ const Header = ({toggleHidden}) => {
             whileHover={{ scale: 1.1 }} 
             whileTap={{ scale: 0.9 }}
             onClick={toggleHidden} 
-            className={`text-gray-800 focus:outline-none hover:text-primaryColor transition-all delay-200 duration-300 lg:hidden ${ role!=="admin" ? "hidden" :""}`}>
+            className={`text-gray-800 focus:outline-none hover:text-primaryColor transition-all delay-200 duration-300  `}>
          <HiMenu size={24}/>
           </motion.button>
           <span className={`text-lg lg:text-3xl font-bold transition-all duration-300 ${role!=="admin" ?"":"hidden"} lg:block`}>Task Management</span>

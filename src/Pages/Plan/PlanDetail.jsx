@@ -22,7 +22,7 @@ const PlanDetail = () => {
   const [content, setContent] = useState("");
 
 
-
+console.log("state",state)
 
   // Format Date Function
   const formatDate = (dateString) => {
@@ -94,6 +94,8 @@ const PlanDetail = () => {
 
       {/* Headline */}
       <div className="mt-10 lg:w-[70%] w-[95%]">
+      <div className=" font-bold text-secondaryColor mt-8">Design Brief</div>
+      <p className="text-sm text-bodyColor mt-5 mb-8">{state?.task?.headlinedesign_brief || state.design_brief}</p>
 
       <div className=" font-bold text-secondaryColor mt-8">Headline</div>
             <p className="text-sm text-bodyColor mt-5 mb-8">{state?.task?.headline || state.headline}</p>

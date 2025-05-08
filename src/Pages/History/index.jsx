@@ -59,13 +59,13 @@ const [post,setPost]=React.useState("")
   const [loading,setLoading]=React.useState(false)
   const [Create,setCreate]=React.useState(false)
     const navigate = useNavigate();
-const [startDate,setStartDate]=React.useState("")
-const [endDate,setEndDate]=React.useState("")
+const [monthsearch,setMonthSearch]=React.useState("")
   const [data, setData] = React.useState([]);
   
   const [pager, setPager] = React.useState({ currentPage: 1, pageSize: 9 });
   const debounceTimer = React.useRef(null);
     const [brand,setBrand]=React.useState([])
+    
   const [bannerImage, setBannerImage] = React.useState("");
   const formatDate = (dateString) => {
     const options = { day: '2-digit', month: 'short', year: 'numeric' };
@@ -78,12 +78,28 @@ const [endDate,setEndDate]=React.useState("")
     return new Date(dateString).toLocaleDateString('en-GB', options);
 
   };
+  const date = new Date(monthsearch); // e.g., May 6, 2025
+
+const year = date.getFullYear();
+const month = date.getMonth(); // May = 4
+
+const startDate = new Date(year, month, 1);
+const endDate = new Date(year, month + 1, 0); // last day of the month
+
+const options = { month: 'long', day: 'numeric', year: 'numeric' };
+
+// Remove the comma in the formatted date string
+const startDateFormatted = startDate.toLocaleString('en-US', options).replace(',', '');
+const endDateFormatted = endDate.toLocaleString('en-US', options).replace(',', '');
+
+console.log("Start Date:", startDateFormatted);
+console.log("End Date:", endDateFormatted);
 
   const fetchData= async () => {
     setLoading(true);
     const token = localStorage.getItem("token");
     try {
-      const response = await axios.get(`${SERVER_URL}/history/view-history?page=${pager.currentPage}&limit=${pager.pageSize}&status=confirm&brandId=${searchQuery}`, {
+      const response = await axios.get(`${SERVER_URL}/history/view-history?page=${pager.currentPage}&limit=${pager.pageSize}&brand=${searchQuery}&startDate=${startDateFormatted ==="Invalid Date" ? "" :startDateFormatted}&endDate=${endDateFormatted==="Invalid Date"? "":endDateFormatted}`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: token,
@@ -164,7 +180,7 @@ const [endDate,setEndDate]=React.useState("")
 
   React.useEffect(() => {
  fetchData()
-  }, [pager.currentPage,searchQuery]);
+  }, [pager.currentPage,searchQuery,monthsearch]);
 
   const handlePageChange = (direction) => {
     setPager(prev => {
@@ -178,30 +194,30 @@ const [endDate,setEndDate]=React.useState("")
 
 
 
-const postData=[
-  {
-    "_id": "681024e842e877196335e070",
-    "name": "post1",
-    "business_name": "hi",
-    "start_date": "2025-04-01 0:0:0 AM",
-    "end_date": "2025-04-30 0:0:0 AM",
-    "logo": "brand/image-1745888488005-542323861.png",
-    "color": "#000000",
-    "createdAt": "2025-04-29 7:31:28 AM",
-    "updatedAt": "2025-04-29 7:31:28 AM"
-},
-{
-    "_id": "680f2dc0ed1f05c698d3e74c",
-    "name": "post2",
-    "business_name": "hello",
-    "start_date": "2025-04-01 0:0:0 AM",
-    "end_date": "2025-04-30 0:0:0 AM",
-    "logo": "brand/image-1745825210179-420027389.png",
-    "color": "#000000",
-    "createdAt": "2025-04-28 1:56:56 PM",
-    "updatedAt": "2025-04-28 1:56:56 PM"
-}
-]
+// const postData=[
+//   {
+//     "_id": "681024e842e877196335e070",
+//     "name": "post1",
+//     "business_name": "hi",
+//     "start_date": "2025-04-01 0:0:0 AM",
+//     "end_date": "2025-04-30 0:0:0 AM",
+//     "logo": "brand/image-1745888488005-542323861.png",
+//     "color": "#000000",
+//     "createdAt": "2025-04-29 7:31:28 AM",
+//     "updatedAt": "2025-04-29 7:31:28 AM"
+// },
+// {
+//     "_id": "680f2dc0ed1f05c698d3e74c",
+//     "name": "post2",
+//     "business_name": "hello",
+//     "start_date": "2025-04-01 0:0:0 AM",
+//     "end_date": "2025-04-30 0:0:0 AM",
+//     "logo": "brand/image-1745825210179-420027389.png",
+//     "color": "#000000",
+//     "createdAt": "2025-04-28 1:56:56 PM",
+//     "updatedAt": "2025-04-28 1:56:56 PM"
+// }
+// ]
   return (
     <div className="mt-24 lg:mx-4 mx-2">
       <div className='hidden lg:block'>
@@ -222,7 +238,7 @@ const postData=[
       <MenuItem disabled>No option</MenuItem>
     ) : (
       brand.map((user) => (
-        <MenuItem key={user._id} value={user._id}>
+        <MenuItem key={user._id} value={user.name}>
           {user.name}
         </MenuItem>
       ))
@@ -234,14 +250,14 @@ const postData=[
       <Box flex={1} mt={2}>
        
         <Monthpicker
-          value={startDate}
-          onChange={(e) => setStartDate(e.target.value)}
+          value={monthsearch}
+          onChange={(e) => setMonthSearch(e.target.value)}
           name="startDate"
         />
       </Box>
     
    
-      <Box flex={1}>
+      {/* <Box flex={1}>
       <FormControl sx={{ width: 200 }} margin="normal">
   <InputLabel id="role-label">Select Post</InputLabel>
   <Select
@@ -264,7 +280,7 @@ const postData=[
   </Select>
 </FormControl>
      
-      </Box>
+      </Box> */}
     </Box>
             {/* <form className="flex items-center max-w-sm">
               <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">

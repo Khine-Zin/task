@@ -359,7 +359,7 @@ const SideBar = ({ isOpen, setIsOpen,toggleHidden }) => {
                    </motion.div>
              </Link>
             
-            <Link to="/calendarContent">
+            {/* <Link to="/calendarContent">
                    <motion.div whileHover={{ x: 5 }}
                     onClick={()=>{setIsOpen(false)}} className={`flex text-gray-100 items-center pl-8 p-2 gap-3 my-2 rounded-lg transition-colors ${Location.pathname==="/content"? "text-white font-bold" :"hover:bg-gray-200 hover:text-black"}`}>
                      <AnimatePresence>
@@ -375,7 +375,7 @@ const SideBar = ({ isOpen, setIsOpen,toggleHidden }) => {
                        )}
                      </AnimatePresence>
                    </motion.div>
-             </Link>
+             </Link> */}
             
              <Link to="/calendarPlan">
                    <motion.div whileHover={{ x: 5 }}
@@ -388,7 +388,7 @@ const SideBar = ({ isOpen, setIsOpen,toggleHidden }) => {
                            animate={{ opacity: 1, width: "auto" }}
                            exit={{ opacity: 0, width: 0 }}
                            transition={{ duration: 0.2, delay: 0.2 }}>
-                     Plan
+                     Content Calendar
                          </motion.span>
                        )}
                      </AnimatePresence>

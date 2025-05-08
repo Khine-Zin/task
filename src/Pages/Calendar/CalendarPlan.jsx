@@ -16,7 +16,7 @@ import Button from '@mui/material/Button';
 
 import toast, { Toaster } from 'react-hot-toast';  // Import toast and Toaster
 
-import { Box, FormControl, FormControlLabel, InputLabel, MenuItem, Radio, RadioGroup, Select, useMediaQuery } from '@mui/material';
+import { Box, Checkbox, FormControl, FormControlLabel, FormGroup, InputLabel, MenuItem, Radio, RadioGroup, Select, useMediaQuery } from '@mui/material';
 import axios from 'axios';
 import { SERVER_URL } from '../../api/url';
 import userStore from '../../store/userStore';
@@ -56,8 +56,9 @@ const CalendarPlan= () => {
   const [selectedUser, setSelectedUser] = React.useState(null);
  const setUser = userStore((state) => state.setUser);
   const [openCreateDialog, setOpenCreateDialog] = React.useState(false);
-  const [newUser, setNewUser] = React.useState({ name: '', email: '', role: '', password: '' });
+  const [newUser, setNewUser] = React.useState({ });
   const [searchQuery, setSearchQuery] = React.useState("");
+  const [monthsearch,setMonthSearch]=React.useState("")
   const [loading,setLoading]=React.useState(false)
   const [Create,setCreate]=React.useState(false)
     const navigate = useNavigate();
@@ -65,7 +66,7 @@ const CalendarPlan= () => {
   const [datacontent, setDataContent] = React.useState([]);
   const [dataHeadline, setDataHeadline] = React.useState([]);
   const [brand,setBrand]=React.useState([])
-  const [month,setMonth]=useState("")
+
   const [pager, setPager] = React.useState({ currentPage: 1, pageSize: 9});
   const debounceTimer = React.useRef(null);
   const role = localStorage.getItem("userRole");
@@ -76,20 +77,61 @@ const CalendarPlan= () => {
 
   };
 
+  const date = new Date(monthsearch); // e.g., May 6, 2025
+
+  const year = date.getFullYear();
+  const month = date.getMonth(); // May = 4
+  
+  const startDate = new Date(year, month, 1);
+  const endDate = new Date(year, month + 1, 0); // last day of the month
+  
+  const options = { month: 'long', day: 'numeric', year: 'numeric' };
+  
+  // Remove the comma in the formatted date string
+  const startDateFormatted = startDate.toLocaleString('en-US', options).replace(',', '');
+  const endDateFormatted = endDate.toLocaleString('en-US', options).replace(',', '');
+
+  const DownloadDate = new Date(newUser?.start_date);
+  console.log(DownloadDate)
+  const year1 = DownloadDate.getFullYear();
+  const month1 = DownloadDate.getMonth(); // May = 4
+  
+  const startDate1 = new Date(year1, month1, 1);
+  const endDate1 = new Date(year1, month1 + 1, 0); // last day of the month
+  
+  const options1 = { month: 'long', day: 'numeric', year: 'numeric' };
+  
+  // Remove the comma in the formatted date string
+  const startDateFormatted1 = startDate1.toLocaleString('en-US', options1).replace(',', '');
+  const endDateFormatted1 = endDate1.toLocaleString('en-US', options1).replace(',', '')
+  
+const [download,setDownload]=useState([])
+  
+
   const [item,setItem]=useState("")
     
   const [errorShown, setErrorShown] = React.useState(false);
 
   const [total,settotal]=useState([])
-  
 
+    const [selectedPosts, setSelectedPosts] = useState([]);
+  
+    const handleChange = (postId) => {
+      setSelectedPosts((prev) =>
+        prev.includes(postId)
+          ? prev.filter((id) => id !== postId)
+          : [...prev, postId]
+      );
+    };
+  
+console.log(selectedPosts)
   const fetchData = async () => {
     setLoading(true);
     const token = localStorage.getItem("token");
 
     try {
       // Fetch task data first based on pager.currentPage
-      const taskResponse = await axios.get(`${SERVER_URL}/content-calendar/view-content-calendar?page=${pager.currentPage}&limit=${pager.pageSize}`, {
+      const taskResponse = await axios.get(`${SERVER_URL}/content-calendar/view-content-calendar?page=${pager.currentPage}&limit=${pager.pageSize}&brand=${searchQuery}&startDate=${startDateFormatted ==="Invalid Date" ? "" :startDateFormatted}&endDate=${endDateFormatted==="Invalid Date"? "":endDateFormatted}`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: token,
@@ -112,7 +154,7 @@ const CalendarPlan= () => {
       setLoading(false);
     }
   };
-  console.log(dataHeadline)
+
   const fetchBrand = async () => {
     setLoading(true);
     const token = localStorage.getItem("token");
@@ -142,7 +184,7 @@ const CalendarPlan= () => {
   
   
     fetchData();
-  }, [pager.currentPage]); // Dependency on pager.currentPage
+  }, [pager.currentPage,searchQuery,monthsearch]); // Dependency on pager.currentPage
 
   
   
@@ -291,46 +333,90 @@ setOpenDialog(false)
     setOpenDialog(false);
   };
 
+    const fetchDownload = async () => {
+      setLoading(true);
+      const token = localStorage.getItem("token");
+  
+      try {
+        // Fetch task data first based on pager.currentPage
+        const taskResponse = await axios.get(`${SERVER_URL}/content-calendar/view-content-calendar?page=${pager.currentPage}&limit=${pager.pageSize}&brand=${newUser?.brand}&startDate=${startDateFormatted1 ==="Invalid Date" ? "" :startDateFormatted1}&endDate=${endDateFormatted1==="Invalid Date"? "":endDateFormatted1}`, {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: token,
+          },
+        });
+  
+        const taskData = taskResponse.data?.data.currentDatas[0];
+  
+     
+        setDownload(taskData?.content);
+     
+       
+  
+      } catch (err) {
+        if (!errorShown) { // Show error only if it hasn't been shown yet
+          handleError(err);
+          setErrorShown(true); // Mark that the error has been shown
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
   const handleDownload = () => {
     setOpenCreateDialog(true);
-    setNewUser("")
-    setType("headline")
+
+    setType("content")
   };
-console.log(type)
+  React.useEffect(() => {
+  
+    if(newUser.brand && newUser.start_date){
+     fetchDownload()
+    }
+     
+   }, [newUser.brand,newUser.start_date]);
+
 const handleCreateUserSubmit = async () => {
   setCreate(true);
   const token = localStorage.getItem("token");
 
 
+
   try {
-    const response = await axios.get(
-      `${SERVER_URL}/content-calendar/download-headline-content-calendar?startdate=${newUser?.start_date}&enddate=${newUser?.end_date}&brandId=${newUser?.brand}`,
+    const response = await axios.post(
+      `${SERVER_URL}/content-calendar/download-content-calendar`,{
+        postIds:selectedPosts
+      },
       {
         headers: {
           Authorization: token,
           Accept: 'application/json',
           'Content-Type': 'application/json',
         },
+        responseType: 'blob' 
       }
+      
     );
 
+    const blob = new Blob([response.data]);
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'headline-content-calendar.zip'; // ← Change file name/type accordingly
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.URL.revokeObjectURL(url);
+setSelectedPosts([])
     setCreate(false);
-
-    if (response.data?.statusCode === 201) {
-      fetchData();
-      toast.success('Successfully Created!', {
-        position: 'top-right',
-        duration: 5000,
-      });
-      setOpenCreateDialog(false);
-      setNewUser("");
-      setBannerImage("");
-    } else if (response.data?.statusCode === 203) {
-      toast.error(response.data?.message || "Request failed", {
-        position: 'top-right',
-        duration: 5000,
-      });
-    }
+  
+    toast.success('Successfully Download!', {
+      position: 'top-right',
+      duration: 5000,
+    });
+    setOpenCreateDialog(false);
+    setNewUser("");
+ 
 
   } catch (err) {
     setCreate(false);
@@ -370,14 +456,13 @@ const handleCreateUserSubmit = async () => {
   }
 };
 
-
-
+console.log(download)
 
   return (
     <div className="mt-24 lg:mx-4 mx-2">
        <div className='hidden lg:block'>
      <div className='flex justify-between gap-3 items-center mb-5 mt-[100px]'>
-     <h2 className="text-xl text-gray-700">Total: {loading ? "0":total?.total?.headline}</h2>
+     <h2 className="text-xl text-gray-700">Total: {loading ? "0":total?.total?.content}</h2>
      {
           role ==="admin" && (
             <div className='flex gap-3 items-center'>
@@ -396,7 +481,7 @@ const handleCreateUserSubmit = async () => {
       <MenuItem disabled>No option</MenuItem>
     ) : (
       brand.map((user) => (
-        <MenuItem key={user._id} value={user._id}>
+        <MenuItem key={user._id} value={user.name}>
           {user.name}
         </MenuItem>
       ))
@@ -408,8 +493,8 @@ const handleCreateUserSubmit = async () => {
       <Box flex={1}>
        
         <Monthpicker
-          value={month}
-          onChange={(e) => setMonth(e.target.value)}
+          value={monthsearch}
+          onChange={(e) => setMonthSearch(e.target.value)}
           name="month"
         />
       </Box>
@@ -442,7 +527,7 @@ const handleCreateUserSubmit = async () => {
       </div>
      </div>
      <div className='flex justify-between gap-3 items-center mb-5 mt-[100px] lg:hidden'>
-     <h2 className="text-xl text-gray-700">Total: {loading ? "0":total?.total?.headline}</h2>
+     <h2 className="text-xl text-gray-700">Total: {loading ? "0":total?.total?.content}</h2>
         <div className='flex gap-3 items-center'>
           
           {
@@ -477,20 +562,20 @@ const handleCreateUserSubmit = async () => {
       </TableRow>
     </TableHead>
     <TableBody>
-  {dataHeadline === undefined || dataHeadline.length===0 ? (
+  {datacontent === undefined || datacontent.length===0 ? (
     <StyledTableRow>
       <StyledTableCell colSpan={5} align="center">
-        There is no headline task
+        No Data
       </StyledTableCell>
     </StyledTableRow>
   ) : (
-    dataHeadline?.map((row) =>
+    datacontent?.flatMap((row) =>
       row?.tasks.map((item, index) => (
-        <StyledTableRow key={index}>
-            <StyledTableCell align="left">post - {item?.post}</StyledTableCell>
-          <StyledTableCell align="left">{item?.brand?.name}</StyledTableCell>
+        <StyledTableRow key={item._id || index}>
+          <StyledTableCell align="left">post - {item?.task?.postNumber}</StyledTableCell>
+          <StyledTableCell align="left">{item?.task?.brand?.name}</StyledTableCell>
           <StyledTableCell align="left">
-  {item?.month ? new Date(item?.month).toLocaleString('en-US', {
+  {item?.task?.month ? new Date(item?.task?.month).toLocaleString('en-US', {
     month: 'long',
     year: 'numeric',
   }) : ''}
@@ -500,7 +585,7 @@ const handleCreateUserSubmit = async () => {
             sx={{ display: 'flex', justifyContent: 'center', gap: 1 }}
           >
             <Button
-              onClick={() => handleClick("confirm", item,"headline")}
+              onClick={() => handleClick("final", item, "content")}
               variant="outlined"
               sx={{
                 textTransform: 'none',
@@ -513,10 +598,22 @@ const handleCreateUserSubmit = async () => {
               Confirm
             </Button>
 
-        
+            {/* <Button
+              onClick={() => handleClick("revise", item, "content")}
+              variant="outlined"
+              sx={{
+                textTransform: 'none',
+                backgroundColor: 'red',
+                color: 'white',
+                padding: '2px 4px',
+                fontSize: '0.75rem',
+              }}
+            >
+              Revise
+            </Button> */}
 
-         <Tooltip title={item?.headline ? item?.headline:"No headline" } >
-         <Button
+         <Tooltip title={item?.task?.headline ? item?.task?.headline:"No headline" } >
+            <Button
               onClick={() => navigate("/calendarContent/detail", { state: item })}
               sx={{
                 textTransform: 'none',
@@ -528,7 +625,7 @@ const handleCreateUserSubmit = async () => {
             >
               Details
             </Button>
-         </Tooltip>
+            </Tooltip>
           </StyledTableCell>
         </StyledTableRow>
       ))
@@ -560,14 +657,14 @@ const handleCreateUserSubmit = async () => {
       <Dialog open={openDialog} onClose={cancelDelete}>
         <DialogTitle>Confirm </DialogTitle>
         <DialogContent>
-          Are you sure you want to {selectedUser} this task?
+          Are you sure you want to confirm this task?
         </DialogContent>
         <DialogActions>
           <Button onClick={cancelDelete} sx={{color:"#666464"}}>
             Cancel
           </Button>
           <Button onClick={confirm} sx={{ color: 'red' }}>
-          {Create ? "loading...":selectedUser}
+          {Create ? "loading...":"confirm"}
           </Button>
         </DialogActions>
       </Dialog>
@@ -594,7 +691,7 @@ const handleCreateUserSubmit = async () => {
                          {brand.length ===0 ? (
                               <MenuItem disabled>No option </MenuItem>
                          ):brand?.map((user) => (
-                     <MenuItem key={user._id} value={user._id}>
+                     <MenuItem key={user._id} value={user.name}>
                        {user.name}
                      </MenuItem>
                    ))}
@@ -613,6 +710,36 @@ const handleCreateUserSubmit = async () => {
              </Box>
          
            </Box>
+       
+   
+       
+       
+   {
+     newUser.start_date && (
+      <div className="my-5">
+        {download?.length === 0 ? (
+          <div>There is no post</div>
+        ) : (
+          download?.[0]?.tasks?.map((post) => (
+            <div key={post._id || ""}>
+              <FormGroup>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={selectedPosts.includes(post._id)}
+                      onChange={() => handleChange(post._id)}
+                    />
+                  }
+                  label={`Post: ${post?.task?.postNumber}`}
+                />
+              </FormGroup>
+            </div>
+          ))
+        )}
+      </div>
+     )
+   }
+       
        
    
        

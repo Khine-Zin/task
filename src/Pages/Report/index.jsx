@@ -58,17 +58,22 @@ const Report = () => {
  const [id,setId]=React.useState("")
  const setUser = userStore((state) => state.setUser);
   const [openCreateDialog, setOpenCreateDialog] = React.useState(false);
-  const [newUser, setNewUser] = React.useState({ name: '', email: '', role: '', password: '' });
+  const [newUser, setNewUser] = React.useState({});
 
   const role = localStorage.getItem("userRole");
   const [loading,setLoading]=React.useState(false)
   const [Create,setCreate]=React.useState(false)
     const navigate = useNavigate();
-
+const [monthsearch,setMonthSearch]=React.useState("")
+ const [searchQuery, setSearchQuery] = React.useState("");
   const [data, setData] = React.useState([]);
   const [pager, setPager] = React.useState({ currentPage: 1, pageSize: 9 });
   const debounceTimer = React.useRef(null);
-  const [bannerImage, setBannerImage] = React.useState("");
+  const [reachImage, setReachImage] = React.useState("");
+  const [visitorImage, setVisitorImage] = React.useState("");
+  const [followerImage, setFollowerImage] = React.useState("");
+  const [locationImage, setLocationImage] = React.useState("");
+  const [messageImage, setMessageImage] = React.useState("");
     const [brand,setBrand]=React.useState([])
 
     const formatMonth = (dateString) => {
@@ -81,11 +86,27 @@ const Report = () => {
       return new Date(dateString).toLocaleDateString('en-GB', options);
   
     };
+    const date = new Date(monthsearch); // e.g., May 6, 2025
+
+const year = date.getFullYear();
+const month = date.getMonth(); // May = 4
+
+const startDate = new Date(year, month, 1);
+const endDate = new Date(year, month + 1, 0); // last day of the month
+
+const options = { month: 'long', day: 'numeric', year: 'numeric' };
+
+// Remove the comma in the formatted date string
+const startDateFormatted = startDate.toLocaleString('en-US', options).replace(',', '');
+const endDateFormatted = endDate.toLocaleString('en-US', options).replace(',', '');
+
+// console.log("Start Date:", startDateFormatted);
+// console.log("End Date:", endDateFormatted);
   const fetchData= async () => {
     setLoading(true);
     const token = localStorage.getItem("token");
     try {
-      const response = await axios.get(`${SERVER_URL}/report/view-report?page=${pager.currentPage}&limit=${pager.pageSize}`, {
+      const response = await axios.get(`${SERVER_URL}/report/view-report?page=${pager.currentPage}&limit=${pager.pageSize}&status=done&brand=${searchQuery}&startDate=${startDateFormatted ==="Invalid Date" ? "" :startDateFormatted}&endDate=${endDateFormatted==="Invalid Date"? "":endDateFormatted}`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: token,
@@ -163,7 +184,7 @@ const Report = () => {
 
   React.useEffect(() => {
     fetchData();
-  }, [pager.currentPage]);
+  }, [pager.currentPage,searchQuery,monthsearch]);
 
   const handlePageChange = (direction) => {
     setPager(prev => {
@@ -175,7 +196,7 @@ const Report = () => {
     });
   };
 
-
+console.log("new",newUser)
 
   const handleCreateAccountClick = (row) => {
   setId(row)
@@ -190,10 +211,18 @@ const Report = () => {
     try {
       const formData = new FormData();
       formData.append("date", newUser.startDate);
-      formData.append("design",bannerImage);
-      
+      formData.append("brand",newUser?.brand);
+      formData.append("page_total_reach",newUser?.pageReach);
+      formData.append("page_visitor",newUser?.pageVisitor);
+      formData.append("page_new_follower",newUser?.pageFollower);
+      formData.append("reachImage",reachImage);
+      formData.append("visitorImage",visitorImage);
+      formData.append("followerImage",followerImage);
+      formData.append("locationImage",locationImage);
+      formData.append(" messageImage",messageImage);
+
       const response = await axios.post(
-        `${SERVER_URL}/plan/create-plan/${id}`,
+        `${SERVER_URL}/report/download-report`,
         formData,
         {
           headers: {
@@ -272,8 +301,42 @@ const Report = () => {
       {
           role ==="admin" && (
             <div className='flex gap-3 items-center'>
-         <div className="relative">
-         
+            <div className="relative flex gap-5">
+          <FormControl sx={{ width: 200 }} margin="normal">
+  <InputLabel id="role-label">Select Brand</InputLabel>
+  <Select
+    labelId="role-label"
+    id="role"
+    value={searchQuery}
+    onChange={(e) => setSearchQuery(e.target.value)}
+    label="Select Brand"
+     
+  >
+    {brand.length === 0 ? (
+      <MenuItem disabled>No option</MenuItem>
+    ) : (
+      brand.map((user) => (
+        <MenuItem key={user._id} value={user.name}>
+          {user.name}
+        </MenuItem>
+      ))
+    )}
+  </Select>
+</FormControl>
+  <Box display="flex" gap={2} mt={2}>
+      {/* Start Date */}
+      <Box flex={1}>
+       
+        <Monthpicker
+          value={monthsearch}
+          onChange={(e) => setMonthSearch(e.target.value)}
+          name="month"
+        />
+      </Box>
+    
+    
+    </Box>
+        
           </div>
           <Button
             variant="contained"
@@ -296,7 +359,7 @@ const Report = () => {
       </div>
       </div>
       <div className='flex justify-between gap-3 items-center mb-5 mt-[100px] lg:hidden'>
-      <h2 className="text-xl text-gray-700">Plan</h2>
+      <h2 className="text-xl text-gray-700">Report</h2>
        
       </div>
       <TableContainer component={Paper}>
@@ -311,7 +374,7 @@ const Report = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-  {data?.currentDatas?.length === 0 ? (
+  {data?.currentDatas?.[0]?.content?.length === 0 ? (
     <StyledTableRow>
       <StyledTableCell colSpan={5} align="center">
         There is no report found
@@ -325,7 +388,7 @@ const Report = () => {
           const task = taskItem?.task;
           return (
             <StyledTableRow key={index}>
-               <StyledTableCell align="left">post - {taskItem?.post}</StyledTableCell>
+               <StyledTableCell align="left">post - {task?.postNumber}</StyledTableCell>
               <StyledTableCell align="left">{task?.brand?.name}</StyledTableCell>
               <StyledTableCell align="left">{formatMonth(task?.month)}</StyledTableCell>
               <StyledTableCell align="left">{formatDate(taskItem?.design_date)}</StyledTableCell>
@@ -406,49 +469,49 @@ const Report = () => {
       
                     <TextField
                       label="Total Page Reach"
-                      value={data.paid || ""}
-                      onChange={(e) => setData({ ...data, paid: e.target.value })}
+                      value={newUser.pageReach || ""}
+                      onChange={(e) => setNewUser({ ...newUser, pageReach: e.target.value })}
                       fullWidth
                       margin="normal"
                     />
                       <TextField
                       label="Total Page Visitors"
-                      value={data.paid || ""}
-                      onChange={(e) => setData({ ...data, paid: e.target.value })}
+                      value={newUser.pageVisitor || ""}
+                      onChange={(e) => setNewUser({ ...newUser, pageVisitor: e.target.value })}
                       fullWidth
                       margin="normal"
                     />
                       <TextField
                       label="Total Page New likes and followers"
-                      value={data.paid || ""}
-                      onChange={(e) => setData({ ...data, paid: e.target.value })}
+                      value={newUser.pageFollower || ""}
+                      onChange={(e) => setNewUser({ ...newUser, pageFollower: e.target.value })}
                       fullWidth
                       margin="normal"
                     />
    <div className='mt-8'>
-   <label className='mb-5'>Page Page Reach Graph Image</label>
-   <FileUpload setBannerImage={setBannerImage} image={bannerImage} />
+   <label className='mb-5'> Page Reach Graph Image</label>
+   <FileUpload setBannerImage={setReachImage} image={reachImage} />
    </div>
      <div className='mt-8'>
      <label className='mb-5'>Page Page Visitor Graph Image</label>
-     <FileUpload setBannerImage={setBannerImage} image={bannerImage} />
+     <FileUpload setBannerImage={setVisitorImage} image={visitorImage} />
      </div>
       <div className='mt-8'>
       <label className='mb-5'>Page Page New likes and followers Graph Image</label>
-      <FileUpload setBannerImage={setBannerImage} image={bannerImage} />
+      <FileUpload setBannerImage={setFollowerImage} image={followerImage} />
       </div>
       <div className='mt-8'>
       <label className='mb-5'>Message Detail Image</label>
-      <FileUpload setBannerImage={setBannerImage} image={bannerImage} />
+      <FileUpload setBannerImage={setMessageImage} image={messageImage} />
       </div>
       <div className='mt-8'>
       <label className='mb-5'>Location Image</label>
-      <FileUpload setBannerImage={setBannerImage} image={bannerImage} />
+      <FileUpload setBannerImage={setLocationImage} image={locationImage} />
       </div>
   </DialogContent>
   <DialogActions sx={{ mb: 2, mr: 2 }}>
     <Button onClick={() => {
-      setBannerImage("")
+      
       setNewUser("")
       setOpenCreateDialog(false)
     }} sx={{ color: "#666464" }}>

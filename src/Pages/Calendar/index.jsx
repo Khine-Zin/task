@@ -16,7 +16,7 @@ import Button from '@mui/material/Button';
 
 import toast, { Toaster } from 'react-hot-toast';  // Import toast and Toaster
 
-import { Box, FormControl, FormControlLabel, InputLabel, MenuItem, Radio, RadioGroup, Select, useMediaQuery } from '@mui/material';
+import { Box, Checkbox, FormControl, FormControlLabel, FormGroup, InputLabel, MenuItem, Radio, RadioGroup, Select, useMediaQuery } from '@mui/material';
 import axios from 'axios';
 import { SERVER_URL } from '../../api/url';
 import userStore from '../../store/userStore';
@@ -65,31 +65,69 @@ const Task= () => {
   const [datacontent, setDataContent] = React.useState([]);
   const [dataHeadline, setDataHeadline] = React.useState([]);
   const [brand,setBrand]=React.useState([])
-  const [month,setMonth]=useState("")
+
   const [pager, setPager] = React.useState({ currentPage: 1, pageSize: 9});
   const debounceTimer = React.useRef(null);
   const role = localStorage.getItem("userRole");
   const [type, setType] = React.useState("headline");
+  const [monthsearch,setMonthSearch]=React.useState("")
   const formatDate = (dateString) => {
     const options = { day: '2-digit', month: 'short', year: 'numeric' };
     return new Date(dateString).toLocaleDateString('en-GB', options);
 
   };
 
+  const date = new Date(monthsearch); // e.g., May 6, 2025
+
+  const year = date.getFullYear();
+  const month = date.getMonth(); // May = 4
+  
+  const startDate = new Date(year, month, 1);
+  const endDate = new Date(year, month + 1, 0); // last day of the month
+  
+  const options = { month: 'long', day: 'numeric', year: 'numeric' };
+  
+  // Remove the comma in the formatted date string
+  const startDateFormatted = startDate.toLocaleString('en-US', options).replace(',', '');
+  const endDateFormatted = endDate.toLocaleString('en-US', options).replace(',', '')
+
+  const DownloadDate = new Date(newUser?.start_date);
+  const year1 = DownloadDate.getFullYear();
+  const month1 = DownloadDate.getMonth(); // May = 4
+  
+  const startDate1 = new Date(year1, month1, 1);
+  const endDate1 = new Date(year1, month1 + 1, 0); // last day of the month
+  
+  const options1 = { month: 'long', day: 'numeric', year: 'numeric' };
+  
+  // Remove the comma in the formatted date string
+  const startDateFormatted1 = startDate1.toLocaleString('en-US', options1).replace(',', '');
+  const endDateFormatted1 = endDate1.toLocaleString('en-US', options1).replace(',', '')
+
+const [download,setDownload]=useState([])
   const [item,setItem]=useState("")
     
   const [errorShown, setErrorShown] = React.useState(false);
 
   const [total,settotal]=useState([])
-  
+  const [selectedPosts, setSelectedPosts] = useState([]);
 
+  const handleChange = (postId) => {
+    setSelectedPosts((prev) =>
+      prev.includes(postId)
+        ? prev.filter((id) => id !== postId)
+        : [...prev, postId]
+    );
+  };
+  
+console.log(selectedPosts)
   const fetchData = async () => {
     setLoading(true);
     const token = localStorage.getItem("token");
 
     try {
       // Fetch task data first based on pager.currentPage
-      const taskResponse = await axios.get(`${SERVER_URL}/content-calendar/view-content-calendar?page=${pager.currentPage}&limit=${pager.pageSize}`, {
+      const taskResponse = await axios.get(`${SERVER_URL}/content-calendar/view-content-calendar?page=${pager.currentPage}&limit=${pager.pageSize}&brand=${searchQuery}&startDate=${startDateFormatted ==="Invalid Date" ? "" :startDateFormatted}&endDate=${endDateFormatted==="Invalid Date"? "":endDateFormatted}`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: token,
@@ -112,7 +150,37 @@ const Task= () => {
       setLoading(false);
     }
   };
-  console.log(dataHeadline)
+
+  const fetchDownload = async () => {
+    setLoading(true);
+    const token = localStorage.getItem("token");
+
+    try {
+      // Fetch task data first based on pager.currentPage
+      const taskResponse = await axios.get(`${SERVER_URL}/content-calendar/view-content-calendar?page=${pager.currentPage}&limit=${pager.pageSize}&brand=${searchQuery}&startDate=${startDateFormatted1 ==="Invalid Date" ? "" :startDateFormatted1}&endDate=${endDateFormatted1==="Invalid Date"? "":endDateFormatted1}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: token,
+        },
+      });
+
+      const taskData = taskResponse.data?.data.currentDatas[0];
+
+   
+      setDownload(taskData?.headline);
+   
+     
+
+    } catch (err) {
+      if (!errorShown) { // Show error only if it hasn't been shown yet
+        handleError(err);
+        setErrorShown(true); // Mark that the error has been shown
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const fetchBrand = async () => {
     setLoading(true);
     const token = localStorage.getItem("token");
@@ -137,14 +205,20 @@ const Task= () => {
       setLoading(false);
     }
   };
-
+console.log(download)
   React.useEffect(() => {
   
   
     fetchData();
-  }, [pager.currentPage]); // Dependency on pager.currentPage
+  }, [pager.currentPage,monthsearch,searchQuery]); // Dependency on pager.currentPage
 
+  React.useEffect(() => {
   
+   if(newUser.brand && newUser.start_date){
+    fetchDownload()
+   }
+    
+  }, [newUser.month,newUser.start_date]);
   
     React.useEffect(() => {
       const timeoutId = setTimeout(() => {
@@ -296,41 +370,47 @@ setOpenDialog(false)
     setNewUser("")
     setType("headline")
   };
-console.log(type)
+
 const handleCreateUserSubmit = async () => {
   setCreate(true);
   const token = localStorage.getItem("token");
 
 
   try {
-    const response = await axios.get(
-      `${SERVER_URL}/content-calendar/download-headline-content-calendar?startdate=${newUser?.start_date}&enddate=${newUser?.end_date}&brandId=${newUser?.brand}`,
+    const response = await axios.post(
+      `${SERVER_URL}/content-calendar/download-headline-content-calendar`,{
+        postIds: selectedPosts
+      },
       {
         headers: {
           Authorization: token,
           Accept: 'application/json',
           'Content-Type': 'application/json',
         },
+        responseType: 'blob' 
       }
+      
     );
 
+    const blob = new Blob([response.data]);
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'headline-content-calendar.zip'; // ← Change file name/type accordingly
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.URL.revokeObjectURL(url);
+setSelectedPosts([])
     setCreate(false);
-
-    if (response.data?.statusCode === 201) {
-      fetchData();
-      toast.success('Successfully Created!', {
-        position: 'top-right',
-        duration: 5000,
-      });
-      setOpenCreateDialog(false);
-      setNewUser("");
-      setBannerImage("");
-    } else if (response.data?.statusCode === 203) {
-      toast.error(response.data?.message || "Request failed", {
-        position: 'top-right',
-        duration: 5000,
-      });
-    }
+    console.log(response?.data)
+    toast.success('Successfully Download!', {
+      position: 'top-right',
+      duration: 5000,
+    });
+    setOpenCreateDialog(false);
+    setNewUser("");
+ 
 
   } catch (err) {
     setCreate(false);
@@ -396,7 +476,7 @@ const handleCreateUserSubmit = async () => {
       <MenuItem disabled>No option</MenuItem>
     ) : (
       brand.map((user) => (
-        <MenuItem key={user._id} value={user._id}>
+        <MenuItem key={user._id} value={user.name}>
           {user.name}
         </MenuItem>
       ))
@@ -408,8 +488,8 @@ const handleCreateUserSubmit = async () => {
       <Box flex={1}>
        
         <Monthpicker
-          value={month}
-          onChange={(e) => setMonth(e.target.value)}
+          value={monthsearch}
+          onChange={(e) => setMonthSearch(e.target.value)}
           name="month"
         />
       </Box>
@@ -487,7 +567,7 @@ const handleCreateUserSubmit = async () => {
     dataHeadline?.map((row) =>
       row?.tasks.map((item, index) => (
         <StyledTableRow key={index}>
-            <StyledTableCell align="left">post - {item?.post}</StyledTableCell>
+            <StyledTableCell align="left">post - {item?.postNumber}</StyledTableCell>
           <StyledTableCell align="left">{item?.brand?.name}</StyledTableCell>
           <StyledTableCell align="left">
   {item?.month ? new Date(item?.month).toLocaleString('en-US', {
@@ -585,7 +665,10 @@ const handleCreateUserSubmit = async () => {
       </Dialog>
 
       {/* Create User Form Dialog */}
-      <Dialog open={openCreateDialog} onClose={() => setOpenCreateDialog(false)} fullWidth maxWidth="sm">
+      <Dialog open={openCreateDialog} onClose={() =>{
+         setOpenCreateDialog(false)
+         setSelectedPosts([])
+      }} fullWidth maxWidth="sm">
         {/* <DialogTitle>Download</DialogTitle> */}
         <Dialog open={openCreateDialog} onClose={() => setOpenCreateDialog(false)} fullWidth maxWidth="sm">
                <DialogTitle>Download Pdf</DialogTitle>
@@ -606,7 +689,7 @@ const handleCreateUserSubmit = async () => {
                          {brand.length ===0 ? (
                               <MenuItem disabled>No option </MenuItem>
                          ):brand?.map((user) => (
-                     <MenuItem key={user._id} value={user._id}>
+                     <MenuItem key={user._id} value={user.name}>
                        {user.name}
                      </MenuItem>
                    ))}
@@ -629,7 +712,31 @@ const handleCreateUserSubmit = async () => {
    
        
        
-   
+   {
+     newUser.start_date  && (
+      <div className="my-5">
+        {download?.length === 0 ? (
+          <div>There is no post</div>
+        ) : (
+          download?.[0]?.tasks?.map((post) => (
+            <div key={post._id || ""}>
+              <FormGroup>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={selectedPosts.includes(post._id)}
+                      onChange={() => handleChange(post._id)}
+                    />
+                  }
+                  label={`Post: ${post.postNumber}`}
+                />
+              </FormGroup>
+            </div>
+          ))
+        )}
+      </div>
+     )
+   }
        
        
             

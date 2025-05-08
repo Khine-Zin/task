@@ -57,7 +57,8 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 const Task= () => {
 
 
-  const [searchQuery, setSearchQuery] = React.useState("");
+  const [searchBrand, setSearchBrand] = React.useState("");
+  const [searchUser, setSearchUser] = React.useState("");
   const [openDialog, setOpenDialog] = React.useState(false);
   const [selectedUser, setSelectedUser] = React.useState(null);
  const setUser = userStore((state) => state.setUser);
@@ -90,64 +91,64 @@ const Task= () => {
 
 
   
-  const fetchCategory = async () => {
-    setLoading(true);
-    const token = localStorage.getItem("token");
+  // const fetchCategory = async () => {
+  //   setLoading(true);
+  //   const token = localStorage.getItem("token");
 
-    try {
-      const response = await axios.get(
-        `${SERVER_URL}/category/view-category?page=1&limit=20`,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: token,
-          },
-        }
-      );
-      setCategory(response.data.data?.currentDatas);
+  //   try {
+  //     const response = await axios.get(
+  //       `${SERVER_URL}/category/view-category?page=1&limit=20`,
+  //       {
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //           Authorization: token,
+  //         },
+  //       }
+  //     );
+  //     setCategory(response.data.data?.currentDatas);
     
-    } catch (err) {
-      let errorMessage = "An error occurred. Please try again later.";
+  //   } catch (err) {
+  //     let errorMessage = "An error occurred. Please try again later.";
 
-      if (err.response) {
-        switch (err.response.status) {
-          case 401:
-          case 400:
-            errorMessage =
-              err.response.data?.message || "Your Token is blacklist.";
-            localStorage.clear();
-            setUser(null);
-            navigate("/");
-            break;
-          case 500:
-            errorMessage =
-              err.response.data?.message || "Server error. Please try again.";
-            break;
-          case 503:
-            errorMessage =
-              "Service is temporarily unavailable. Please try again later.";
-            break;
-          case 502:
-            errorMessage = "Bad Gateway: Server is down. Please try later.";
-            break;
-          default:
-            errorMessage = err.response.data?.message || "An error occurred.";
-        }
-      } else if (err.request) {
-        errorMessage = "Network error. Please check your internet connection.";
-      } else {
-        errorMessage = `Error: ${err.message}`;
-      }
+  //     if (err.response) {
+  //       switch (err.response.status) {
+  //         case 401:
+  //         case 400:
+  //           errorMessage =
+  //             err.response.data?.message || "Your Token is blacklist.";
+  //           localStorage.clear();
+  //           setUser(null);
+  //           navigate("/");
+  //           break;
+  //         case 500:
+  //           errorMessage =
+  //             err.response.data?.message || "Server error. Please try again.";
+  //           break;
+  //         case 503:
+  //           errorMessage =
+  //             "Service is temporarily unavailable. Please try again later.";
+  //           break;
+  //         case 502:
+  //           errorMessage = "Bad Gateway: Server is down. Please try later.";
+  //           break;
+  //         default:
+  //           errorMessage = err.response.data?.message || "An error occurred.";
+  //       }
+  //     } else if (err.request) {
+  //       errorMessage = "Network error. Please check your internet connection.";
+  //     } else {
+  //       errorMessage = `Error: ${err.message}`;
+  //     }
 
-      toast.error(errorMessage, { position: "top-right", duration: 5000 });
-    } finally {
-      setLoading(false);
-    }
-  };
+  //     toast.error(errorMessage, { position: "top-right", duration: 5000 });
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
-  React.useEffect(() => {
-    fetchCategory();
-  }, []);
+  // React.useEffect(() => {
+  //   fetchCategory();
+  // }, []);
 
   const [errorShown, setErrorShown] = React.useState(false);
 
@@ -158,7 +159,7 @@ const Task= () => {
 
     try {
       // Fetch task data first based on pager.currentPage
-      const taskResponse = await axios.get(`${SERVER_URL}/task/view-task?page=${pager.currentPage}&limit=${pager.pageSize}`, {
+      const taskResponse = await axios.get(`${SERVER_URL}/task/view-task?page=${pager.currentPage}&limit=${pager.pageSize}&brand=${searchBrand}&category=${searchUser}`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: token,
@@ -229,50 +230,14 @@ const Task= () => {
       setLoading(false);
     }
   };
-// console.log(Content)
-  const fetchCalendar = async () => {
-    setLoading(true);
-    const token = localStorage.getItem("token");
 
-    try {
-  
-      const taskResponse = await axios.get(`${SERVER_URL}/task/view-task?page=1&limit=200`, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: token,
-        },
-      });
-
-      const taskData = taskResponse.data?.data.currentDatas[0];
-
-      setContent(taskData?.headline);
-     
-     
-
-    } catch (err) {
-      if (!errorShown) { // Show error only if it hasn't been shown yet
-        handleError(err);
-        setErrorShown(true); // Mark that the error has been shown
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
 
   React.useEffect(() => {
   
   
     fetchData();
-  }, [pager.currentPage,searchQuery]);
+  }, [pager.currentPage,searchBrand,searchUser]);
 
-
-
-    React.useEffect(() => {
-      fetchCalendar()
-  
-  
-   
-  }, [dataHeadline]);
 
   
     React.useEffect(() => {
@@ -434,72 +399,48 @@ setOpenDialog(false)
     setType("headline")
   };
 console.log(newUser)
-const filteredBrand = Content.flatMap(item =>
-  item.tasks?.filter(task => {
-    const brandMatch = task.brand?._id === newUser.brand;
+// const filteredBrand = Content.flatMap(item =>
+//   item.tasks?.filter(task => {
+//     const brandMatch = task.brand?._id === newUser.brand;
 
-    const taskDate = new Date(task.month);
-    const userMonth = new Date(newUser.month);
+//     const taskDate = new Date(task.month);
+//     const userMonth = new Date(newUser.month);
 
-    const sameMonth =
-      taskDate.getMonth() === userMonth.getMonth() &&
-      taskDate.getFullYear() === userMonth.getFullYear();
+//     const sameMonth =
+//       taskDate.getMonth() === userMonth.getMonth() &&
+//       taskDate.getFullYear() === userMonth.getFullYear();
 
-    return brandMatch && sameMonth;
-  }) || []
-);
+//     return brandMatch && sameMonth;
+//   }) || []
+// );
 
-console.log("brand",filteredBrand)
+// console.log("brand",filteredBrand)
   const handleCreateUserSubmit = async () => {
     setCreate(true);
     const token = localStorage.getItem("token");
   
     try {
-      // Check the type and send the respective request
-      let response;
-      if (type === "headline") {
-        // API call for headline
-        response = await axios.post(
-          `${SERVER_URL}/task/create-task`, // Replace with the correct URL for headline
-          {
-             user:newUser.user,
-            brand:newUser.brand,
-            soical_media:newUser.soical_media,
-             month:newUser.month,
-             deadline:newUser.deadline,
-           quantity:newUser.quantity,
-           category:newUser.category,
-               note:newUser.note
+      const response = await axios.post(
+        `${SERVER_URL}/task/create-task`, // Replace with the correct URL for headline
+        {
+           user:newUser.user,
+          brand:newUser.brand,
+          soical_media:newUser.soical_media,
+           month:newUser.month,
+           deadline:newUser.deadline,
+         quantity:newUser.quantity,
+        //  category:newUser.category,
+             note:newUser.note
+        },
+        {
+          headers: {
+            Authorization: token,
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+            "type":"headline"
           },
-          {
-            headers: {
-              Authorization: token,
-              Accept: 'application/json',
-              'Content-Type': 'application/json',
-              "type":"headline"
-            },
-          }
-        );
-      } else if (type === "content") {
-     
-      
-    
-        response = await axios.post(
-          `${SERVER_URL}/task/create-task`, // Replace with the correct URL for content
-          {
-           task:newUser.task,
-           note:newUser.note
-          },
-          {
-            headers: {
-              Authorization: token,
-              Accept: 'application/json',
-              'Content-Type': 'application/json',
-                "type":"content"
-            },
-          }
-        );
-      }
+        }
+      );
   
       setCreate(false);
   
@@ -564,50 +505,27 @@ console.log("brand",filteredBrand)
      const token = localStorage.getItem("token");
    
      try {
-      // Check the type and send the respective request
-      let response;
-      if (type === "headline") {
-        // API call for headline
-        response = await axios.put(
-          `${SERVER_URL}/task/update-task/${editUser._id}`, // Replace with the correct URL for headline
-          {
-            user:`${foundUser?._id}`,
-            brand:foundbrand._id,
-            soical_media:editUser.soical_media,
-             month:editUser.month,
-             deadline:editUser.deadline,
-           quantity:editUser.post,
-               note:editUser.note,
-               category:foundCategory._id,
+      const response = await axios.put(
+        `${SERVER_URL}/task/update-task/${editUser._id}`, // Replace with the correct URL for headline
+        {
+          user:`${foundUser?._id}`,
+          brand:foundbrand._id,
+          soical_media:editUser.soical_media,
+           month:editUser.month,
+           deadline:editUser.deadline,
+         quantity:editUser.post,
+             note:editUser.note,
+            //  category:foundCategory._id,
+        },
+        {
+          headers: {
+            Authorization: token,
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+            "type":"headline"
           },
-          {
-            headers: {
-              Authorization: token,
-              Accept: 'application/json',
-              'Content-Type': 'application/json',
-              "type":"headline"
-            },
-          }
-        );
-      } else if (type === "content") {
-      
-        response = await axios.put(
-          `${SERVER_URL}/task/update-task/${editUser._id}`, // Replace with the correct URL for content
-          {
-            user:editUser?.name,
-            task:editUser?._id,
-          note:editUser.note
-          },
-          {
-            headers: {
-              Authorization: token,
-              Accept: 'application/json',
-              'Content-Type': 'application/json',
-                "type":"content"
-            },
-          }
-        );
-      }
+        }
+      );
   
       setCreate(false);
       fetchData();
@@ -677,8 +595,8 @@ console.log("brand",filteredBrand)
   <Select
     labelId="role-label"
     id="role"
-    value={searchQuery}
-    onChange={(e) => setSearchQuery(e.target.value)}
+    value={searchBrand}
+    onChange={(e) => setSearchBrand(e.target.value)}
     label="Select Brand"
      
   >
@@ -686,22 +604,41 @@ console.log("brand",filteredBrand)
       <MenuItem disabled>No option</MenuItem>
     ) : (
       brand.map((user) => (
-        <MenuItem key={user._id} value={user._id}>
+        <MenuItem key={user._id} value={user.name}>
           {user.name}
         </MenuItem>
       ))
     )}
   </Select>
 </FormControl>
-  <Box display="flex" gap={2} mt={2}>
+  <Box display="flex" gap={2} >
       {/* Start Date */}
       <Box flex={1}>
        
-        <Monthpicker
-          value={month}
-          onChange={(e) => setMonth(e.target.value)}
-          name="month"
-        />
+      <FormControl fullWidth margin="normal" sx={{ width: '200px' }}>
+
+    <InputLabel id="role-label">Select Content Writer</InputLabel>
+    <Select
+            labelId="role-label"
+            id="role"
+            value={searchUser}
+            onChange={(e) => setSearchUser(e.target.value)}
+            label="Select Content Writer"
+          >
+           
+              {userinfo.length ===0 ?(
+                  <MenuItem disabled>No option </MenuItem>
+              ): userinfo?.map((user) => (
+         
+          user?.role !=="admin" && (
+            <MenuItem key={user._id} value={user.name}>
+            {user.name}
+          </MenuItem>
+          )
+         
+        ))}
+          </Select>
+  </FormControl>
       </Box>
     
     
@@ -782,7 +719,7 @@ console.log("brand",filteredBrand)
    dataHeadline?.map((row, index) =>
       row?.tasks?.map((item, subIndex) => (
         <TableRow key={`${index}-${subIndex}`}>
-          <TableCell align="left">post - {item?.post}</TableCell>
+          <TableCell align="left">post - {item?.postNumber}</TableCell>
           <TableCell align="left">{item?.user?.name}</TableCell>
           <TableCell align="left">{item?.brand?.name}</TableCell>
           <TableCell align="left">{formatDate(item?.deadline)}</TableCell>
@@ -940,7 +877,7 @@ console.log("brand",filteredBrand)
               margin='normal'
               type="number"
             />
-                 <FormControl fullWidth margin="normal">
+                 {/* <FormControl fullWidth margin="normal">
         <InputLabel id="role-label">Select Category</InputLabel>
         <Select
                 labelId="role-label"
@@ -958,7 +895,7 @@ console.log("brand",filteredBrand)
               </MenuItem>
             ))}
               </Select>
-      </FormControl>
+      </FormControl> */}
                     <Box display="flex" gap={2} mt={2}>
       {/* Start Date */}
       <Box flex={1}>
@@ -1062,7 +999,7 @@ label="Select Brand"
   brand.map((user) =>
     user?.role !== 'admin' && (
       <MenuItem key={user._id} value={user.name}>
-        {user?.business_name}
+        {user?.name}
       </MenuItem>
     )
   )
@@ -1107,7 +1044,7 @@ label="Select Media"
       </Box>
     </Box>
 
-    <FormControl fullWidth margin="normal">
+    {/* <FormControl fullWidth margin="normal">
       <InputLabel id="role-label">Select Category</InputLabel>
       <Select
 labelId="role-label"
@@ -1129,7 +1066,7 @@ label="Select Category"
 )}
 </Select>
 
-    </FormControl>
+    </FormControl> */}
 
    </>
     )

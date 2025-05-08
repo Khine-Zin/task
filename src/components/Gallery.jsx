@@ -4,16 +4,17 @@ import { Close as CloseIcon } from '@mui/icons-material'; // Optional: For close
 import project1 from "../assets/images/project1.jpg"
 
 
-const Gallery = () => {
+const Gallery = ({image}) => {
   // State to manage modal open/close
   const [open, setOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
-
+console.log("image",image)
   // Function to open modal
   const handleOpen = (imageSrc) => {
     setSelectedImage(imageSrc);
     setOpen(true);
   };
+  const url=`http://localhost:5000/${image}`;
 
   // Function to close modal
   const handleClose = () => {
@@ -25,10 +26,11 @@ const Gallery = () => {
     <Box >
       <Box
         component="img"
-        src={project1}
+        src={url}
+        crossOrigin='anonymous'
         alt="Description of the image"
         sx={{ width: 400, height: "auto", objectFit: 'cover', cursor: 'pointer', borderRadius: 2 }}
-        onClick={() => handleOpen(project1)}
+        onClick={() => handleOpen(url)}
       />
 
       {/* Dialog for Modal Image */}
@@ -67,6 +69,7 @@ const Gallery = () => {
           <Box
             component="img"
             src={selectedImage}
+             crossOrigin='anonymous'
             alt="Large Image"
             sx={{
               width: '100%',

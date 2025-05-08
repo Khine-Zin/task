@@ -62,7 +62,7 @@ const [brand,setBrand]=React.useState([])
 
   const [data, setData] = React.useState([]);
   const [pager, setPager] = React.useState({ currentPage: 1, pageSize: 9 });
- const [month,setMonth]=React.useState("")
+const [monthsearch,setMonthSearch]=React.useState("")
   const formatDate = (dateString) => {
     const options = { day: '2-digit', month: 'short', year: 'numeric' };
     return new Date(dateString).toLocaleDateString('en-GB', options);
@@ -74,11 +74,25 @@ const [brand,setBrand]=React.useState([])
 
   };
 
+  const date = new Date(monthsearch); // e.g., May 6, 2025
+
+  const year = date.getFullYear();
+  const month = date.getMonth(); // May = 4
+  
+  const startDate = new Date(year, month, 1);
+  const endDate = new Date(year, month + 1, 0); // last day of the month
+  
+  const options = { month: 'long', day: 'numeric', year: 'numeric' };
+  
+  // Remove the comma in the formatted date string
+  const startDateFormatted = startDate.toLocaleString('en-US', options).replace(',', '');
+  const endDateFormatted = endDate.toLocaleString('en-US', options).replace(',', '');
+
   const fetchData= async () => {
     setLoading(true);
     const token = localStorage.getItem("token");
     try {
-      const response = await axios.get(`${SERVER_URL}/media-buyer/view-media-buyer?page=${pager.currentPage}&limit=${pager.pageSize}&status=confirm&search=${searchQuery}`, {
+      const response = await axios.get(`${SERVER_URL}/media-buyer/view-media-buyer?page=${pager.currentPage}&limit=${pager.pageSize}&status=final&brand=${searchQuery}&startDate=${startDateFormatted ==="Invalid Date" ? "" :startDateFormatted}&endDate=${endDateFormatted==="Invalid Date"? "":endDateFormatted}`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: token,
@@ -161,7 +175,7 @@ const [brand,setBrand]=React.useState([])
 
   React.useEffect(() => {
  fetchData()
-  }, [pager.currentPage,searchQuery]);
+  }, [pager.currentPage,searchQuery,monthsearch]);
 
   const handlePageChange = (direction) => {
     setPager(prev => {
@@ -196,7 +210,7 @@ console.log(data)
       <MenuItem disabled>No option</MenuItem>
     ) : (
       brand.map((user) => (
-        <MenuItem key={user._id} value={user._id}>
+        <MenuItem key={user._id} value={user.name}>
           {user.name}
         </MenuItem>
       ))
@@ -206,10 +220,9 @@ console.log(data)
   <Box display="flex" gap={2} mt={2}>
       {/* Start Date */}
       <Box flex={1}>
-       
-        <Monthpicker
-          value={month}
-          onChange={(e) => setMonth(e.target.value)}
+      <Monthpicker
+          value={monthsearch}
+          onChange={(e) => setMonthSearch(e.target.value)}
           name="month"
         />
       </Box>
@@ -237,7 +250,7 @@ console.log(data)
             </TableRow>
           </TableHead>
           <TableBody>
-            {data?.currentDatas?.length===0? (
+            {data?.currentDatas?.[0]?.content?.length===0? (
                <StyledTableRow>
                <StyledTableCell colSpan={5} align="center">
                  There is no data found
@@ -249,7 +262,7 @@ console.log(data)
                         const task = taskItem?.task;
                         return (
                           <StyledTableRow key={row._id}>
-                              <StyledTableCell align="left">post -{taskItem.post}</StyledTableCell>
+                              <StyledTableCell align="left">post -{task.postNumber}</StyledTableCell>
                           <StyledTableCell align="left">{task?.brand?.name}</StyledTableCell>
                           <StyledTableCell align="left">{formatMonth(task?.month)}</StyledTableCell>
                    

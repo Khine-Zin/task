@@ -39,7 +39,7 @@ console.log(state)
     <div className="mt-24 lg:mx-4 mx-2 hide-scrollbar flex-row justify-center items-center">
       {/* Breadcrumb */}
       <div className="flex justify-end m-8">
-        <SmallBreadcrumbs title="Plan" ActiveTitle="Details" link="/plan" />
+        <SmallBreadcrumbs title="Calendar" ActiveTitle="Details" link="/calendarPlan" />
       </div>
 
       {/* Title */}
@@ -49,11 +49,11 @@ console.log(state)
       <table className="mt-8 font-medium text-bodyColor">
         <tbody>
           {[
-            { icon: <HiUsers />, label: "Assignee", value: state.user?.name },
+            { icon: <HiUsers />, label: "Assignee", value: state?.task?.user?.name },
             {
               icon: <HiOutlineBriefcase />,
               label: "Brand Name",
-              value: state?.brand?.name,
+              value: state?.task?.brand?.name,
             },
             {
               icon: <IoShareSocialOutline />,
@@ -67,18 +67,18 @@ console.log(state)
                   ) : (
                     <FaInstagram />
                   )}
-                  <span>{state?.soical_media}</span>
+                  <span>{state?.task?.soical_media}</span>
                 </div>
               ),
             },
-            { icon: <PiListNumbers />, label: "Post No", value: state.post },
+            { icon: <PiListNumbers />, label: "Post No", value: state?.task?.postNumber },
             {
               icon: <HiOutlineCalendar />,
               label: "Month",
-              value: formatDate(state?.month),
+              value: formatDate(state?.task?.month),
             },
             { icon: <PiNotePencilDuotone />, label: "Note", value: state?.note },
-            { icon: <HiChartBar />, label: "Category", value: state?.category?.name },
+            { icon: <HiChartBar />, label: "Category", value: state?.task?.category?.name },
           ].map((row, index) => (
             <tr key={index} className="border-none ">
               <td className="flex items-center gap-2 lg:w-[200px] w-[130px] p-3">
@@ -111,7 +111,7 @@ console.log(state)
       </div>
 
      <div className="mt-10">
-     <Gallery/>
+     <Gallery image={state?.task?.design}/>
      </div>
 
       <div className="h-[100px]"></div>

@@ -59,7 +59,8 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 const Content= () => {
 
 
-  const [searchQuery, setSearchQuery] = React.useState("");
+   const [searchBrand, setSearchBrand] = React.useState("");
+   const [searchUser, setSearchUser] = React.useState("");
   const [openDialog, setOpenDialog] = React.useState(false);
   const [selectedUser, setSelectedUser] = React.useState(null);
  const setUser = userStore((state) => state.setUser);
@@ -81,7 +82,7 @@ const Content= () => {
   const [brandview,setBrandView]=React.useState("")
   const role = localStorage.getItem("userRole");
   const [type, setType] = React.useState("content");
-  const [month,setMonth]=useState("")
+  // const [month,setMonth]=useState("")
   const formatDate = (dateString) => {
     const options = { day: '2-digit', month: 'short', year: 'numeric' };
     return new Date(dateString).toLocaleDateString('en-GB', options);
@@ -89,67 +90,80 @@ const Content= () => {
   };
 
 
-console.log(type)
+  const date = new Date(newUser?.month); // e.g., May 6, 2025
+
+  const year = date.getFullYear();
+  const month = date.getMonth(); // May = 4
+  
+  const startDate = new Date(year, month, 1);
+  const endDate = new Date(year, month + 1, 0); // last day of the month
+  
+  const options = { month: 'long', day: 'numeric', year: 'numeric' };
+  
+  // Remove the comma in the formatted date string
+  const startDateFormatted = startDate.toLocaleString('en-US', options).replace(',', '');
+  const endDateFormatted = endDate.toLocaleString('en-US', options).replace(',', '');
+  
 
   
-  const fetchCategory = async () => {
-    setLoading(true);
-    const token = localStorage.getItem("token");
+  // const fetchCategory = async () => {
+  //   setLoading(true);
+  //   const token = localStorage.getItem("token");
 
-    try {
-      const response = await axios.get(
-        `${SERVER_URL}/category/view-category?page=1&limit=20`,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: token,
-          },
-        }
-      );
-      setCategory(response.data.data?.currentDatas);
+  //   try {
+  //     const response = await axios.get(
+  //       `${SERVER_URL}/category/view-category?page=1&limit=20`,
+  //       {
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //           Authorization: token,
+  //         },
+  //       }
+  //     );
+  //     setCategory(response.data.data?.currentDatas);
     
-    } catch (err) {
-      let errorMessage = "An error occurred. Please try again later.";
+  //   } catch (err) {
+  //     let errorMessage = "An error occurred. Please try again later.";
 
-      if (err.response) {
-        switch (err.response.status) {
-          case 401:
-          case 400:
-            errorMessage =
-              err.response.data?.message || "Your Token is blacklist.";
-            localStorage.clear();
-            setUser(null);
-            navigate("/");
-            break;
-          case 500:
-            errorMessage =
-              err.response.data?.message || "Server error. Please try again.";
-            break;
-          case 503:
-            errorMessage =
-              "Service is temporarily unavailable. Please try again later.";
-            break;
-          case 502:
-            errorMessage = "Bad Gateway: Server is down. Please try later.";
-            break;
-          default:
-            errorMessage = err.response.data?.message || "An error occurred.";
-        }
-      } else if (err.request) {
-        errorMessage = "Network error. Please check your internet connection.";
-      } else {
-        errorMessage = `Error: ${err.message}`;
-      }
+  //     if (err.response) {
+  //       switch (err.response.status) {
+  //         case 401:
+  //         case 400:
+  //           errorMessage =
+  //             err.response.data?.message || "Your Token is blacklist.";
+  //           localStorage.clear();
+  //           setUser(null);
+  //           navigate("/");
+  //           break;
+  //         case 500:
+  //           errorMessage =
+  //             err.response.data?.message || "Server error. Please try again.";
+  //           break;
+  //         case 503:
+  //           errorMessage =
+  //             "Service is temporarily unavailable. Please try again later.";
+  //           break;
+  //         case 502:
+  //           errorMessage = "Bad Gateway: Server is down. Please try later.";
+  //           break;
+  //         default:
+  //           errorMessage = err.response.data?.message || "An error occurred.";
+  //       }
+  //     } else if (err.request) {
+  //       errorMessage = "Network error. Please check your internet connection.";
+  //     } else {
+  //       errorMessage = `Error: ${err.message}`;
+  //     }
 
-      toast.error(errorMessage, { position: "top-right", duration: 5000 });
-    } finally {
-      setLoading(false);
-    }
-  };
+  //     toast.error(errorMessage, { position: "top-right", duration: 5000 });
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
-  React.useEffect(() => {
-    fetchCategory();
-  }, []);
+  // React.useEffect(() => {
+  //   fetchCategory();
+  // }, []);
 
   const [errorShown, setErrorShown] = React.useState(false);
 
@@ -160,7 +174,7 @@ console.log(type)
 
     try {
       // Fetch task data first based on pager.currentPage
-      const taskResponse = await axios.get(`${SERVER_URL}/task/view-task?page=${pager.currentPage}&limit=${pager.pageSize}`, {
+      const taskResponse = await axios.get(`${SERVER_URL}/task/view-task?page=${pager.currentPage}&limit=${pager.pageSize}&brand=${searchBrand}&category=${searchUser}`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: token,
@@ -231,14 +245,14 @@ console.log(type)
       setLoading(false);
     }
   };
-// console.log(Content)
-  const fetchCalendar = async () => {
+
+  const fetchContent = async () => {
     setLoading(true);
     const token = localStorage.getItem("token");
 
     try {
   
-      const taskResponse = await axios.get(`${SERVER_URL}/task/view-task?page=1&limit=200`, {
+      const taskResponse = await axios.get(`${SERVER_URL}/task/view-one-task?page=1&limit=30&brand=${newUser.brand}&category=false&startDate=${startDateFormatted ==="Invalid Date" ? "" :startDateFormatted}&endDate=${endDateFormatted==="Invalid Date"? "":endDateFormatted}`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: token,
@@ -265,16 +279,18 @@ console.log(type)
   
   
     fetchData();
-  }, [pager.currentPage,searchQuery]);
-
+  }, [pager.currentPage,searchUser,searchBrand]);
+console.log("content>>>",Content)
 
 
     React.useEffect(() => {
-      fetchCalendar()
+     if(newUser.brand && newUser.month){
+      fetchContent()
+     }
   
   
-   
-  }, [dataHeadline]);
+ 
+  }, [newUser.brand,newUser.month]);
 
   
     React.useEffect(() => {
@@ -286,11 +302,7 @@ console.log(type)
     }, []); // Empty dependency array ensures it runs only once
     
     React.useEffect(() => {
-      const timeoutId = setTimeout(() => {
-        fetchUser();
-      }, 1000); // Set the delay in milliseconds (e.g., 1000ms = 1 second)
-    
-      return () => clearTimeout(timeoutId); // Cleanup the timeout on unmount
+      fetchUser();
     }, []); 
 
   const handleError = (err) => {
@@ -555,6 +567,7 @@ console.log("brand",filteredBrand)
       });
     }
   };
+  
 
   const foundUser =userinfo.find(user => user.name === editUser?.user?.name);
   const foundCategory =category.find(user => user.name === editUser?.category?.name);
@@ -594,8 +607,8 @@ console.log("brand",filteredBrand)
         response = await axios.put(
           `${SERVER_URL}/task/update-task/${editUser._id}`, // Replace with the correct URL for content
           {
-            user:editUser?.name,
-            task:editUser?._id,
+            // user:editUser?.name,
+            // task:editUser?._id,
           note:editUser.note
           },
           {
@@ -656,6 +669,7 @@ console.log("brand",filteredBrand)
   
  
    };
+   console.log(userinfo)
 // console.log("edit",editUser)
   //  const handleHeadline = (row,name) => {
   //   setRowType(name)
@@ -677,8 +691,8 @@ console.log("brand",filteredBrand)
   <Select
     labelId="role-label"
     id="role"
-    value={searchQuery}
-    onChange={(e) => setSearchQuery(e.target.value)}
+    value={searchBrand}
+    onChange={(e) => setSearchBrand(e.target.value)}
     label="Select Brand"
      
   >
@@ -686,23 +700,37 @@ console.log("brand",filteredBrand)
       <MenuItem disabled>No option</MenuItem>
     ) : (
       brand.map((user) => (
-        <MenuItem key={user._id} value={user._id}>
+        <MenuItem key={user._id} value={user.name}>
           {user.name}
         </MenuItem>
       ))
     )}
   </Select>
 </FormControl>
-  <Box display="flex" gap={2} mt={2}>
-      {/* Start Date */}
-      <Box flex={1}>
-       
-        <Monthpicker
-          value={month}
-          onChange={(e) => setMonth(e.target.value)}
-          name="month"
-        />
-      </Box>
+<Box display="flex" gap={2} >
+  <FormControl fullWidth margin="normal" sx={{ width: '200px' }}>
+    <InputLabel id="role-label">Select Content Writer</InputLabel>
+    <Select
+            labelId="role-label"
+            id="role"
+            value={searchUser}
+            onChange={(e) => setSearchUser(e.target.value)}
+            label="Select Content Writer"
+          >
+           
+              {userinfo.length ===0 ?(
+                  <MenuItem disabled>No option </MenuItem>
+              ): userinfo?.map((user) => (
+         
+          user?.role !=="admin" && (
+            <MenuItem key={user._id} value={user.name}>
+            {user.name}
+          </MenuItem>
+          )
+         
+        ))}
+          </Select>
+  </FormControl>
     
     
     </Box>
@@ -785,7 +813,7 @@ console.log("brand",filteredBrand)
     datacontent.map((row, index) =>
       row.tasks.map((item, subIndex) => (
         <TableRow key={`${index}-${subIndex}`}>
-          <TableCell align="left">post - {item?.post}</TableCell>
+          <TableCell align="left">post - {item?.task?.postNumber}</TableCell>
           <TableCell align="left">{item?.task?.user?.name}</TableCell>
           <TableCell align="left">{row?._id?.brand}</TableCell>
           <TableCell align="left">{formatDate(item?.task?.deadline)}</TableCell>
@@ -883,7 +911,7 @@ console.log("brand",filteredBrand)
                   {brand.length ===0 ? (
                        <MenuItem disabled>No option </MenuItem>
                   ):brand?.map((user) => (
-              <MenuItem key={user._id} value={user._id}>
+              <MenuItem key={user._id} value={user.name}>
                 {user.name}
               </MenuItem>
             ))}
@@ -913,10 +941,10 @@ console.log("brand",filteredBrand)
 {
   newUser.month && type === "content" && (
     <div className="my-5">
-      {filteredBrand.length === 0 ? (
+      {Content?.length === 0 ? (
         <div>There is no post</div>
       ) : (
-        filteredBrand.map((post) => (
+        Content?.[0]?.tasks?.map((post) => (
           <div key={post._id || ""}>
             <RadioGroup
               row
@@ -926,7 +954,7 @@ console.log("brand",filteredBrand)
               <FormControlLabel
                 value={post._id} // Post ID as value
                 control={<Radio />}
-                label={`Post: ${post.post}`} // Dynamic label
+                label={`Post: ${post.postNumber}`} // Dynamic label
               />
             </RadioGroup>
           </div>
@@ -971,120 +999,7 @@ console.log("brand",filteredBrand)
 
         <DialogContent style={{ width: '100%' }}>
        
-  {
-    type==="headline" && (
-     <>
-      <FormControl fullWidth margin="normal">
-      <InputLabel id="role-label">Select Content Writer</InputLabel>
-      <Select
-labelId="role-label"
-id="role"
-value={editUser?.user?.name || ''} // Set value dynamically from state
-onChange={(e) => setEditUser({ ...editUser, user: { name: e.target.value } })} // Update state on change
-label="Select Content Writer"
->
-{userinfo.length === 0 ? (
-  <MenuItem disabled>No option</MenuItem>
-) : (
-  userinfo.map((user) =>
-    user?.role !== 'admin' && (
-      <MenuItem key={user._id} value={user.name}>
-        {user.name}
-      </MenuItem>
-    )
-  )
-)}
-</Select>
 
-    </FormControl>
-      <FormControl fullWidth margin="normal">
-      <InputLabel id="role-label">Select Brand</InputLabel>
-      <Select
-labelId="role-label"
-id="role"
-value={editUser?.brand?.name || ''} // Set value dynamically from state
-onChange={(e) => setEditUser({ ...editUser, brand: { name: e.target.value } })} // Update state on change
-label="Select Brand"
->
-{brand.length === 0 ? (
-  <MenuItem disabled>No option</MenuItem>
-) : (
-  brand.map((user) =>
-    user?.role !== 'admin' && (
-      <MenuItem key={user._id} value={user.name}>
-        {user?.business_name}
-      </MenuItem>
-    )
-  )
-)}
-</Select>
-    </FormControl>
-
-    <FormControl fullWidth margin="normal">
-      <InputLabel id="role-label">Select Media</InputLabel>
-      <Select
-labelId="role-label"
-id="role"
-value={editUser?.soical_media || ''}  // Ensure it reflects the selected value, and fallback to an empty string if not defined
-onChange={(e) => setEditUser({ ...editUser, soical_media: e.target.value })}  // Update state when value changes
-label="Select Media"
->
-<MenuItem value="tiktok">Tiktok</MenuItem>  {/* Corrected value to match your possible choices */}
-<MenuItem value="facebook">Facebook</MenuItem>
-<MenuItem value="instagram">Instagram</MenuItem>
-</Select>
-
-    </FormControl>
-    <Box display="flex" gap={2} mt={2}>
-      {/* Start Date */}
-      <Box flex={1}>
-        <InputLabel shrink>Month</InputLabel>
-        <Monthpicker
-          value={editUser.month}
-          onChange={(e) => setEditUser({ ...editUser, month: e.target.value })}
-          name="startDate"
-        />
-      </Box>
-    
-      {/* End Date */}
-      <Box flex={1}>
-        <InputLabel shrink>Deadline</InputLabel>
-        <Datepicker
-          value={editUser.deadline}
-          onChange={(e) => setEditUser({ ...editUser, deadline: e.target.value })}
-          name="endDate"
-        />
-      </Box>
-    </Box>
-
-    <FormControl fullWidth margin="normal">
-      <InputLabel id="role-label">Select Category</InputLabel>
-      <Select
-labelId="role-label"
-id="role"
-value={editUser?.category?.name || ''} // Set value dynamically from state
-onChange={(e) => setEditUser({ ...editUser, category: { name: e.target.value } })} // Update state on change
-label="Select Category"
->
-{category.length === 0 ? (
-  <MenuItem disabled>No option</MenuItem>
-) : (
-  category.map((user) =>
-    user?.role !== 'admin' && (
-      <MenuItem key={user._id} value={user.name}>
-        {user.name}
-      </MenuItem>
-    )
-  )
-)}
-</Select>
-
-    </FormControl>
-
-   </>
-    )
-  }
-  
 
 
         <TextField

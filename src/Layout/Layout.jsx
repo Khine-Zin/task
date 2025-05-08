@@ -16,11 +16,7 @@ const Layout = () => {
   };
 const toggleHidden=()=>{
   sethidden(!hidden)
- if(hidden){
-  setIsOpen(false);
- }else{
-  setIsOpen(true);
- }
+setIsOpen(!isOpen)
 }
 console.log(!isTabletOrSmaller)
 console.log(isTabletOrSmaller,hidden)
