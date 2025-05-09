@@ -51,8 +51,8 @@ const Detail = () => {
   const handleSubmit = async() => {
     setCreate(true)
      const token = localStorage.getItem("token");
-     if(content?.length <800){
-      toast.error("Content is need at least 700 word", {
+     if(content?.length <100){
+      toast.error("Content is need at least 100 word", {
         position: "top-right",
         duration: 5000,
       });

@@ -199,7 +199,7 @@ const endDateFormatted = endDate.toLocaleString('en-US', options).replace(',', '
 console.log("new",newUser)
 
   const handleCreateAccountClick = (row) => {
-  setId(row)
+
     setOpenCreateDialog(true);
   };
 
@@ -251,6 +251,11 @@ const handleCreateUserSubmit = async () => {
     });
     setOpenCreateDialog(false);
     setNewUser("");
+    setVisitorImage("")
+    setFollowerImage("")
+    setReachImage("")
+    setLocationImage("")
+    setMessageImage("")
 
   } catch (err) {
     let errorMessage = 'An error occurred. Please try again later.';
@@ -348,7 +353,7 @@ const handleCreateUserSubmit = async () => {
               textTransform: 'none'
             }}
             startIcon={<Download />}
-            onClick={handleCreateAccountClick} 
+            onClick={()=>handleCreateAccountClick()} 
           >
            Download
           </Button>

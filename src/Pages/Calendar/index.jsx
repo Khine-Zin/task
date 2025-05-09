@@ -157,7 +157,7 @@ console.log(selectedPosts)
 
     try {
       // Fetch task data first based on pager.currentPage
-      const taskResponse = await axios.get(`${SERVER_URL}/content-calendar/view-content-calendar?page=${pager.currentPage}&limit=${pager.pageSize}&brand=${searchQuery}&startDate=${startDateFormatted1 ==="Invalid Date" ? "" :startDateFormatted1}&endDate=${endDateFormatted1==="Invalid Date"? "":endDateFormatted1}`, {
+      const taskResponse = await axios.get(`${SERVER_URL}/content-calendar/view-one-content-calendar?page=${pager.currentPage}&limit=${pager.pageSize}&brand=${searchQuery}&startDate=${startDateFormatted1 ==="Invalid Date" ? "" :startDateFormatted1}&endDate=${endDateFormatted1==="Invalid Date"? "":endDateFormatted1}`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: token,

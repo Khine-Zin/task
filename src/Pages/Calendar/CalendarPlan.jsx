@@ -339,7 +339,7 @@ setOpenDialog(false)
   
       try {
         // Fetch task data first based on pager.currentPage
-        const taskResponse = await axios.get(`${SERVER_URL}/content-calendar/view-content-calendar?page=${pager.currentPage}&limit=${pager.pageSize}&brand=${newUser?.brand}&startDate=${startDateFormatted1 ==="Invalid Date" ? "" :startDateFormatted1}&endDate=${endDateFormatted1==="Invalid Date"? "":endDateFormatted1}`, {
+        const taskResponse = await axios.get(`${SERVER_URL}/content-calendar/view-one-content-calendar?page=${pager.currentPage}&limit=${pager.pageSize}&brand=${newUser?.brand}&startDate=${startDateFormatted1 ==="Invalid Date" ? "" :startDateFormatted1}&endDate=${endDateFormatted1==="Invalid Date"? "":endDateFormatted1}`, {
           headers: {
             'Content-Type': 'application/json',
             Authorization: token,
@@ -349,7 +349,7 @@ setOpenDialog(false)
         const taskData = taskResponse.data?.data.currentDatas[0];
   
      
-        setDownload(taskData?.content);
+        setDownload(taskData?.headline);
      
        
   
@@ -734,7 +734,7 @@ console.log(download)
                       onChange={() => handleChange(post._id)}
                     />
                   }
-                  label={`Post: ${post?.task?.postNumber}`}
+                  label={`Post: ${post?.postNumber}`}
                 />
               </FormGroup>
             </div>
