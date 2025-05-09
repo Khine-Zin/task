@@ -371,7 +371,11 @@ setOpenDialog(false)
   React.useEffect(() => {
   
     if(newUser.brand && newUser.start_date){
-     fetchDownload()
+      const timeoutId = setTimeout(() => {
+        fetchDownload();
+      }, 1000); // Set the delay in milliseconds (e.g., 1000ms = 1 second)
+    
+      return () => clearTimeout(timeoutId); // Cleanup the timeout on unmount
     }
      
    }, [newUser.brand,newUser.start_date]);
@@ -402,7 +406,7 @@ const handleCreateUserSubmit = async () => {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'headline-content-calendar.zip'; // ← Change file name/type accordingly
+    a.download = 'content-calendar.zip'; // ← Change file name/type accordingly
     document.body.appendChild(a);
     a.click();
     a.remove();

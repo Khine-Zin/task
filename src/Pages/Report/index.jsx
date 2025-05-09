@@ -203,94 +203,93 @@ console.log("new",newUser)
     setOpenCreateDialog(true);
   };
 
-  const handleCreateUserSubmit = async() => {
-   setCreate(true)
-    const token = localStorage.getItem("token");
+const handleCreateUserSubmit = async () => {
+  setCreate(true);
+  const token = localStorage.getItem("token");
 
+  try {
+    const formData = new FormData();
+    formData.append("month", newUser.startDate);
+    formData.append("brand", newUser?.brand);
+    formData.append("page_total_reach", newUser?.pageReach);
+    formData.append("page_visitor", newUser?.pageVisitor);
+    formData.append("page_new_follower", newUser?.pageFollower);
+    formData.append("reachImage", reachImage);
+    formData.append("visitorImage", visitorImage);
+    formData.append("followerImage", followerImage);
+    formData.append("locationImage", locationImage);
+    formData.append("messageImage", messageImage);
 
-    try {
-      const formData = new FormData();
-      formData.append("date", newUser.startDate);
-      formData.append("brand",newUser?.brand);
-      formData.append("page_total_reach",newUser?.pageReach);
-      formData.append("page_visitor",newUser?.pageVisitor);
-      formData.append("page_new_follower",newUser?.pageFollower);
-      formData.append("reachImage",reachImage);
-      formData.append("visitorImage",visitorImage);
-      formData.append("followerImage",followerImage);
-      formData.append("locationImage",locationImage);
-      formData.append(" messageImage",messageImage);
+    const response = await axios.post(
+      `${SERVER_URL}/report/download-report`,
+      formData,
+      {
+        headers: {
+          "Authorization": token,
+          'Accept': 'multipart/form-data',
+          'Content-Type': 'multipart/form-data',
+        },
+        responseType: 'blob',  // Ensures response data is in Blob format
+      }
+    );
 
-      const response = await axios.post(
-        `${SERVER_URL}/report/download-report`,
-        formData,
-        {
-          headers: {
-            "Authorization": token,
-            'Accept': 'multipart/form-data',
-            'Content-Type': 'multipart/form-data',
-          },
-        }
-      );
-      
-    setCreate(false)
-     if(response.data?.statusCode===201){
-      fetchData()
-      toast.success('Successful Created!', {
-        position: 'top-right',
-        duration: 5000,
+    const blob = new Blob([response.data], { type: 'application/zip' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'report.zip'; // ← Change file name/type accordingly
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.URL.revokeObjectURL(url);
+
+    setCreate(false);
+
+    toast.success('Successful Download!', {
+      position: 'top-right',
+      duration: 5000,
     });
     setOpenCreateDialog(false);
     setNewUser("");
-    setBannerImage("")
-   }else if(response.data?.statusCode===203){
-      toast.error(`${response.data?. message
-        }`, {
-          position: 'top-right',
-          duration: 5000,
-      });
-   }
- 
+
   } catch (err) {
-      let errorMessage = 'An error occurred. Please try again later.';
-      setCreate(false)
-     
-      if (err.response) {
-          switch (err.response.status) {
-              case 401:
-              case 400:
-                  errorMessage = err.response.data?.message || 'Unauthorized';
-                  localStorage.clear();
-                  setUser(null);
-                  navigate("/"); // Redirect to login
-                  break;
-              case 500:
-                  errorMessage = err.response.data?.message || 'Server error. Please try again later.';
-                  break;
-              case 503:
-                  errorMessage = 'Service is temporarily unavailable. Please try again later.';
-                  break;
-              case 502:
-                  errorMessage = 'Bad Gateway: The server is down. Please try again later.';
-                  break;
-              default:
-                  errorMessage = err.response.data?.message || 'An error occurred.';
-          }
-      } else if (err.request) {
-          errorMessage = 'Network error. Please check your internet connection.';
-      } else {
-          errorMessage = `Error: ${err.message}`;
+    let errorMessage = 'An error occurred. Please try again later.';
+    setCreate(false);
+
+    if (err.response) {
+      switch (err.response.status) {
+        case 401:
+        case 400:
+          errorMessage = err.response.data?.message || 'Unauthorized';
+          localStorage.clear();
+          setUser(null);
+          navigate("/"); // Redirect to login
+          break;
+        case 500:
+          errorMessage = err.response.data?.message || 'Server error. Please try again later.';
+          break;
+        case 503:
+          errorMessage = 'Service is temporarily unavailable. Please try again later.';
+          break;
+        case 502:
+          errorMessage = 'Bad Gateway: The server is down. Please try again later.';
+          break;
+        default:
+          errorMessage = err.response.data?.message || 'An error occurred.';
       }
+    } else if (err.request) {
+      errorMessage = 'Network error. Please check your internet connection.';
+    } else {
+      errorMessage = `Error: ${err.message}`;
+    }
 
-   
-      // Error toast
-      toast.error(errorMessage, {
-          position: 'top-right',
-          duration: 5000,
-      });
+    // Error toast
+    toast.error(errorMessage, {
+      position: 'top-right',
+      duration: 5000,
+    });
   }
-
-  };
+};
 
 
   return (
@@ -341,7 +340,7 @@ console.log("new",newUser)
           <Button
             variant="contained"
             sx={{
-              height: '43px',
+                height: '55px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',

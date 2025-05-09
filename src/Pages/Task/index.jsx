@@ -90,6 +90,7 @@ const Task= () => {
 
 
 
+
   
   // const fetchCategory = async () => {
   //   setLoading(true);
@@ -709,56 +710,68 @@ console.log(newUser)
           </TableRow>
         </TableHead>
         <TableBody>
-  {dataHeadline?.length === 0 || dataHeadline === undefined ? (
-    <StyledTableRow>
-      <StyledTableCell colSpan={role === "admin" ? 6 : 5} align="center">
-        There is no headline task
-      </StyledTableCell>
-    </StyledTableRow>
-  ) : (
-   dataHeadline?.map((row, index) =>
-      row?.tasks?.map((item, subIndex) => (
-        <TableRow key={`${index}-${subIndex}`}>
-          <TableCell align="left">post - {item?.postNumber}</TableCell>
-          <TableCell align="left">{item?.user?.name}</TableCell>
-          <TableCell align="left">{item?.brand?.name}</TableCell>
-          <TableCell align="left">{formatDate(item?.deadline)}</TableCell>
-          
-          <TableCell align="left">{`${dayjs().month(row?._id?.month - 1).format("MMMM")} ${row?._id?.year}`}</TableCell>
-          <TableCell align="left">
-            <IconButton
-              onClick={(e) => {
-                e.stopPropagation();
-                handleEdit(item, "headline");
-              }}
-              aria-label="edit"
-            >
-              <EditIcon />
-            </IconButton>
-            <IconButton
-              onClick={(e) => {
-                e.stopPropagation();
-                handleDelete(item._id);
-              }}
-              sx={{ color: "red" }}
-              aria-label="delete"
-            >
-              <DeleteIcon />
-            </IconButton>
-            <IconButton
-              onClick={(e) => {
-                e.stopPropagation();
-                navigate("/task/detail", { state: item });
-              }}
-              aria-label="detail"
-            >
-              <InfoIcon />
-            </IconButton>
-          </TableCell>
-        </TableRow>
-      ))
-    )
-  )}
+{dataHeadline?.length === 0 || dataHeadline === undefined ? (
+  <StyledTableRow>
+    <StyledTableCell colSpan={role === "admin" ? 6 : 5} align="center">
+      There is no headline task
+    </StyledTableCell>
+  </StyledTableRow>
+) : (
+  dataHeadline?.map((row, index) => {
+    // Sort tasks by createdAt and post
+    const sortedTasks = [...(row?.tasks || [])].sort((a, b) => {
+      const dateA = new Date(a.createdAt);
+      const dateB = new Date(b.createdAt);
+      if (dateA.getTime() === dateB.getTime()) {
+        return a.postNumber - b.postNumber;
+      }
+      return dateA - dateB;
+    });
+
+    return sortedTasks.map((item, subIndex) => (
+      <TableRow key={`${index}-${subIndex}`}>
+        <TableCell align="left">post - {item?.postNumber}</TableCell>
+        <TableCell align="left">{item?.user?.name}</TableCell>
+        <TableCell align="left">{item?.brand?.name}</TableCell>
+        <TableCell align="left">{formatDate(item?.deadline)}</TableCell>
+        <TableCell align="left">
+          {`${dayjs().month(row?._id?.month - 1).format("MMMM")} ${row?._id?.year}`}
+        </TableCell>
+        <TableCell align="left">
+          <IconButton
+            onClick={(e) => {
+              e.stopPropagation();
+              handleEdit(item, "headline");
+            }}
+            aria-label="edit"
+          >
+            <EditIcon />
+          </IconButton>
+          <IconButton
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDelete(item._id);
+            }}
+            sx={{ color: "red" }}
+            aria-label="delete"
+          >
+            <DeleteIcon />
+          </IconButton>
+          <IconButton
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate("/task/detail", { state: item });
+            }}
+            aria-label="detail"
+          >
+            <InfoIcon />
+          </IconButton>
+        </TableCell>
+      </TableRow>
+    ));
+  })
+)}
+
 </TableBody>
 
       </Table>

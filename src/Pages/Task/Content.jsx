@@ -259,7 +259,7 @@ const Content= () => {
         },
       });
 
-      const taskData = taskResponse.data?.data.currentDatas[0];
+      const taskData = taskResponse.data?.data?.currentDatas[0];
 
       setContent(taskData?.headline);
      
@@ -445,23 +445,23 @@ setOpenDialog(false)
     setNewUser("")
     setType("content")
   };
-console.log(newUser)
-const filteredBrand = Content.flatMap(item =>
-  item.tasks?.filter(task => {
-    const brandMatch = task.brand?._id === newUser.brand;
 
-    const taskDate = new Date(task.month);
-    const userMonth = new Date(newUser.month);
+// const filteredBrand = Content.flatMap(item =>
+//   item.tasks?.filter(task => {
+//     const brandMatch = task.brand?._id === newUser.brand;
 
-    const sameMonth =
-      taskDate.getMonth() === userMonth.getMonth() &&
-      taskDate.getFullYear() === userMonth.getFullYear();
+//     const taskDate = new Date(task.month);
+//     const userMonth = new Date(newUser.month);
 
-    return brandMatch && sameMonth;
-  }) || []
-);
+//     const sameMonth =
+//       taskDate.getMonth() === userMonth.getMonth() &&
+//       taskDate.getFullYear() === userMonth.getFullYear();
 
-console.log("brand",filteredBrand)
+//     return brandMatch && sameMonth;
+//   }) || []
+// );
+
+// console.log("brand",filteredBrand)
   const handleCreateUserSubmit = async () => {
     setCreate(true);
     const token = localStorage.getItem("token");
@@ -669,7 +669,7 @@ console.log("brand",filteredBrand)
   
  
    };
-   console.log(userinfo)
+
 // console.log("edit",editUser)
   //  const handleHeadline = (row,name) => {
   //   setRowType(name)
@@ -938,31 +938,40 @@ console.log("brand",filteredBrand)
     )
    }
 
-{
-  newUser.month && type === "content" && (
-    <div className="my-5">
-      {Content?.length === 0 ? (
-        <div>There is no post</div>
-      ) : (
-        Content?.[0]?.tasks?.map((post) => (
+{newUser.month && type === "content" && (
+  <div className="my-5">
+    {Content==undefined ||Content?.length === 0 ? (
+      <div>There is no post</div>
+    ) : (
+      [...(Content?.[0]?.tasks || [])] // spread to avoid mutating original array
+        .sort((a, b) => {
+          const dateA = new Date(a.createdAt);
+          const dateB = new Date(b.createdAt);
+          if (dateA.getTime() === dateB.getTime()) {
+            return a.postNumber- b.postNumber;
+          }
+          return dateA - dateB;
+        })
+        .map((post) => (
           <div key={post._id || ""}>
             <RadioGroup
               row
-              value={newUser.task || ""} // Track the selected task's ID
-              onChange={(e) => setNewUser({ ...newUser, task: e.target.value })} // Update task selection
+              value={newUser.task || ""}
+              onChange={(e) =>
+                setNewUser({ ...newUser, task: e.target.value })
+              }
             >
               <FormControlLabel
-                value={post._id} // Post ID as value
+                value={post._id}
                 control={<Radio />}
-                label={`Post: ${post.postNumber}`} // Dynamic label
+                label={`Post: ${post.postNumber}`}
               />
             </RadioGroup>
           </div>
         ))
-      )}
-    </div>
-  )
-}
+    )}
+  </div>
+)}
 
 
  <TextField

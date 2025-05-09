@@ -61,7 +61,7 @@ const [post,setPost]=React.useState("")
     const navigate = useNavigate();
 const [monthsearch,setMonthSearch]=React.useState("")
   const [data, setData] = React.useState([]);
-  
+  const [postData,setPostData]=React.useState([])
   const [pager, setPager] = React.useState({ currentPage: 1, pageSize: 9 });
   const debounceTimer = React.useRef(null);
     const [brand,setBrand]=React.useState([])
@@ -78,7 +78,7 @@ const [monthsearch,setMonthSearch]=React.useState("")
     return new Date(dateString).toLocaleDateString('en-GB', options);
 
   };
-  const date = new Date(monthsearch); // e.g., May 6, 2025
+const date = new Date(monthsearch); // e.g., May 6, 2025
 
 const year = date.getFullYear();
 const month = date.getMonth(); // May = 4
@@ -92,8 +92,7 @@ const options = { month: 'long', day: 'numeric', year: 'numeric' };
 const startDateFormatted = startDate.toLocaleString('en-US', options).replace(',', '');
 const endDateFormatted = endDate.toLocaleString('en-US', options).replace(',', '');
 
-console.log("Start Date:", startDateFormatted);
-console.log("End Date:", endDateFormatted);
+
 
   const fetchData= async () => {
     setLoading(true);
@@ -106,6 +105,11 @@ console.log("End Date:", endDateFormatted);
         },
       });
       setData(response.data.data);
+    if(searchQuery){
+       const contentGroups = response?.data?.data?.currentDatas?.[0]?.content || [];
+const allTasks = contentGroups.flatMap(group => group.tasks);
+setPostData(allTasks)
+    }
     } catch (err) {
       let errorMessage = 'An error occurred. Please try again later.';
 
@@ -144,7 +148,7 @@ console.log("End Date:", endDateFormatted);
       setLoading(false);
     }
   };
-
+console.log(post)
   const fetchBrand = async () => {
     setLoading(true);
     const token = localStorage.getItem("token");
@@ -170,10 +174,8 @@ console.log("End Date:", endDateFormatted);
     }
   };
   
-  
-   const handleSearchChange = (event) => {
-    setSearchQuery(event.target.value);
-  };
+
+
   React.useEffect(() => {
    fetchBrand()
     }, []); 
@@ -194,30 +196,7 @@ console.log("End Date:", endDateFormatted);
 
 
 
-// const postData=[
-//   {
-//     "_id": "681024e842e877196335e070",
-//     "name": "post1",
-//     "business_name": "hi",
-//     "start_date": "2025-04-01 0:0:0 AM",
-//     "end_date": "2025-04-30 0:0:0 AM",
-//     "logo": "brand/image-1745888488005-542323861.png",
-//     "color": "#000000",
-//     "createdAt": "2025-04-29 7:31:28 AM",
-//     "updatedAt": "2025-04-29 7:31:28 AM"
-// },
-// {
-//     "_id": "680f2dc0ed1f05c698d3e74c",
-//     "name": "post2",
-//     "business_name": "hello",
-//     "start_date": "2025-04-01 0:0:0 AM",
-//     "end_date": "2025-04-30 0:0:0 AM",
-//     "logo": "brand/image-1745825210179-420027389.png",
-//     "color": "#000000",
-//     "createdAt": "2025-04-28 1:56:56 PM",
-//     "updatedAt": "2025-04-28 1:56:56 PM"
-// }
-// ]
+
   return (
     <div className="mt-24 lg:mx-4 mx-2">
       <div className='hidden lg:block'>
@@ -257,30 +236,34 @@ console.log("End Date:", endDateFormatted);
       </Box>
     
    
-      {/* <Box flex={1}>
-      <FormControl sx={{ width: 200 }} margin="normal">
-  <InputLabel id="role-label">Select Post</InputLabel>
-  <Select
-    labelId="role-label"
-    id="role"
-    value={post}
-    onChange={(e) => setPost(e.target.value)}
-    label="Select Post"
-     
-  >
-    {postData.length === 0 ? (
-      <MenuItem disabled>No option</MenuItem>
-    ) : (
-      postData.map((user) => (
-        <MenuItem key={user._id} value={user._id}>
-          {user.name}
-        </MenuItem>
-      ))
-    )}
-  </Select>
-</FormControl>
-     
-      </Box> */}
+     <Box flex={1}>
+  <FormControl sx={{ width: 200 }} margin="normal">
+    <InputLabel id="post-label">Select Post</InputLabel>
+    <Select
+      labelId="post-label"
+      id="post"
+      value={post}
+      onChange={(e) => setPost(e.target.value)}
+      label="Select Post"
+    >
+      {postData.length === 0 ? (
+        <MenuItem disabled>No option</MenuItem>
+      ) : (
+      postData.map((task) => {
+  const postNumber = task?.task?.postNumber;
+  if (postNumber == null) return null; // Skip items without postNumber
+  return (
+    <MenuItem key={task._id} value={postNumber}>
+      {`Post ${postNumber}`}
+    </MenuItem>
+  );
+})
+
+      )}
+    </Select>
+  </FormControl>
+</Box>
+
     </Box>
             {/* <form className="flex items-center max-w-sm">
               <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
@@ -301,7 +284,7 @@ console.log("End Date:", endDateFormatted);
       </div>
       </div>
       <div className='flex justify-between gap-3 items-center mb-5 mt-[100px] lg:hidden'>
-      <h2 className="text-xl text-gray-700">Plan</h2>
+      <h2 className="text-xl text-gray-700">History</h2>
        
       </div>
       <TableContainer component={Paper}>
@@ -317,40 +300,48 @@ console.log("End Date:", endDateFormatted);
             </TableRow>
           </TableHead>
           <TableBody>
-            {data?.currentDatas?.[0]?.content?.length===0? (
-               <StyledTableRow>
-               <StyledTableCell colSpan={5} align="center">
-                 There is no data found
-               </StyledTableCell>
-             </StyledTableRow> 
-            ):data?.currentDatas?.map((dataItem,index) => (
-               dataItem?.content?.map((row, rowIndex) =>
-                      row?.tasks?.map((taskItem, taskIndex) => {
-                        const task = taskItem?.task;
-                        return (
-                          <StyledTableRow key={row._id}>
-                              <StyledTableCell align="left">post -{taskItem.post}</StyledTableCell>
-                          <StyledTableCell align="left">{task?.brand?.name}</StyledTableCell>
-                          <StyledTableCell align="left">{formatMonth(task?.month)}</StyledTableCell>
-                   
-                       <StyledTableCell align="left">{formatDate(taskItem?.design_date)}</StyledTableCell>
-                       <StyledTableCell align="left">
-                          <Tooltip title={task?.headline ? task?.headline:"No headline" } >
-                         <IconButton   onClick={(e) => {
-                      
-                      navigate("/history/detail",{ state: taskItem });
-                    }}
-                      aria-label="delete">
-                           <Info />
-                         </IconButton>
-                         </Tooltip>
-                       </StyledTableCell>
-                     </StyledTableRow>
-                        );
-                      })
-                    )
-              
-              ))}
+         
+  {data?.currentDatas?.[0]?.content?.length === 0 ? (
+    <StyledTableRow>
+      <StyledTableCell colSpan={5} align="center">
+        There is no data found
+      </StyledTableCell>
+    </StyledTableRow>
+  ) : (
+    data?.currentDatas?.map((dataItem, index) =>
+      dataItem?.content?.map((row, rowIndex) =>
+        row?.tasks
+          ?.filter((taskItem) => taskItem?.task?.postNumber === Number(post)) // filter here
+          ?.map((taskItem, taskIndex) => {
+            const task = taskItem?.task;
+            return (
+              <StyledTableRow key={taskItem._id}>
+                <StyledTableCell align="left">
+                  post - {task?.postNumber}
+                </StyledTableCell>
+                <StyledTableCell align="left">{task?.brand?.name}</StyledTableCell>
+                <StyledTableCell align="left">{formatMonth(task?.month)}</StyledTableCell>
+                <StyledTableCell align="left">{formatDate(taskItem?.design_date)}</StyledTableCell>
+                <StyledTableCell align="left">
+                  <Tooltip title={task?.headline || "No headline"}>
+                    <IconButton
+                      onClick={(e) => {
+                        navigate("/history/detail", { state: taskItem });
+                      }}
+                      aria-label="detail"
+                    >
+                      <Info />
+                    </IconButton>
+                  </Tooltip>
+                </StyledTableCell>
+              </StyledTableRow>
+            );
+          })
+      )
+    )
+  )}
+
+
           </TableBody>
         </Table>
       </TableContainer>
