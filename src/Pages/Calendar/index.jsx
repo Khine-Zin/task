@@ -157,7 +157,7 @@ const [download,setDownload]=useState([])
 
     try {
       // Fetch task data first based on pager.currentPage
-      const taskResponse = await axios.get(`${SERVER_URL}/content-calendar/view-one-content-calendar?page=${pager.currentPage}&limit=${pager.pageSize}&brand=${searchQuery}&startDate=${startDateFormatted1 ==="Invalid Date" ? "" :startDateFormatted1}&endDate=${endDateFormatted1==="Invalid Date"? "":endDateFormatted1}`, {
+      const taskResponse = await axios.get(`${SERVER_URL}/content-calendar/view-one-content-calendar?page=${pager.currentPage}&limit=${pager.pageSize}&brand=${newUser.brand}&startDate=${startDateFormatted1 ==="Invalid Date" ? "" :startDateFormatted1}&endDate=${endDateFormatted1==="Invalid Date"? "":endDateFormatted1}`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: token,
@@ -218,7 +218,7 @@ console.log(download)
     fetchDownload()
    }
     
-  }, [newUser.month,newUser.start_date]);
+  }, [newUser.brand,newUser.start_date]);
   
     React.useEffect(() => {
       const timeoutId = setTimeout(() => {
@@ -288,7 +288,7 @@ console.log(download)
   };
 
 
-
+console.log(searchQuery)
   const confirm =async () => {
  
     setCreate(true)
@@ -391,7 +391,7 @@ const handleCreateUserSubmit = async () => {
       }
     );
 
-   console.log(response.data)
+  //  console.log(response.data)
     const blob = new Blob([response.data], { type: 'application/pdf' });
     const url = window.URL.createObjectURL(blob);
 
@@ -408,7 +408,7 @@ a.download = `${newUser.brand}-${monthName}-headline.pdf`;
 
     // Revoke the URL to free up memory
     window.URL.revokeObjectURL(url);
-
+setDownload([])
     setSelectedPosts([]); // Clear selected posts
     setCreate(false); // Set loading state back to false
 
@@ -723,7 +723,9 @@ a.download = `${newUser.brand}-${monthName}-headline.pdf`;
   <div className="my-5">
     {download?.[0]?.tasks?.filter((post) => post.headline)?.length === 0 ? (
       <div>There is no post</div>
-    ) : (
+    ) : download.length===0 ?(
+        <div>There is no post</div>
+    ):(
       download?.[0]?.tasks
         ?.filter((post) => post.headline)
         ?.sort((a, b) => a.postNumber - b.postNumber)
