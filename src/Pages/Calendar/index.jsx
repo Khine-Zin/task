@@ -120,7 +120,7 @@ const [download,setDownload]=useState([])
     );
   };
   
-console.log(selectedPosts)
+
   const fetchData = async () => {
     setLoading(true);
     const token = localStorage.getItem("token");
@@ -375,10 +375,10 @@ const handleCreateUserSubmit = async () => {
   setCreate(true);
   const token = localStorage.getItem("token");
 
-
   try {
     const response = await axios.post(
-      `${SERVER_URL}/content-calendar/download-headline-content-calendar`,{
+      `${SERVER_URL}/content-calendar/download-headline-content-calendar`, 
+      {
         postIds: selectedPosts
       },
       {
@@ -387,33 +387,42 @@ const handleCreateUserSubmit = async () => {
           Accept: 'application/json',
           'Content-Type': 'application/json',
         },
-        responseType: 'blob' 
+        responseType: 'blob' // Ensures we get a binary response (PDF)
       }
-      
     );
 
-    const blob = new Blob([response.data]);
+   console.log(response.data)
+    const blob = new Blob([response.data], { type: 'application/pdf' });
     const url = window.URL.createObjectURL(blob);
+
+    // Create a download link and trigger the download
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'headline-content-calendar.zip'; // ← Change file name/type accordingly
+       const startDate = new Date(Number(newUser.start_date));
+const monthName = startDate.toLocaleString('en-US', { month: 'long' }); // "May"
+a.download = `${newUser.brand}-${monthName}-headline.pdf`;
+
     document.body.appendChild(a);
     a.click();
     a.remove();
+
+    // Revoke the URL to free up memory
     window.URL.revokeObjectURL(url);
-setSelectedPosts([])
-    setCreate(false);
-    console.log(response?.data)
-    toast.success('Successfully Download!', {
+
+    setSelectedPosts([]); // Clear selected posts
+    setCreate(false); // Set loading state back to false
+
+    toast.success('Successfully Downloaded!', {
       position: 'top-right',
       duration: 5000,
     });
+
     setOpenCreateDialog(false);
-    setNewUser("");
- 
+    setNewUser(""); // Clear any new user form state if applicable
 
   } catch (err) {
-    setCreate(false);
+    setCreate(false); // Set loading state back to false
+
     let errorMessage = 'An error occurred. Please try again later.';
 
     if (err.response) {
@@ -449,6 +458,7 @@ setSelectedPosts([])
     });
   }
 };
+
 
 
 
@@ -709,38 +719,33 @@ setSelectedPosts([])
          
            </Box>
        
-   
-       
-       
-   {
-     newUser.start_date  && (
-      <div className="my-5">
-        {download?.length === 0 ? (
-          <div>There is no post</div>
-        ) : (
-          download?.[0]?.tasks?.map((post) => (
-            <div key={post._id || ""}>
-              <FormGroup>
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={selectedPosts.includes(post._id)}
-                      onChange={() => handleChange(post._id)}
-                    />
-                  }
-                  label={`Post: ${post.postNumber}`}
-                />
-              </FormGroup>
-            </div>
-          ))
-        )}
-      </div>
-     )
-   }
-       
-       
-            
-               
+ {newUser.start_date && (
+  <div className="my-5">
+    {download?.[0]?.tasks?.filter((post) => post.headline)?.length === 0 ? (
+      <div>There is no post</div>
+    ) : (
+      download?.[0]?.tasks
+        ?.filter((post) => post.headline)
+        ?.sort((a, b) => a.postNumber - b.postNumber)
+        ?.map((post) => (
+          <div key={post._id || ""}>
+            <FormGroup>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={selectedPosts.includes(post._id)}
+                    onChange={() => handleChange(post._id)}
+                  />
+                }
+                label={`Post: ${post.postNumber}`}
+              />
+            </FormGroup>
+          </div>
+        ))
+    )}
+  </div>
+)}
+
                </DialogContent>
                <DialogActions sx={{ mb: 2, mr: 2 }}>
                  <Button onClick={() => {

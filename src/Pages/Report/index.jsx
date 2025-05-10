@@ -233,14 +233,18 @@ const handleCreateUserSubmit = async () => {
       }
     );
 
-    const blob = new Blob([response.data], { type: 'application/zip' });
+ const blob = new Blob([response.data], { type: 'application/pdf' });
     const url = window.URL.createObjectURL(blob);
+
+    const brandInfo = brand.find(b => b._id === newUser.brand);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'report.zip'; // ← Change file name/type accordingly
+    a.download = `${brandInfo.name}-report.pdf`; // File name for the downloaded PDF
     document.body.appendChild(a);
     a.click();
     a.remove();
+
+    // Revoke the URL to free up memory
     window.URL.revokeObjectURL(url);
 
     setCreate(false);

@@ -92,7 +92,7 @@ const CalendarPlan= () => {
   const endDateFormatted = endDate.toLocaleString('en-US', options).replace(',', '');
 
   const DownloadDate = new Date(newUser?.start_date);
-  console.log(DownloadDate)
+  // console.log(DownloadDate)
   const year1 = DownloadDate.getFullYear();
   const month1 = DownloadDate.getMonth(); // May = 4
   
@@ -339,17 +339,18 @@ setOpenDialog(false)
   
       try {
         // Fetch task data first based on pager.currentPage
-        const taskResponse = await axios.get(`${SERVER_URL}/content-calendar/view-one-content-calendar?page=${pager.currentPage}&limit=${pager.pageSize}&brand=${newUser?.brand}&startDate=${startDateFormatted1 ==="Invalid Date" ? "" :startDateFormatted1}&endDate=${endDateFormatted1==="Invalid Date"? "":endDateFormatted1}`, {
+        const taskResponse = await axios.get(`${SERVER_URL}/history/view-history?page=${pager.currentPage}&limit=${pager.pageSize}&brand=${newUser?.brand}&startDate=${startDateFormatted1 ==="Invalid Date" ? "" :startDateFormatted1}&endDate=${endDateFormatted1==="Invalid Date"? "":endDateFormatted1}`, {
           headers: {
             'Content-Type': 'application/json',
             Authorization: token,
           },
         });
+       
   
-        const taskData = taskResponse.data?.data.currentDatas[0];
+        const taskData = taskResponse.data?.data.currentDatas[0]?.content?.[0]?.tasks;
   
-     
-        setDownload(taskData?.headline);
+    console.log(taskData)
+        setDownload(taskData);
      
        
   
@@ -402,14 +403,20 @@ const handleCreateUserSubmit = async () => {
       
     );
 
-    const blob = new Blob([response.data]);
+      const blob = new Blob([response.data], { type: 'application/pdf' });
     const url = window.URL.createObjectURL(blob);
+
+    // Create a download link and trigger the download
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'content-calendar.zip'; // ← Change file name/type accordingly
-    document.body.appendChild(a);
+      const startDate = new Date(Number(newUser.start_date));
+const monthName = startDate.toLocaleString('en-US', { month: 'long' }); // "May"
+a.download = `${newUser.brand}-${monthName}-calendar.pdf`;
+  document.body.appendChild(a);
     a.click();
     a.remove();
+
+    // Revoke the URL to free up memory
     window.URL.revokeObjectURL(url);
 setSelectedPosts([])
     setCreate(false);
@@ -420,7 +427,7 @@ setSelectedPosts([])
     });
     setOpenCreateDialog(false);
     setNewUser("");
- 
+ setSelectedPosts([])
 
   } catch (err) {
     setCreate(false);
@@ -724,17 +731,17 @@ console.log(download)
         {download?.length === 0 ? (
           <div>There is no post</div>
         ) : (
-          download?.[0]?.tasks?.map((post) => (
+          download?.map((post) => (
             <div key={post._id || ""}>
               <FormGroup>
                 <FormControlLabel
                   control={
                     <Checkbox
-                      checked={selectedPosts.includes(post._id)}
-                      onChange={() => handleChange(post._id)}
+                      checked={selectedPosts.includes(post?._id)}
+                      onChange={() => handleChange(post?._id)}
                     />
                   }
-                  label={`Post: ${post?.postNumber}`}
+                  label={`Post: ${post?.task?.postNumber}`}
                 />
               </FormGroup>
             </div>
@@ -758,6 +765,7 @@ console.log(download)
                  <Button onClick={() => {
                    setNewUser("")
                    setOpenCreateDialog(false)
+                   setSelectedPosts([])
                    }} sx={{ color: "#666464" }}>
                    Cancel
                  </Button>
@@ -769,9 +777,10 @@ console.log(download)
                  </Button>
                </DialogActions>
              </Dialog>
-        <DialogActions sx={{ mb: 2, mr: 2 }}>
+        {/* <DialogActions sx={{ mb: 2, mr: 2 }}>
           <Button onClick={() => {
             setNewUser("")
+            setSelectedPosts([])
             setOpenCreateDialog(false)
             }} sx={{ color: "#666464" }}>
             Cancel
@@ -782,7 +791,7 @@ console.log(download)
           >
           {Create ? "loading...":"Download"}
           </Button>
-        </DialogActions>
+        </DialogActions> */}
       </Dialog>
    
      

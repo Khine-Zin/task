@@ -174,7 +174,7 @@ console.log(post)
     }
   };
   
-
+console.log(post)
 
   React.useEffect(() => {
    fetchBrand()
@@ -194,6 +194,13 @@ console.log(post)
     });
   };
 
+const filteredTasks = data?.currentDatas?.flatMap((dataItem) =>
+  dataItem?.content?.flatMap((row) =>
+    row?.tasks?.filter((taskItem) =>
+      post ? taskItem?.task?.postNumber === Number(post) : true
+    ) || []
+  )
+) || [];
 
 
 
@@ -301,45 +308,35 @@ console.log(post)
           </TableHead>
           <TableBody>
          
-  {data?.currentDatas?.[0]?.content?.length === 0 ? (
-    <StyledTableRow>
-      <StyledTableCell colSpan={5} align="center">
-        There is no data found
-      </StyledTableCell>
-    </StyledTableRow>
-  ) : (
-    data?.currentDatas?.map((dataItem, index) =>
-      dataItem?.content?.map((row, rowIndex) =>
-        row?.tasks
-          ?.filter((taskItem) => taskItem?.task?.postNumber === Number(post)) // filter here
-          ?.map((taskItem, taskIndex) => {
-            const task = taskItem?.task;
-            return (
-              <StyledTableRow key={taskItem._id}>
-                <StyledTableCell align="left">
-                  post - {task?.postNumber}
-                </StyledTableCell>
-                <StyledTableCell align="left">{task?.brand?.name}</StyledTableCell>
-                <StyledTableCell align="left">{formatMonth(task?.month)}</StyledTableCell>
-                <StyledTableCell align="left">{formatDate(taskItem?.design_date)}</StyledTableCell>
-                <StyledTableCell align="left">
-                  <Tooltip title={task?.headline || "No headline"}>
-                    <IconButton
-                      onClick={(e) => {
-                        navigate("/history/detail", { state: taskItem });
-                      }}
-                      aria-label="detail"
-                    >
-                      <Info />
-                    </IconButton>
-                  </Tooltip>
-                </StyledTableCell>
-              </StyledTableRow>
-            );
-          })
-      )
-    )
-  )}
+{filteredTasks.length === 0 ? (
+  <StyledTableRow>
+    <StyledTableCell colSpan={5} align="center">
+      There is no data found
+    </StyledTableCell>
+  </StyledTableRow>
+) : (
+  filteredTasks.map((taskItem) => {
+    const task = taskItem.task;
+    return (
+      <StyledTableRow key={taskItem._id}>
+        <StyledTableCell align="left">post - {task?.postNumber}</StyledTableCell>
+        <StyledTableCell align="left">{task?.brand?.name}</StyledTableCell>
+        <StyledTableCell align="left">{formatMonth(task?.month)}</StyledTableCell>
+        <StyledTableCell align="left">{formatDate(taskItem?.design_date)}</StyledTableCell>
+        <StyledTableCell align="left">
+          <Tooltip title={task?.headline || "No headline"}>
+            <IconButton
+              onClick={() => navigate("/history/detail", { state: taskItem })}
+              aria-label="detail"
+            >
+              <Info />
+            </IconButton>
+          </Tooltip>
+        </StyledTableCell>
+      </StyledTableRow>
+    );
+  })
+)}
 
 
           </TableBody>

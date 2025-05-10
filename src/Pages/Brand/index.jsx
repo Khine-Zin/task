@@ -198,8 +198,9 @@ const Brand = () => {
       };
     });
   };
-console.log(editUser)
+
   const handleEdit = (user) => {
+    console.log(user)
     setEditUser(user);
     setOpenEditDialog(true);
     setBannerImage(user.logo)
@@ -309,6 +310,7 @@ return false
             "name":newUser.name, 
             "business_name":newUser.bussinessName,
             "color":newUser.color,
+             "text_color":newUser.text_color,
              "start_date":newUser.startDate,
              "end_date":newUser.endDate,
              "image":bannerImage,
@@ -390,6 +392,7 @@ return false
     formData.append("name", editUser.name);
     formData.append("business_name", editUser.business_name);
     formData.append("color", editUser.color);
+     formData.append("text_color", editUser.text_color);
     formData.append("start_date", editUser.start_date);
     formData.append("end_date", editUser.end_date);
    if(bannerImage){
@@ -633,6 +636,13 @@ console.log(editUser)
       fullWidth
       margin="normal"
     />
+       <TextField
+      label="Text Color Code"
+      value={newUser.text_color}
+      onChange={(e) => setNewUser({ ...newUser, text_color: e.target.value })}
+      fullWidth
+      margin="normal"
+    />
 <Box display="flex" gap={2} mt={2}>
   {/* Start Date */}
   <Box flex={1}>
@@ -699,6 +709,13 @@ console.log(editUser)
       label="Brand Color Code"
       value={editUser.color}
       onChange={(e) => setEditUser({ ...editUser, color: e.target.value })}
+      fullWidth
+      margin="normal"
+    />
+      <TextField
+      label="Text Color Code"
+      value={editUser.text_color}
+      onChange={(e) => setEditUser({ ...editUser, text_color: e.target.value })}
       fullWidth
       margin="normal"
     />
