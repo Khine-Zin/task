@@ -48,7 +48,7 @@ const TextEditor = ({ onChange, value }) => {
 
   const modules = {
     toolbar: [
-      [{ 'header': '1' }, { 'header': '2' }, { 'font': [] }],
+       [{ header: [1,2, 3, 4, 5, 6, false] }, { font: [] }],
       [{ 'list': 'ordered' }, { 'list': 'bullet' }],
       ['bold', 'italic', 'underline'],
       [{ 'align': [] }],
