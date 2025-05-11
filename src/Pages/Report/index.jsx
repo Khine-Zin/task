@@ -382,43 +382,45 @@ const handleCreateUserSubmit = async () => {
             </TableRow>
           </TableHead>
           <TableBody>
-  {data?.currentDatas?.[0]?.content?.length === 0 ? (
-    <StyledTableRow>
-      <StyledTableCell colSpan={5} align="center">
-        There is no report found
-      </StyledTableCell>
-    </StyledTableRow>
-  ) : (
-    data?.currentDatas?.map((dataItem, index) =>
-      dataItem?.content?.map((row, rowIndex) =>
-      
-        row?.tasks?.map((taskItem, taskIndex) => {
-          const task = taskItem?.task;
-          return (
-            <StyledTableRow key={index}>
-               <StyledTableCell align="left">post - {task?.postNumber}</StyledTableCell>
-              <StyledTableCell align="left">{task?.brand?.name}</StyledTableCell>
-              <StyledTableCell align="left">{formatMonth(task?.month)}</StyledTableCell>
-              <StyledTableCell align="left">{formatDate(taskItem?.design_date)}</StyledTableCell>
-              <StyledTableCell align="left">
-             
-               <Tooltip title={task?.headline ? task?.headline:"No headline" } >
-              <IconButton
-                  onClick={() =>
-                    navigate("/report/detail", { state: taskItem })
-                  }
-                  aria-label="info"
-                >
-                  <Info />
-                </IconButton>
-              </Tooltip>
-              </StyledTableCell>
-            </StyledTableRow>
-          );
-        })
+{data?.currentDatas?.[0]?.content?.length === 0 ? (
+  <StyledTableRow>
+    <StyledTableCell colSpan={5} align="center">
+      There is no report found
+    </StyledTableCell>
+  </StyledTableRow>
+) : (
+  // Flatten and sort all taskItems before rendering
+  data?.currentDatas
+    ?.flatMap((dataItem) =>
+      dataItem?.content?.flatMap((row) =>
+        row?.tasks?.map((taskItem) => ({ ...taskItem }))
       )
     )
-  )}
+    ?.filter(Boolean) // remove any undefined/null items
+    ?.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    ?.map((taskItem, index) => {
+      const task = taskItem?.task;
+      return (
+        <StyledTableRow key={index}>
+          <StyledTableCell align="left">post - {task?.postNumber}</StyledTableCell>
+          <StyledTableCell align="left">{task?.brand?.name}</StyledTableCell>
+          <StyledTableCell align="left">{formatMonth(task?.month)}</StyledTableCell>
+          <StyledTableCell align="left">{formatDate(taskItem?.design_date)}</StyledTableCell>
+          <StyledTableCell align="left">
+            <Tooltip title={task?.headline || "No headline"}>
+              <IconButton
+                onClick={() => navigate("/report/detail", { state: taskItem })}
+                aria-label="info"
+              >
+                <Info />
+              </IconButton>
+            </Tooltip>
+          </StyledTableCell>
+        </StyledTableRow>
+      );
+    })
+)}
+
 </TableBody>
 
         </Table>

@@ -315,28 +315,31 @@ const filteredTasks = data?.currentDatas?.flatMap((dataItem) =>
     </StyledTableCell>
   </StyledTableRow>
 ) : (
-  filteredTasks.map((taskItem) => {
-    const task = taskItem.task;
-    return (
-      <StyledTableRow key={taskItem._id}>
-        <StyledTableCell align="left">post - {task?.postNumber}</StyledTableCell>
-        <StyledTableCell align="left">{task?.brand?.name}</StyledTableCell>
-        <StyledTableCell align="left">{formatMonth(task?.month)}</StyledTableCell>
-        <StyledTableCell align="left">{formatDate(taskItem?.design_date)}</StyledTableCell>
-        <StyledTableCell align="left">
-          <Tooltip title={task?.headline || "No headline"}>
-            <IconButton
-              onClick={() => navigate("/history/detail", { state: taskItem })}
-              aria-label="detail"
-            >
-              <Info />
-            </IconButton>
-          </Tooltip>
-        </StyledTableCell>
-      </StyledTableRow>
-    );
-  })
+  [...filteredTasks]
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    .map((taskItem) => {
+      const task = taskItem.task;
+      return (
+        <StyledTableRow key={taskItem._id}>
+          <StyledTableCell align="left">post - {task?.postNumber}</StyledTableCell>
+          <StyledTableCell align="left">{task?.brand?.name}</StyledTableCell>
+          <StyledTableCell align="left">{formatMonth(task?.month)}</StyledTableCell>
+          <StyledTableCell align="left">{formatDate(taskItem?.design_date)}</StyledTableCell>
+          <StyledTableCell align="left">
+            <Tooltip title={task?.headline || "No headline"}>
+              <IconButton
+                onClick={() => navigate("/history/detail", { state: taskItem })}
+                aria-label="detail"
+              >
+                <Info />
+              </IconButton>
+            </Tooltip>
+          </StyledTableCell>
+        </StyledTableRow>
+      );
+    })
 )}
+
 
 
           </TableBody>
