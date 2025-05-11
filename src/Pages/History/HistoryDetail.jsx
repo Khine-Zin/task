@@ -26,7 +26,7 @@ const HistoryDetail = () => {
        const [category, setCategory] = useState([]);
       const [data,setData]=useState({
         budget:state?.budget,
-        paid:state?.reaction,
+        share:state?.share,
         organic:state?.organic,
         reaction:state?.reactions,
         ads:state.ads,
@@ -38,6 +38,8 @@ const HistoryDetail = () => {
       })
       const [create,setCreate]=useState(false)
       const [loading,setLoading]=useState(false)
+
+      console.log(data)
     
       const handleSubmit = async () => {
         setCreate(true);
@@ -52,26 +54,14 @@ const HistoryDetail = () => {
         try {
           const formData = new FormData();
       
-         if(data?.budget!==undefined){
-          formData.append("budget", data?.budget);
-         }
-         if(data?.reaction!==undefined){
-          formData.append("reaction", data?.paid);
-         }
-         if(data?.organic!==undefined){
-          formData.append("organic", data?.organic);
-         }
-         
-         if(data?.reaction!==undefined){
-          formData.append("reactions", data?.reaction);
-         }
-         if(data?.total_reach!==undefined){
-          formData.append("total_reach", data?.total);
-         }
-          
-         if(data?.ads!==undefined){
-          formData.append("ads", data?.ads);
-         }
+       
+      formData.append("budget", data?.budget ? data?.budget :"");
+         formData.append("share", data?.share ? data.share :"");
+        formData.append("organic", data?.organic ? data?.organic :"");
+        
+            formData.append("reactions", data?.reaction ? data?.reaction :"");
+         formData.append("total_reach", data?.total ? data?.total :"");
+         formData.append("ads", data?.ads ?data.ads :"");
          
           formData.append("category", data?.category);
           formData.append("headline", headline);
@@ -331,8 +321,8 @@ const HistoryDetail = () => {
       
                     <TextField
                       label="Share"
-                      value={data.paid || ""}
-                      onChange={(e) => setData({ ...data, paid: e.target.value })}
+                      value={data.share || ""}
+                      onChange={(e) => setData({ ...data, share: e.target.value })}
                       fullWidth
                       margin="normal"
                     />

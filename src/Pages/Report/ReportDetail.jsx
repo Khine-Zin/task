@@ -100,23 +100,23 @@ console.log(state)
 <table className="mt-8 font-medium text-bodyColor">
   <tbody>
     {[
-      { icon: <HiCurrencyDollar /> , label: "Budget", value: `${state?.budget} $` },
+      { icon: <HiCurrencyDollar /> , label: "Budget", value:state?.budget ? `${state?.budget} $` :"-"},
       {
         icon: <MdOutlineAddReaction />,
         label: "Reactions",
-        value: state?.reactions,
+        value:state?.reactions ? state?.reactions :"-",
       },
-      { icon: <MdBookmarks />, label: "Organic", value: `${state?.organic} %` },
+      { icon: <MdBookmarks />, label: "Organic", value:state.organic ? `${state?.organic} %`:"-" },
       {
         icon:<PiShareNetwork />,
         label: "Share",
-        value: state?.reaction,
+        value:state?.share ? state?.share :"-",
       },
-      { icon: <IoMegaphoneOutline />, label: "Ads", value: `${state?.ads} %` },
+      { icon: <IoMegaphoneOutline />, label: "Ads", value:state?.ads?  `${state?.ads} %`:"-" },
       {
         icon:<LuNotebookPen />,
         label: "Total Reach",
-        value: state?.total_reach,
+        value: state?.total_reach ?  state?.total_reach :"-",
       },
     
    

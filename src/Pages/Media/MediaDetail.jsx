@@ -31,7 +31,7 @@ const handleSubmit = async () => {
       `${SERVER_URL}/media-buyer/create-media-buyer/${state._id}`,
       {
         "budget": data?.budget,
-        "reaction": data?.paid,
+        "share": data?.paid,
         "organic": data?.organic,
         "reactions": data?.reaction,
         "total_reach": data?.total,
