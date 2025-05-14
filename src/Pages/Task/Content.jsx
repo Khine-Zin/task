@@ -174,7 +174,7 @@ const Content= () => {
 
     try {
       // Fetch task data first based on pager.currentPage
-      const taskResponse = await axios.get(`${SERVER_URL}/task/view-task?page=${pager.currentPage}&limit=${pager.pageSize}&brand=${searchBrand}&category=${searchUser}`, {
+      const taskResponse = await axios.get(`${SERVER_URL}/task/view-task?page=${pager.currentPage}&limit=${pager.pageSize}&brand=${searchBrand==="All" ? "":searchBrand}&category=${searchUser ==="All" ?"":searchUser}`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: token,
@@ -252,7 +252,7 @@ const Content= () => {
 
     try {
   
-      const taskResponse = await axios.get(`${SERVER_URL}/task/view-one-task?page=1&limit=30&brand=${newUser.brand}&category=false&startDate=${startDateFormatted ==="Invalid Date" ? "" :startDateFormatted}&endDate=${endDateFormatted==="Invalid Date"? "":endDateFormatted}`, {
+      const taskResponse = await axios.get(`${SERVER_URL}/task/view-one-task?page=1&limit=150&brand=${newUser.brand}&category=false&search=${newUser.year}&startDate=${newUser.month}`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: token,
@@ -280,17 +280,27 @@ const Content= () => {
   
     fetchData();
   }, [pager.currentPage,searchUser,searchBrand]);
-console.log("content>>>",Content)
+const filteredTasks = Content?.[0]?.tasks?.filter(
+  (task) => task.year === newUser.year
+);
 
+const filteredPost = filteredTasks?.filter(
+  (task) => task.month === newUser.month
+);
+
+
+const filtered = brand.filter(item => item.name === newUser.brand);
+
+const filteredMonth = filtered?.[0]?.months.filter(item => item.year === newUser.year);
 
     React.useEffect(() => {
-     if(newUser.brand && newUser.month){
+     if(newUser.brand && newUser.year && newUser.month ){
       fetchContent()
      }
   
   
  
-  }, [newUser.brand,newUser.month]);
+  }, [newUser.brand,newUser.month,newUser.year]);
 
   
     React.useEffect(() => {
@@ -669,6 +679,10 @@ setOpenDialog(false)
   
  
    };
+console.log(Content)
+  //  const filtered = Content?.[0]?.tasks?.filter(item => item?.brand?.name === newUser.brand);
+
+// const filteredMonth = filtered?.[0]?.months.filter(item => item.year === newUser.year);
 
 // console.log("edit",editUser)
   //  const handleHeadline = (row,name) => {
@@ -685,57 +699,63 @@ setOpenDialog(false)
      {
           role ==="admin" && (
             <div className='flex gap-3 items-center'>
-     <div className="relative flex gap-5">
-          <FormControl sx={{ width: 200 }} margin="normal">
-  <InputLabel id="role-label">Select Brand</InputLabel>
-  <Select
-    labelId="role-label"
-    id="role"
-    value={searchBrand}
-    onChange={(e) => setSearchBrand(e.target.value)}
-    label="Select Brand"
-     
-  >
-    {brand.length === 0 ? (
-      <MenuItem disabled>No option</MenuItem>
-    ) : (
-      brand.map((user) => (
-        <MenuItem key={user._id} value={user.name}>
-          {user.name}
-        </MenuItem>
-      ))
-    )}
-  </Select>
-</FormControl>
-<Box display="flex" gap={2} >
-  <FormControl fullWidth margin="normal" sx={{ width: '200px' }}>
-    <InputLabel id="role-label">Select Content Writer</InputLabel>
+      <div className="relative flex gap-5">
+              <FormControl sx={{ width: 200 }} margin="normal">
+      <InputLabel id="role-label">Select Brand</InputLabel>
     <Select
-            labelId="role-label"
-            id="role"
-            value={searchUser}
-            onChange={(e) => setSearchUser(e.target.value)}
-            label="Select Content Writer"
-          >
-           
-              {userinfo.length ===0 ?(
-                  <MenuItem disabled>No option </MenuItem>
-              ): userinfo?.map((user) => (
-         
-          user?.role !=="admin" && (
-            <MenuItem key={user._id} value={user.name}>
+      id="role"
+      value={searchBrand}
+      onChange={(e) => setSearchBrand(e.target.value)}
+      label="Select Brand"
+    >
+      <MenuItem value="All">All</MenuItem>
+      {brand.length === 0 ? (
+        <MenuItem disabled>No option</MenuItem>
+      ) : (
+        brand.map((user) => (
+          <MenuItem key={user._id} value={user.name}>
             {user.name}
           </MenuItem>
-          )
-         
-        ))}
-          </Select>
-  </FormControl>
+        ))
+      )}
+    </Select>
+    
+    </FormControl>
+      <Box display="flex" gap={2} >
+          {/* Start Date */}
+          <Box flex={1}>
+           
+          <FormControl fullWidth margin="normal" sx={{ width: '200px' }}>
+    
+        <InputLabel id="role-label">Select Content Writer</InputLabel>
+    <Select
+      id="role"
+      value={searchUser}
+      onChange={(e) => setSearchUser(e.target.value)}
+      label="Select Content Writer"
+    >
+      <MenuItem value="All">All</MenuItem>
+      {userinfo.length === 0 ? (
+        <MenuItem disabled>No option</MenuItem>
+      ) : (
+        userinfo
+          .filter(user => user.role !== "admin")
+          .map(user => (
+            <MenuItem key={user._id} value={user.name}>
+              {user.name}
+            </MenuItem>
+          ))
+      )}
+    </Select>
     
     
-    </Box>
+      </FormControl>
+          </Box>
         
-          </div>
+        
+        </Box>
+            
+              </div>
 
 
           <Button
@@ -818,7 +838,9 @@ setOpenDialog(false)
           <TableCell align="left">{row?._id?.brand}</TableCell>
           <TableCell align="left">{formatDate(item?.task?.deadline)}</TableCell>
           
-          <TableCell align="left">{`${dayjs().month(row?._id?.month - 1).format("MMMM")} ${row?._id?.year}`}</TableCell>
+          <TableCell align="left">
+          {item?.task?.year} - {["1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th", "10th", "11th", "12th"][item?.task?.month - 1]} Month 
+         </TableCell>
           <TableCell align="left">
             <IconButton
               onClick={(e) => {
@@ -918,27 +940,49 @@ setOpenDialog(false)
               </Select>
       </FormControl>
 
-       
+    <FormControl fullWidth margin="normal">
+   <InputLabel id="year-label">Select Year</InputLabel>
+   <Select
+     labelId="year-label"
+     id="year"
+     value={newUser.year}
+     label="Select Year"
+     onChange={(e) => setNewUser({ ...newUser, year: e.target.value })}
+   >
+     {filtered?.length === 0 || !filtered?.[0]?.months ? (
+       <MenuItem disabled>No option</MenuItem>
+     ) : (
+       [...new Set(filtered?.[0]?.months?.map((m) => m.year))].map((year) => (
+         <MenuItem key={year} value={year}>
+           {year}
+         </MenuItem>
+       ))
+     )}
+   </Select>
+ </FormControl>
+ 
+    <FormControl fullWidth margin="normal">
+   <InputLabel id="month-label">Select Month</InputLabel>
+   <Select
+     labelId="month-label"
+     id="month"
+     value={newUser.month}
+     label="Select Month"
+     onChange={(e) => setNewUser({ ...newUser, month: e.target.value })}
+   >
+     {filteredMonth?.length === 0 ? (
+       <MenuItem disabled>No option</MenuItem>
+     ) : (
+       filteredMonth?.map((user) => (
+         <MenuItem key={user._id} value={user.month}>
+           {["First", "Second", "Third", "Fourth", "Fifth", "Sixth", "Seventh", "Eighth", "Ninth", "Tenth", "Eleventh", "Twelfth"][user.month - 1]} Month
+         </MenuItem>
+       ))
+     )}
+   </Select>
+ </FormControl>
 
-      {
-    type==="content" &&  (
-      <Box display="flex" gap={2} mt={2}>
-      {/* Start Date */}
-      <Box flex={1}>
-        <InputLabel shrink>Month</InputLabel>
-        <Monthpicker
-          value={newUser.month}
-          onChange={(e) => setNewUser({ ...newUser, month: e.target.value })}
-          name="startDate"
-        />
-      </Box>
-    
-   
-    </Box>
-    )
-   }
-
-{newUser.month && type === "content" && (
+{newUser.year && newUser.month && !loading && type === "content" && (
   <div className="my-5">
     {Content==undefined ||Content?.length === 0 ? (
       <div>There is no post</div>

@@ -75,30 +75,24 @@ const [monthsearch,setMonthSearch]=React.useState("")
   const [locationImage, setLocationImage] = React.useState("");
   const [messageImage, setMessageImage] = React.useState("");
     const [brand,setBrand]=React.useState([])
-
+const [yearsearch,setYearSearch]=React.useState("")
     const formatMonth = (dateString) => {
       const options = {  month: 'short', year: 'numeric' };
       return new Date(dateString).toLocaleDateString('en-GB', options);
   
     };
+      const filteredDownload = brand.filter(item => item._id === newUser?.brand);
+
+const filteredMonthDownload = filteredDownload?.[0]?.months.filter(item => item.year === newUser.year);
     const formatDate = (dateString) => {
       const options = { day: '2-digit', month: 'short', year: 'numeric' };
       return new Date(dateString).toLocaleDateString('en-GB', options);
   
     };
-    const date = new Date(monthsearch); // e.g., May 6, 2025
+    const filtered = brand.filter(item => item.name === searchQuery);
 
-const year = date.getFullYear();
-const month = date.getMonth(); // May = 4
-
-const startDate = new Date(year, month, 1);
-const endDate = new Date(year, month + 1, 0); // last day of the month
-
-const options = { month: 'long', day: 'numeric', year: 'numeric' };
-
-// Remove the comma in the formatted date string
-const startDateFormatted = startDate.toLocaleString('en-US', options).replace(',', '');
-const endDateFormatted = endDate.toLocaleString('en-US', options).replace(',', '');
+const filteredMonth = filtered?.[0]?.months.filter(item => item.year === yearsearch);
+   console.log(filteredDownload)
 
 // console.log("Start Date:", startDateFormatted);
 // console.log("End Date:", endDateFormatted);
@@ -106,7 +100,7 @@ const endDateFormatted = endDate.toLocaleString('en-US', options).replace(',', '
     setLoading(true);
     const token = localStorage.getItem("token");
     try {
-      const response = await axios.get(`${SERVER_URL}/report/view-report?page=${pager.currentPage}&limit=${pager.pageSize}&status=done&brand=${searchQuery}&startDate=${startDateFormatted ==="Invalid Date" ? "" :startDateFormatted}&endDate=${endDateFormatted==="Invalid Date"? "":endDateFormatted}`, {
+      const response = await axios.get(`${SERVER_URL}/report/view-report?page=${pager.currentPage}&limit=${pager.pageSize}&status=done&brand=${searchQuery==="All" ? "" :searchQuery}&search=${yearsearch==="All"? "":yearsearch}&category=${monthsearch ==="All" ? "":monthsearch}`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: token,
@@ -184,7 +178,7 @@ const endDateFormatted = endDate.toLocaleString('en-US', options).replace(',', '
 
   React.useEffect(() => {
     fetchData();
-  }, [pager.currentPage,searchQuery,monthsearch]);
+  }, [pager.currentPage,searchQuery,monthsearch,yearsearch]);
 
   const handlePageChange = (direction) => {
     setPager(prev => {
@@ -209,7 +203,8 @@ const handleCreateUserSubmit = async () => {
 
   try {
     const formData = new FormData();
-    formData.append("month", newUser.startDate);
+    formData.append("month", newUser.month);
+    formData.append("year", newUser.year);
     formData.append("brand", newUser?.brand);
     formData.append("page_total_reach", newUser?.pageReach);
     formData.append("page_visitor", newUser?.pageVisitor);
@@ -264,18 +259,18 @@ const handleCreateUserSubmit = async () => {
   } catch (err) {
     let errorMessage = 'An error occurred. Please try again later.';
     setCreate(false);
-
+console.log(err)
     if (err.response) {
       switch (err.response.status) {
         case 401:
         case 400:
-          errorMessage = err.response.data?.message || 'Unauthorized';
+          errorMessage = err.response?.message || 'Unauthorized';
           localStorage.clear();
           setUser(null);
           navigate("/"); // Redirect to login
           break;
         case 500:
-          errorMessage = err.response.data?.message || 'Server error. Please try again later.';
+          errorMessage = err.response?.message || 'Server error. Please try again later.';
           break;
         case 503:
           errorMessage = 'Service is temporarily unavailable. Please try again later.';
@@ -284,7 +279,7 @@ const handleCreateUserSubmit = async () => {
           errorMessage = 'Bad Gateway: The server is down. Please try again later.';
           break;
         default:
-          errorMessage = err.response.data?.message || 'An error occurred.';
+          errorMessage = err.response?.message || 'No Content found';
       }
     } else if (err.request) {
       errorMessage = 'Network error. Please check your internet connection.';
@@ -309,43 +304,82 @@ const handleCreateUserSubmit = async () => {
       {
           role ==="admin" && (
             <div className='flex gap-3 items-center'>
-            <div className="relative flex gap-5">
-          <FormControl sx={{ width: 200 }} margin="normal">
-  <InputLabel id="role-label">Select Brand</InputLabel>
-  <Select
-    labelId="role-label"
-    id="role"
-    value={searchQuery}
-    onChange={(e) => setSearchQuery(e.target.value)}
-    label="Select Brand"
-     
-  >
-    {brand.length === 0 ? (
-      <MenuItem disabled>No option</MenuItem>
-    ) : (
-      brand.map((user) => (
-        <MenuItem key={user._id} value={user.name}>
-          {user.name}
-        </MenuItem>
-      ))
-    )}
-  </Select>
-</FormControl>
-  <Box display="flex" gap={2} mt={2}>
-      {/* Start Date */}
-      <Box flex={1}>
-       
-        <Monthpicker
-          value={monthsearch}
-          onChange={(e) => setMonthSearch(e.target.value)}
-          name="month"
-        />
-      </Box>
-    
-    
-    </Box>
-        
-          </div>
+         <div className="relative flex gap-5">
+                             <FormControl sx={{ width: 200 }} margin="normal">
+                     <InputLabel id="role-label">Select Brand</InputLabel>
+                     <Select
+                       labelId="role-label"
+                       id="role"
+                       value={searchQuery}
+                       onChange={(e) => 
+                       {if(searchQuery=="All"){
+                        setMonthSearch("All")
+                        setYearSearch("All")
+                       }
+                         setSearchQuery(e.target.value)
+                       }
+                       
+                      }
+                       label="Select Brand"
+                        
+                     >
+                         <MenuItem value="All">All</MenuItem>
+                       {brand.length === 0 ? (
+                         <MenuItem disabled>No option</MenuItem>
+                       ) : (
+                         brand.map((user) => (
+                           <MenuItem key={user._id} value={user.name}>
+                             {user.name}
+                           </MenuItem>
+                         ))
+                       )}
+                     </Select>
+                   </FormControl>
+                        <FormControl sx={{ width: 200 }} fullWidth margin="normal">
+                     <InputLabel id="year-label">Select Year</InputLabel>
+                     <Select
+                       labelId="year-label"
+                       id="year"
+                       value={yearsearch}
+                       label="Select Year"
+                       onChange={(e) => setYearSearch(e.target.value)}
+                     >
+                        <MenuItem value="All">All</MenuItem>
+                       {filtered?.length === 0 || !filtered?.[0]?.months ? (
+                         <MenuItem disabled>No option</MenuItem>
+                       ) : (
+                         [...new Set(filtered?.[0]?.months?.map((m) => m.year))].map((year) => (
+                           <MenuItem key={year} value={year}>
+                             {year}
+                           </MenuItem>
+                         ))
+                       )}
+                     </Select>
+                   </FormControl>
+                   
+                      <FormControl sx={{ width: 200 }} fullWidth margin="normal">
+                     <InputLabel id="month-label">Select Month</InputLabel>
+                     <Select
+                       labelId="month-label"
+                       id="month"
+                       value={monthsearch}
+                       label="Select Month"
+                       onChange={(e) => setMonthSearch(e.target.value)}
+                     >
+                        <MenuItem value="All">All</MenuItem>
+                       {filteredMonth?.length === 0 ? (
+                         <MenuItem disabled>No option</MenuItem>
+                       ) : (
+                         filteredMonth?.map((user) => (
+                           <MenuItem key={user._id} value={user.month}>
+                             {["First", "Second", "Third", "Fourth", "Fifth", "Sixth", "Seventh", "Eighth", "Ninth", "Tenth", "Eleventh", "Twelfth"][user.month - 1]} Month
+                           </MenuItem>
+                         ))
+                       )}
+                     </Select>
+                   </FormControl>
+                           
+                             </div>
           <Button
             variant="contained"
             sx={{
@@ -404,7 +438,9 @@ const handleCreateUserSubmit = async () => {
         <StyledTableRow key={index}>
           <StyledTableCell align="left">post - {task?.postNumber}</StyledTableCell>
           <StyledTableCell align="left">{task?.brand?.name}</StyledTableCell>
-          <StyledTableCell align="left">{formatMonth(task?.month)}</StyledTableCell>
+           <TableCell align="left">
+                              {task?.year} - {["1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th", "10th", "11th", "12th"][task?.month - 1]} Month 
+                             </TableCell>
           <StyledTableCell align="left">{formatDate(taskItem?.design_date)}</StyledTableCell>
           <StyledTableCell align="left">
             <Tooltip title={task?.headline || "No headline"}>
@@ -468,14 +504,47 @@ const handleCreateUserSubmit = async () => {
     
    
     </Box>
-    <Box flex={1}>
-        <InputLabel shrink> Month</InputLabel>
-        <Monthpicker
-          value={newUser.startDate}
-          onChange={(e) => setNewUser({ ...newUser, startDate: e.target.value })}
-          name="startDate"
-        />
-      </Box>
+    <FormControl fullWidth margin="normal">
+                <InputLabel id="year-label">Select Year</InputLabel>
+                <Select
+                  labelId="year-label"
+                  id="year"
+                  value={newUser.year}
+                  label="Select Year"
+                  onChange={(e) => setNewUser({ ...newUser, year: e.target.value })}
+                >
+                  {filteredDownload?.length === 0 || !filteredDownload?.[0]?.months ? (
+                    <MenuItem disabled>No option</MenuItem>
+                  ) : (
+                    [...new Set(filteredDownload?.[0]?.months?.map((m) => m.year))].map((year) => (
+                      <MenuItem key={year} value={year}>
+                        {year}
+                      </MenuItem>
+                    ))
+                  )}
+                </Select>
+              </FormControl>
+              
+                 <FormControl fullWidth margin="normal">
+                <InputLabel id="month-label">Select Month</InputLabel>
+                <Select
+                  labelId="month-label"
+                  id="month"
+                  value={newUser.month}
+                  label="Select Month"
+                  onChange={(e) => setNewUser({ ...newUser, month: e.target.value })}
+                >
+                  {filteredMonthDownload?.length === 0 ? (
+                    <MenuItem disabled>No option</MenuItem>
+                  ) : (
+                    filteredMonthDownload?.map((user) => (
+                      <MenuItem key={user._id} value={user.month}>
+                        {["First", "Second", "Third", "Fourth", "Fifth", "Sixth", "Seventh", "Eighth", "Ninth", "Tenth", "Eleventh", "Twelfth"][user.month - 1]} Month
+                      </MenuItem>
+                    ))
+                  )}
+                </Select>
+              </FormControl>
       
                     <TextField
                       label="Total Page Reach"

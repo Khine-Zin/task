@@ -66,44 +66,17 @@ const CalendarPlan= () => {
   const [datacontent, setDataContent] = React.useState([]);
   const [dataHeadline, setDataHeadline] = React.useState([]);
   const [brand,setBrand]=React.useState([])
-
+const [yearsearch,setYearSearch]=useState("")
   const [pager, setPager] = React.useState({ currentPage: 1, pageSize: 9});
   const debounceTimer = React.useRef(null);
   const role = localStorage.getItem("userRole");
   const [type, setType] = React.useState("headline");
-  const formatDate = (dateString) => {
-    const options = { day: '2-digit', month: 'short', year: 'numeric' };
-    return new Date(dateString).toLocaleDateString('en-GB', options);
+  const filteredDownload = brand.filter(item => item.name === newUser?.brand);
 
-  };
+const filteredMonthDownload = filteredDownload?.[0]?.months.filter(item => item.year === newUser.year);
 
-  const date = new Date(monthsearch); // e.g., May 6, 2025
 
-  const year = date.getFullYear();
-  const month = date.getMonth(); // May = 4
-  
-  const startDate = new Date(year, month, 1);
-  const endDate = new Date(year, month + 1, 0); // last day of the month
-  
-  const options = { month: 'long', day: 'numeric', year: 'numeric' };
-  
-  // Remove the comma in the formatted date string
-  const startDateFormatted = startDate.toLocaleString('en-US', options).replace(',', '');
-  const endDateFormatted = endDate.toLocaleString('en-US', options).replace(',', '');
-
-  const DownloadDate = new Date(newUser?.start_date);
-  // console.log(DownloadDate)
-  const year1 = DownloadDate.getFullYear();
-  const month1 = DownloadDate.getMonth(); // May = 4
-  
-  const startDate1 = new Date(year1, month1, 1);
-  const endDate1 = new Date(year1, month1 + 1, 0); // last day of the month
-  
-  const options1 = { month: 'long', day: 'numeric', year: 'numeric' };
-  
-  // Remove the comma in the formatted date string
-  const startDateFormatted1 = startDate1.toLocaleString('en-US', options1).replace(',', '');
-  const endDateFormatted1 = endDate1.toLocaleString('en-US', options1).replace(',', '')
+ 
   
 const [download,setDownload]=useState([])
   
@@ -113,6 +86,9 @@ const [download,setDownload]=useState([])
   const [errorShown, setErrorShown] = React.useState(false);
 
   const [total,settotal]=useState([])
+   const filtered = brand.filter(item => item.name === searchQuery);
+
+const filteredMonth = filtered?.[0]?.months.filter(item => item.year === yearsearch);
 
     const [selectedPosts, setSelectedPosts] = useState([]);
   
@@ -131,7 +107,7 @@ console.log(selectedPosts)
 
     try {
       // Fetch task data first based on pager.currentPage
-      const taskResponse = await axios.get(`${SERVER_URL}/content-calendar/view-content-calendar?page=${pager.currentPage}&limit=${pager.pageSize}&brand=${searchQuery}&startDate=${startDateFormatted ==="Invalid Date" ? "" :startDateFormatted}&endDate=${endDateFormatted==="Invalid Date"? "":endDateFormatted}`, {
+      const taskResponse = await axios.get(`${SERVER_URL}/content-calendar/view-content-calendar?page=${pager.currentPage}&limit=${pager.pageSize}&brand=${searchQuery==="All" ? "" :searchQuery}&year=${yearsearch==="All"? "":yearsearch}&month=${monthsearch ==="All" ? "":monthsearch}`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: token,
@@ -184,7 +160,7 @@ console.log(selectedPosts)
   
   
     fetchData();
-  }, [pager.currentPage,searchQuery,monthsearch]); // Dependency on pager.currentPage
+  }, [pager.currentPage,searchQuery,monthsearch,yearsearch]); // Dependency on pager.currentPage
 
   
   
@@ -339,7 +315,7 @@ setOpenDialog(false)
   
       try {
         // Fetch task data first based on pager.currentPage
-        const taskResponse = await axios.get(`${SERVER_URL}/history/view-history?page=${pager.currentPage}&limit=${pager.pageSize}&brand=${newUser?.brand}&startDate=${startDateFormatted1 ==="Invalid Date" ? "" :startDateFormatted1}&endDate=${endDateFormatted1==="Invalid Date"? "":endDateFormatted1}`, {
+        const taskResponse = await axios.get(`${SERVER_URL}/history/view-history?page=${pager.currentPage}&limit=30&brand=${newUser.brand}&search=${newUser.year}&category=${newUser.month}`, {
           headers: {
             'Content-Type': 'application/json',
             Authorization: token,
@@ -347,9 +323,9 @@ setOpenDialog(false)
         });
        
   
-        const taskData = taskResponse.data?.data.currentDatas[0]?.content?.[0]?.tasks;
+        const taskData = taskResponse.data?.data.currentDatas[0]?.content;
   
-    console.log(taskData)
+   
         setDownload(taskData);
      
        
@@ -371,7 +347,7 @@ setOpenDialog(false)
   };
   React.useEffect(() => {
   
-    if(newUser.brand && newUser.start_date){
+    if(newUser.brand && newUser.month && newUser.year){
       const timeoutId = setTimeout(() => {
         fetchDownload();
       }, 1000); // Set the delay in milliseconds (e.g., 1000ms = 1 second)
@@ -379,7 +355,7 @@ setOpenDialog(false)
       return () => clearTimeout(timeoutId); // Cleanup the timeout on unmount
     }
      
-   }, [newUser.brand,newUser.start_date]);
+   }, [newUser.brand,newUser?.brand,newUser?.month,newUser.year]);
 
 const handleCreateUserSubmit = async () => {
   setCreate(true);
@@ -409,9 +385,8 @@ const handleCreateUserSubmit = async () => {
     // Create a download link and trigger the download
     const a = document.createElement('a');
     a.href = url;
-      const startDate = new Date(Number(newUser.start_date));
-const monthName = startDate.toLocaleString('en-US', { month: 'long' }); // "May"
-a.download = `${newUser.brand}-${monthName}-calendar.pdf`;
+   
+a.download = `${newUser.brand}-calendar.pdf`;
   document.body.appendChild(a);
     a.click();
     a.remove();
@@ -478,43 +453,73 @@ console.log(download)
           role ==="admin" && (
             <div className='flex gap-3 items-center'>
      <div className="relative flex gap-5">
-          <FormControl sx={{ width: 200 }} margin="normal">
-  <InputLabel id="role-label">Select Brand</InputLabel>
-  <Select
-    labelId="role-label"
-    id="role"
-    value={searchQuery}
-    onChange={(e) => setSearchQuery(e.target.value)}
-    label="Select Brand"
-     
-  >
-    {brand.length === 0 ? (
-      <MenuItem disabled>No option</MenuItem>
-    ) : (
-      brand.map((user) => (
-        <MenuItem key={user._id} value={user.name}>
-          {user.name}
-        </MenuItem>
-      ))
-    )}
-  </Select>
-</FormControl>
-  <Box display="flex" gap={2} mt={2}>
-      {/* Start Date */}
-      <Box flex={1}>
-       
-        <Monthpicker
-          value={monthsearch}
-          onChange={(e) => setMonthSearch(e.target.value)}
-          name="month"
-        />
-      </Box>
+              <FormControl sx={{ width: 200 }} margin="normal">
+      <InputLabel id="role-label">Select Brand</InputLabel>
+      <Select
+        labelId="role-label"
+        id="role"
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        label="Select Brand"
+         
+      >
+          <MenuItem value="All">All</MenuItem>
+        {brand.length === 0 ? (
+          <MenuItem disabled>No option</MenuItem>
+        ) : (
+          brand.map((user) => (
+            <MenuItem key={user._id} value={user.name}>
+              {user.name}
+            </MenuItem>
+          ))
+        )}
+      </Select>
+    </FormControl>
+         <FormControl sx={{ width: 200 }} fullWidth margin="normal">
+      <InputLabel id="year-label">Select Year</InputLabel>
+      <Select
+        labelId="year-label"
+        id="year"
+        value={yearsearch}
+        label="Select Year"
+        onChange={(e) => setYearSearch(e.target.value)}
+      >
+         <MenuItem value="All">All</MenuItem>
+        {filtered?.length === 0 || !filtered?.[0]?.months ? (
+          <MenuItem disabled>No option</MenuItem>
+        ) : (
+          [...new Set(filtered?.[0]?.months?.map((m) => m.year))].map((year) => (
+            <MenuItem key={year} value={year}>
+              {year}
+            </MenuItem>
+          ))
+        )}
+      </Select>
+    </FormControl>
     
-    
-    </Box>
-        
-          </div>
-
+       <FormControl sx={{ width: 200 }} fullWidth margin="normal">
+      <InputLabel id="month-label">Select Month</InputLabel>
+      <Select
+        labelId="month-label"
+        id="month"
+        value={monthsearch}
+        label="Select Month"
+        onChange={(e) => setMonthSearch(e.target.value)}
+      >
+         <MenuItem value="All">All</MenuItem>
+        {filteredMonth?.length === 0 ? (
+          <MenuItem disabled>No option</MenuItem>
+        ) : (
+          filteredMonth?.map((user) => (
+            <MenuItem key={user._id} value={user.month}>
+              {["First", "Second", "Third", "Fourth", "Fifth", "Sixth", "Seventh", "Eighth", "Ninth", "Tenth", "Eleventh", "Twelfth"][user.month - 1]} Month
+            </MenuItem>
+          ))
+        )}
+      </Select>
+    </FormControl>
+            
+              </div>
 
           <Button
             variant="contained"
@@ -585,12 +590,9 @@ console.log(download)
         <StyledTableRow key={item._id || index}>
           <StyledTableCell align="left">post - {item?.task?.postNumber}</StyledTableCell>
           <StyledTableCell align="left">{item?.task?.brand?.name}</StyledTableCell>
-          <StyledTableCell align="left">
-  {item?.task?.month ? new Date(item?.task?.month).toLocaleString('en-US', {
-    month: 'long',
-    year: 'numeric',
-  }) : ''}
-</StyledTableCell>
+         <TableCell align="left">
+                             {item?.task?.year} - {["1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th", "10th", "11th", "12th"][item?.task?.month - 1]} Month 
+                            </TableCell>
           <StyledTableCell
             align="center"
             sx={{ display: 'flex', justifyContent: 'center', gap: 1 }}
@@ -681,57 +683,87 @@ console.log(download)
       </Dialog>
 
       {/* Create User Form Dialog */}
-      <Dialog open={openCreateDialog} onClose={() => setOpenCreateDialog(false)} fullWidth maxWidth="sm">
-        {/* <DialogTitle>Download</DialogTitle> */}
-        <Dialog open={openCreateDialog} onClose={() => setOpenCreateDialog(false)} fullWidth maxWidth="sm">
-               <DialogTitle>Download Pdf</DialogTitle>
-               <DialogContent style={{ width: '100%' }}>
-           
-      
-               
+    <Dialog open={openCreateDialog} onClose={() =>{
+           setOpenCreateDialog(false)
+           setSelectedPosts([])
+        }} fullWidth maxWidth="sm">
+          {/* <DialogTitle>Download</DialogTitle> */}
+          <Dialog open={openCreateDialog} onClose={() => setOpenCreateDialog(false)} fullWidth maxWidth="sm">
+                 <DialogTitle>Download Pdf</DialogTitle>
+                 <DialogContent style={{ width: '100%' }}>
+             
+        
+                 
              <FormControl fullWidth margin="normal">
-               <InputLabel id="role-label">Select Brand</InputLabel>
+                    <InputLabel id="role-label">Select Brand</InputLabel>
+                    <Select
+                            labelId="role-label"
+                            id="role"
+                            value={newUser.brand}
+                            onChange={(e) => setNewUser({ ...newUser, brand: e.target.value })}
+                            label="Select Brand"
+                          >
+                           
+                              {brand.length ===0 ? (
+                                   <MenuItem disabled>No option </MenuItem>
+                              ):brand?.map((user) => (
+                          <MenuItem key={user._id} value={user.name}>
+                            {user.name}
+                          </MenuItem>
+                        ))}
+                          </Select>
+                  </FormControl>
+            
+                <FormControl fullWidth margin="normal">
+               <InputLabel id="year-label">Select Year</InputLabel>
                <Select
-                       labelId="role-label"
-                       id="role"
-                       value={newUser.brand}
-                       onChange={(e) => setNewUser({ ...newUser, brand: e.target.value })}
-                       label="Select Brand"
-                     >
-                      
-                         {brand.length ===0 ? (
-                              <MenuItem disabled>No option </MenuItem>
-                         ):brand?.map((user) => (
-                     <MenuItem key={user._id} value={user.name}>
-                       {user.name}
+                 labelId="year-label"
+                 id="year"
+                 value={newUser.year}
+                 label="Select Year"
+                 onChange={(e) => setNewUser({ ...newUser, year: e.target.value })}
+               >
+                 {filteredDownload?.length === 0 || !filteredDownload?.[0]?.months ? (
+                   <MenuItem disabled>No option</MenuItem>
+                 ) : (
+                   [...new Set(filteredDownload?.[0]?.months?.map((m) => m.year))].map((year) => (
+                     <MenuItem key={year} value={year}>
+                       {year}
                      </MenuItem>
-                   ))}
-                     </Select>
+                   ))
+                 )}
+               </Select>
              </FormControl>
-       
-             <Box display="flex" gap={2} mt={2}>
-             {/* Start Date */}
-             <Box flex={1}>
-               <InputLabel shrink>Month</InputLabel>
-               <Monthpicker
-                 value={newUser.start_date}
-                 onChange={(e) => setNewUser({ ...newUser, start_date: e.target.value })}
-                 name="startDate"
-               />
-             </Box>
+             
+                <FormControl fullWidth margin="normal">
+               <InputLabel id="month-label">Select Month</InputLabel>
+               <Select
+                 labelId="month-label"
+                 id="month"
+                 value={newUser.month}
+                 label="Select Month"
+                 onChange={(e) => setNewUser({ ...newUser, month: e.target.value })}
+               >
+                 {filteredMonthDownload?.length === 0 ? (
+                   <MenuItem disabled>No option</MenuItem>
+                 ) : (
+                   filteredMonthDownload?.map((user) => (
+                     <MenuItem key={user._id} value={user.month}>
+                       {["First", "Second", "Third", "Fourth", "Fifth", "Sixth", "Seventh", "Eighth", "Ninth", "Tenth", "Eleventh", "Twelfth"][user.month - 1]} Month
+                     </MenuItem>
+                   ))
+                 )}
+               </Select>
+             </FormControl>
          
-           </Box>
-       
-   
-       
-       
-   {
-     newUser.start_date && (
-      <div className="my-5">
-        {download?.length === 0 ? (
+   {newUser.year && newUser.month && !loading && (
+    <div className="my-5">
+      { download?.length===0 || download==="undefined" ?(
           <div>There is no post</div>
-        ) : (
-          download?.map((post) => (
+      ):(
+        download?.[0]?.tasks
+          ?.sort((a, b) => a.postNumber - b.postNumber)
+          ?.map((post) => (
             <div key={post._id || ""}>
               <FormGroup>
                 <FormControlLabel
@@ -741,58 +773,47 @@ console.log(download)
                       onChange={() => handleChange(post?._id)}
                     />
                   }
-                  label={`Post: ${post?.task?.postNumber}`}
+                  label={`Post: ${post.task?.postNumber}`}
                 />
               </FormGroup>
             </div>
           ))
-        )}
-      </div>
-     )
-   }
-       
-       
-   
-       
-       
-   
-       
-       
-            
-               
-               </DialogContent>
-               <DialogActions sx={{ mb: 2, mr: 2 }}>
-                 <Button onClick={() => {
-                   setNewUser("")
-                   setOpenCreateDialog(false)
-                   setSelectedPosts([])
-                   }} sx={{ color: "#666464" }}>
-                   Cancel
-                 </Button>
-                 <Button
-                   onClick={handleCreateUserSubmit}
-                   sx={{ backgroundColor: "#262323", color: "#ffffff" }}
-                 >
-                 {Create ? "loading...":"Download"}
-                 </Button>
-               </DialogActions>
-             </Dialog>
-        {/* <DialogActions sx={{ mb: 2, mr: 2 }}>
-          <Button onClick={() => {
-            setNewUser("")
-            setSelectedPosts([])
-            setOpenCreateDialog(false)
-            }} sx={{ color: "#666464" }}>
-            Cancel
-          </Button>
-          <Button
-            onClick={handleCreateUserSubmit}
-            sx={{ backgroundColor: "#262323", color: "#ffffff" }}
-          >
-          {Create ? "loading...":"Download"}
-          </Button>
-        </DialogActions> */}
-      </Dialog>
+      )}
+    </div>
+  )}
+  
+                 </DialogContent>
+                 <DialogActions sx={{ mb: 2, mr: 2 }}>
+                   <Button onClick={() => {
+                    setSelectedPosts([])
+                     setNewUser("")
+                     setOpenCreateDialog(false)
+                     }} sx={{ color: "#666464" }}>
+                     Cancel
+                   </Button>
+                   <Button
+                     onClick={handleCreateUserSubmit}
+                     sx={{ backgroundColor: "#262323", color: "#ffffff" }}
+                   >
+                   {Create ? "loading...":"Download"}
+                   </Button>
+                 </DialogActions>
+               </Dialog>
+          <DialogActions sx={{ mb: 2, mr: 2 }}>
+            <Button onClick={() => {
+              setNewUser("")
+              setOpenCreateDialog(false)
+              }} sx={{ color: "#666464" }}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleCreateUserSubmit}
+              sx={{ backgroundColor: "#262323", color: "#ffffff" }}
+            >
+            {Create ? "loading...":"Download"}
+            </Button>
+          </DialogActions>
+        </Dialog>
    
      
     </div>

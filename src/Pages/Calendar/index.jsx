@@ -71,46 +71,24 @@ const Task= () => {
   const role = localStorage.getItem("userRole");
   const [type, setType] = React.useState("headline");
   const [monthsearch,setMonthSearch]=React.useState("")
-  const formatDate = (dateString) => {
-    const options = { day: '2-digit', month: 'short', year: 'numeric' };
-    return new Date(dateString).toLocaleDateString('en-GB', options);
 
-  };
 
-  const date = new Date(monthsearch); // e.g., May 6, 2025
-
-  const year = date.getFullYear();
-  const month = date.getMonth(); // May = 4
-  
-  const startDate = new Date(year, month, 1);
-  const endDate = new Date(year, month + 1, 0); // last day of the month
-  
-  const options = { month: 'long', day: 'numeric', year: 'numeric' };
-  
-  // Remove the comma in the formatted date string
-  const startDateFormatted = startDate.toLocaleString('en-US', options).replace(',', '');
-  const endDateFormatted = endDate.toLocaleString('en-US', options).replace(',', '')
-
-  const DownloadDate = new Date(newUser?.start_date);
-  const year1 = DownloadDate.getFullYear();
-  const month1 = DownloadDate.getMonth(); // May = 4
-  
-  const startDate1 = new Date(year1, month1, 1);
-  const endDate1 = new Date(year1, month1 + 1, 0); // last day of the month
-  
-  const options1 = { month: 'long', day: 'numeric', year: 'numeric' };
-  
-  // Remove the comma in the formatted date string
-  const startDateFormatted1 = startDate1.toLocaleString('en-US', options1).replace(',', '');
-  const endDateFormatted1 = endDate1.toLocaleString('en-US', options1).replace(',', '')
-
+const [yearsearch,setYearSearch]=useState("")
 const [download,setDownload]=useState([])
   const [item,setItem]=useState("")
-    
+
   const [errorShown, setErrorShown] = React.useState(false);
 
   const [total,settotal]=useState([])
   const [selectedPosts, setSelectedPosts] = useState([]);
+  const filtered = brand.filter(item => item.name === searchQuery);
+
+const filteredMonth = filtered?.[0]?.months.filter(item => item.year === yearsearch);
+  const filteredDownload = brand.filter(item => item.name === newUser?.brand);
+
+const filteredMonthDownload = filteredDownload?.[0]?.months.filter(item => item.year === newUser.year);
+
+// console.log(filteredDownload)
 
   const handleChange = (postId) => {
     setSelectedPosts((prev) =>
@@ -127,7 +105,7 @@ const [download,setDownload]=useState([])
 
     try {
       // Fetch task data first based on pager.currentPage
-      const taskResponse = await axios.get(`${SERVER_URL}/content-calendar/view-content-calendar?page=${pager.currentPage}&limit=${pager.pageSize}&brand=${searchQuery}&startDate=${startDateFormatted ==="Invalid Date" ? "" :startDateFormatted}&endDate=${endDateFormatted==="Invalid Date"? "":endDateFormatted}`, {
+      const taskResponse = await axios.get(`${SERVER_URL}/content-calendar/view-content-calendar?page=${pager.currentPage}&limit=${pager.pageSize}&brand=${searchQuery==="All" ? "" :searchQuery}&search=${yearsearch==="All"? "":yearsearch}&category=${monthsearch ==="All" ? "":monthsearch}`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: token,
@@ -157,7 +135,7 @@ const [download,setDownload]=useState([])
 
     try {
       // Fetch task data first based on pager.currentPage
-      const taskResponse = await axios.get(`${SERVER_URL}/content-calendar/view-one-content-calendar?page=${pager.currentPage}&limit=${pager.pageSize}&brand=${newUser.brand}&startDate=${startDateFormatted1 ==="Invalid Date" ? "" :startDateFormatted1}&endDate=${endDateFormatted1==="Invalid Date"? "":endDateFormatted1}`, {
+      const taskResponse = await axios.get(`${SERVER_URL}/content-calendar/view-one-content-calendar?page=${pager.currentPage}&limit=30&brand=${newUser.brand}&search=${newUser.year}&category=${newUser.month}`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: token,
@@ -205,20 +183,20 @@ const [download,setDownload]=useState([])
       setLoading(false);
     }
   };
-console.log(download)
+// console.log(download)
   React.useEffect(() => {
   
   
     fetchData();
-  }, [pager.currentPage,monthsearch,searchQuery]); // Dependency on pager.currentPage
+  }, [pager.currentPage,monthsearch,searchQuery,yearsearch]); // Dependency on pager.currentPage
 
   React.useEffect(() => {
   
-   if(newUser.brand && newUser.start_date){
+   if(newUser.brand && newUser.year && newUser.month){
     fetchDownload()
    }
     
-  }, [newUser.brand,newUser.start_date]);
+  }, [newUser.brand,newUser.year,newUser.month]);
   
     React.useEffect(() => {
       const timeoutId = setTimeout(() => {
@@ -277,8 +255,15 @@ console.log(download)
     });
   };
 
+console.log(download)
+const matchedTasks =
+  monthsearch !== ""
+    ? dataHeadline?.[0]?.tasks?.filter(
+        (task) => Number(task.month) === Number(monthsearch)
+      )
+    : dataHeadline?.[0]?.tasks;
 
-
+// console.log(matchedTasks)
 
   const handleClick = (user,item,type) => {
  
@@ -288,7 +273,7 @@ console.log(download)
   };
 
 
-console.log(searchQuery)
+// console.log(searchQuery)
   const confirm =async () => {
  
     setCreate(true)
@@ -400,7 +385,7 @@ const handleCreateUserSubmit = async () => {
     a.href = url;
        const startDate = new Date(Number(newUser.start_date));
 const monthName = startDate.toLocaleString('en-US', { month: 'long' }); // "May"
-a.download = `${newUser.brand}-${monthName}-headline.pdf`;
+a.download = `${newUser.brand}-headline.pdf`;
 
     document.body.appendChild(a);
     a.click();
@@ -461,8 +446,6 @@ setDownload([])
 
 
 
-
-
   return (
     <div className="mt-24 lg:mx-4 mx-2">
        <div className='hidden lg:block'>
@@ -482,6 +465,7 @@ setDownload([])
     label="Select Brand"
      
   >
+      <MenuItem value="All">All</MenuItem>
     {brand.length === 0 ? (
       <MenuItem disabled>No option</MenuItem>
     ) : (
@@ -493,19 +477,49 @@ setDownload([])
     )}
   </Select>
 </FormControl>
-  <Box display="flex" gap={2} mt={2}>
-      {/* Start Date */}
-      <Box flex={1}>
-       
-        <Monthpicker
-          value={monthsearch}
-          onChange={(e) => setMonthSearch(e.target.value)}
-          name="month"
-        />
-      </Box>
-    
-    
-    </Box>
+     <FormControl sx={{ width: 200 }} fullWidth margin="normal">
+  <InputLabel id="year-label">Select Year</InputLabel>
+  <Select
+    labelId="year-label"
+    id="year"
+    value={yearsearch}
+    label="Select Year"
+    onChange={(e) => setYearSearch(e.target.value)}
+  >
+     <MenuItem value="All">All</MenuItem>
+    {filtered?.length === 0 || !filtered?.[0]?.months ? (
+      <MenuItem disabled>No option</MenuItem>
+    ) : (
+      [...new Set(filtered?.[0]?.months?.map((m) => m.year))].map((year) => (
+        <MenuItem key={year} value={year}>
+          {year}
+        </MenuItem>
+      ))
+    )}
+  </Select>
+</FormControl>
+
+   <FormControl sx={{ width: 200 }} fullWidth margin="normal">
+  <InputLabel id="month-label">Select Month</InputLabel>
+  <Select
+    labelId="month-label"
+    id="month"
+    value={monthsearch}
+    label="Select Month"
+    onChange={(e) => setMonthSearch(e.target.value)}
+  >
+     <MenuItem value="All">All</MenuItem>
+    {filteredMonth?.length === 0 ? (
+      <MenuItem disabled>No option</MenuItem>
+    ) : (
+      filteredMonth?.map((user) => (
+        <MenuItem key={user._id} value={user.month}>
+          {["First", "Second", "Third", "Fourth", "Fifth", "Sixth", "Seventh", "Eighth", "Ninth", "Tenth", "Eleventh", "Twelfth"][user.month - 1]} Month
+        </MenuItem>
+      ))
+    )}
+  </Select>
+</FormControl>
         
           </div>
 
@@ -579,12 +593,9 @@ setDownload([])
         <StyledTableRow key={index}>
             <StyledTableCell align="left">post - {item?.postNumber}</StyledTableCell>
           <StyledTableCell align="left">{item?.brand?.name}</StyledTableCell>
-          <StyledTableCell align="left">
-  {item?.month ? new Date(item?.month).toLocaleString('en-US', {
-    month: 'long',
-    year: 'numeric',
-  }) : ''}
-</StyledTableCell>
+           <TableCell align="left">
+                   {item?.year} - {["1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th", "10th", "11th", "12th"][item?.month - 1]} Month 
+                  </TableCell>
           <StyledTableCell
             align="center"
             sx={{ display: 'flex', justifyContent: 'center', gap: 1 }}
@@ -686,40 +697,69 @@ setDownload([])
            
       
                
-             <FormControl fullWidth margin="normal">
-               <InputLabel id="role-label">Select Brand</InputLabel>
-               <Select
-                       labelId="role-label"
-                       id="role"
-                       value={newUser.brand}
-                       onChange={(e) => setNewUser({ ...newUser, brand: e.target.value })}
-                       label="Select Brand"
-                     >
-                      
-                         {brand.length ===0 ? (
-                              <MenuItem disabled>No option </MenuItem>
-                         ):brand?.map((user) => (
-                     <MenuItem key={user._id} value={user.name}>
-                       {user.name}
-                     </MenuItem>
-                   ))}
-                     </Select>
-             </FormControl>
+           <FormControl fullWidth margin="normal">
+                  <InputLabel id="role-label">Select Brand</InputLabel>
+                  <Select
+                          labelId="role-label"
+                          id="role"
+                          value={newUser.brand}
+                          onChange={(e) => setNewUser({ ...newUser, brand: e.target.value })}
+                          label="Select Brand"
+                        >
+                         
+                            {brand.length ===0 ? (
+                                 <MenuItem disabled>No option </MenuItem>
+                            ):brand?.map((user) => (
+                        <MenuItem key={user._id} value={user.name}>
+                          {user.name}
+                        </MenuItem>
+                      ))}
+                        </Select>
+                </FormControl>
+          
+              <FormControl fullWidth margin="normal">
+             <InputLabel id="year-label">Select Year</InputLabel>
+             <Select
+               labelId="year-label"
+               id="year"
+               value={newUser.year}
+               label="Select Year"
+               onChange={(e) => setNewUser({ ...newUser, year: e.target.value })}
+             >
+               {filteredDownload?.length === 0 || !filteredDownload?.[0]?.months ? (
+                 <MenuItem disabled>No option</MenuItem>
+               ) : (
+                 [...new Set(filteredDownload?.[0]?.months?.map((m) => m.year))].map((year) => (
+                   <MenuItem key={year} value={year}>
+                     {year}
+                   </MenuItem>
+                 ))
+               )}
+             </Select>
+           </FormControl>
+           
+              <FormControl fullWidth margin="normal">
+             <InputLabel id="month-label">Select Month</InputLabel>
+             <Select
+               labelId="month-label"
+               id="month"
+               value={newUser.month}
+               label="Select Month"
+               onChange={(e) => setNewUser({ ...newUser, month: e.target.value })}
+             >
+               {filteredMonthDownload?.length === 0 ? (
+                 <MenuItem disabled>No option</MenuItem>
+               ) : (
+                 filteredMonthDownload?.map((user) => (
+                   <MenuItem key={user._id} value={user.month}>
+                     {["First", "Second", "Third", "Fourth", "Fifth", "Sixth", "Seventh", "Eighth", "Ninth", "Tenth", "Eleventh", "Twelfth"][user.month - 1]} Month
+                   </MenuItem>
+                 ))
+               )}
+             </Select>
+           </FormControl>
        
-             <Box display="flex" gap={2} mt={2}>
-             {/* Start Date */}
-             <Box flex={1}>
-               <InputLabel shrink>Month</InputLabel>
-               <Monthpicker
-                 value={newUser.start_date}
-                 onChange={(e) => setNewUser({ ...newUser, start_date: e.target.value })}
-                 name="startDate"
-               />
-             </Box>
-         
-           </Box>
-       
- {newUser.start_date && (
+ {newUser.year && newUser.month && !loading  && (
   <div className="my-5">
     {download?.[0]?.tasks?.filter((post) => post.headline)?.length === 0 ? (
       <div>There is no post</div>
@@ -751,6 +791,7 @@ setDownload([])
                </DialogContent>
                <DialogActions sx={{ mb: 2, mr: 2 }}>
                  <Button onClick={() => {
+                  setSelectedPosts([])
                    setNewUser("")
                    setOpenCreateDialog(false)
                    }} sx={{ color: "#666464" }}>

@@ -54,7 +54,7 @@ const History = () => {
  const setUser = userStore((state) => state.setUser);
   const [openCreateDialog, setOpenCreateDialog] = React.useState(false);
   const [newUser, setNewUser] = React.useState({ name: '', email: '', role: '', password: '' });
-
+const [yearsearch,setYearSearch]=React.useState("")
 const [post,setPost]=React.useState("")
   const [loading,setLoading]=React.useState(false)
   const [Create,setCreate]=React.useState(false)
@@ -72,25 +72,16 @@ const [monthsearch,setMonthSearch]=React.useState("")
     return new Date(dateString).toLocaleDateString('en-GB', options);
 
   };
+   const filtered = brand.filter(item => item.name === searchQuery);
+
+const filteredMonth = filtered?.[0]?.months.filter(item => item.year === yearsearch);
 
   const formatMonth = (dateString) => {
     const options = { day: '2-digit', month: 'short', year: 'numeric' };
     return new Date(dateString).toLocaleDateString('en-GB', options);
 
   };
-const date = new Date(monthsearch); // e.g., May 6, 2025
 
-const year = date.getFullYear();
-const month = date.getMonth(); // May = 4
-
-const startDate = new Date(year, month, 1);
-const endDate = new Date(year, month + 1, 0); // last day of the month
-
-const options = { month: 'long', day: 'numeric', year: 'numeric' };
-
-// Remove the comma in the formatted date string
-const startDateFormatted = startDate.toLocaleString('en-US', options).replace(',', '');
-const endDateFormatted = endDate.toLocaleString('en-US', options).replace(',', '');
 
 
 
@@ -98,7 +89,7 @@ const endDateFormatted = endDate.toLocaleString('en-US', options).replace(',', '
     setLoading(true);
     const token = localStorage.getItem("token");
     try {
-      const response = await axios.get(`${SERVER_URL}/history/view-history?page=${pager.currentPage}&limit=${pager.pageSize}&brand=${searchQuery}&startDate=${startDateFormatted ==="Invalid Date" ? "" :startDateFormatted}&endDate=${endDateFormatted==="Invalid Date"? "":endDateFormatted}`, {
+      const response = await axios.get(`${SERVER_URL}/history/view-history?page=${pager.currentPage}&limit=${pager.pageSize}&brand=${searchQuery==="All" ? "" :searchQuery}&search=${yearsearch==="All"? "":yearsearch}&category=${monthsearch ==="All" ? "":monthsearch}`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: token,
@@ -182,7 +173,7 @@ console.log(post)
 
   React.useEffect(() => {
  fetchData()
-  }, [pager.currentPage,searchQuery,monthsearch]);
+  }, [pager.currentPage,searchQuery,monthsearch,yearsearch]);
 
   const handlePageChange = (direction) => {
     setPager(prev => {
@@ -231,16 +222,51 @@ const filteredTasks = data?.currentDatas?.flatMap((dataItem) =>
     )}
   </Select>
 </FormControl>
+     <FormControl sx={{ width: 200 }} fullWidth margin="normal">
+        <InputLabel id="year-label">Select Year</InputLabel>
+        <Select
+          labelId="year-label"
+          id="year"
+          value={yearsearch}
+          label="Select Year"
+          onChange={(e) => setYearSearch(e.target.value)}
+        >
+           <MenuItem value="All">All</MenuItem>
+          {filtered?.length === 0 || !filtered?.[0]?.months ? (
+            <MenuItem disabled>No option</MenuItem>
+          ) : (
+            [...new Set(filtered?.[0]?.months?.map((m) => m.year))].map((year) => (
+              <MenuItem key={year} value={year}>
+                {year}
+              </MenuItem>
+            ))
+          )}
+        </Select>
+      </FormControl>
+            <FormControl sx={{ width: 200 }} fullWidth margin="normal">
+              <InputLabel id="month-label">Select Month</InputLabel>
+              <Select
+                labelId="month-label"
+                id="month"
+                value={monthsearch}
+                label="Select Month"
+                onChange={(e) => setMonthSearch(e.target.value)}
+              >
+                 <MenuItem value="All">All</MenuItem>
+                {filteredMonth?.length === 0 ? (
+                  <MenuItem disabled>No option</MenuItem>
+                ) : (
+                  filteredMonth?.map((user) => (
+                    <MenuItem key={user._id} value={user.month}>
+                      {["First", "Second", "Third", "Fourth", "Fifth", "Sixth", "Seventh", "Eighth", "Ninth", "Tenth", "Eleventh", "Twelfth"][user.month - 1]} Month
+                    </MenuItem>
+                  ))
+                )}
+              </Select>
+            </FormControl>
+
   <Box display="flex" gap={2} >
-      {/* Start Date */}
-      <Box flex={1} mt={2}>
-       
-        <Monthpicker
-          value={monthsearch}
-          onChange={(e) => setMonthSearch(e.target.value)}
-          name="startDate"
-        />
-      </Box>
+   
     
    
      <Box flex={1}>
@@ -323,8 +349,11 @@ const filteredTasks = data?.currentDatas?.flatMap((dataItem) =>
         <StyledTableRow key={taskItem._id}>
           <StyledTableCell align="left">post - {task?.postNumber}</StyledTableCell>
           <StyledTableCell align="left">{task?.brand?.name}</StyledTableCell>
-          <StyledTableCell align="left">{formatMonth(task?.month)}</StyledTableCell>
-          <StyledTableCell align="left">{formatDate(taskItem?.design_date)}</StyledTableCell>
+          
+         <TableCell align="left">
+                             {task?.year} - {["1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th", "10th", "11th", "12th"][task?.month - 1]} Month 
+                            </TableCell>
+                            <StyledTableCell align="left">{formatDate(taskItem?.design_date)}</StyledTableCell>
           <StyledTableCell align="left">
             <Tooltip title={task?.headline || "No headline"}>
               <IconButton

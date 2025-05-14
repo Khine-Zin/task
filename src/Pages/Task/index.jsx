@@ -160,7 +160,7 @@ const Task= () => {
 
     try {
       // Fetch task data first based on pager.currentPage
-      const taskResponse = await axios.get(`${SERVER_URL}/task/view-task?page=${pager.currentPage}&limit=${pager.pageSize}&brand=${searchBrand}&category=${searchUser}`, {
+      const taskResponse = await axios.get(`${SERVER_URL}/task/view-task?page=${pager.currentPage}&limit=${pager.pageSize}&brand=${searchBrand==="All" ? "": searchBrand}&category=${searchUser ==="All" ? "":searchUser}`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: token,
@@ -399,7 +399,10 @@ setOpenDialog(false)
     setNewUser("")
     setType("headline")
   };
+const filtered = brand.filter(item => item._id === newUser.brand);
 console.log(newUser)
+const filteredMonth = filtered?.[0]?.months.filter(item => item.year === newUser.year);
+
 // const filteredBrand = Content.flatMap(item =>
 //   item.tasks?.filter(task => {
 //     const brandMatch = task.brand?._id === newUser.brand;
@@ -428,6 +431,7 @@ console.log(newUser)
           brand:newUser.brand,
           soical_media:newUser.soical_media,
            month:newUser.month,
+           year:newUser.year,
            deadline:newUser.deadline,
          quantity:newUser.quantity,
         //  category:newUser.category,
@@ -498,6 +502,8 @@ console.log(newUser)
     }
   };
 
+  console.log(editUser)
+
   const foundUser =userinfo.find(user => user.name === editUser?.user?.name);
   const foundCategory =category.find(user => user.name === editUser?.category?.name);
   const foundbrand =brand.find(user => user.name === editUser?.brand?.name);
@@ -516,6 +522,7 @@ console.log(newUser)
            deadline:editUser.deadline,
          quantity:editUser.post,
              note:editUser.note,
+             year:editUser?.year
             //  category:foundCategory._id,
         },
         {
@@ -593,24 +600,24 @@ console.log(newUser)
      <div className="relative flex gap-5">
           <FormControl sx={{ width: 200 }} margin="normal">
   <InputLabel id="role-label">Select Brand</InputLabel>
-  <Select
-    labelId="role-label"
-    id="role"
-    value={searchBrand}
-    onChange={(e) => setSearchBrand(e.target.value)}
-    label="Select Brand"
-     
-  >
-    {brand.length === 0 ? (
-      <MenuItem disabled>No option</MenuItem>
-    ) : (
-      brand.map((user) => (
-        <MenuItem key={user._id} value={user.name}>
-          {user.name}
-        </MenuItem>
-      ))
-    )}
-  </Select>
+<Select
+  id="role"
+  value={searchBrand}
+  onChange={(e) => setSearchBrand(e.target.value)}
+  label="Select Brand"
+>
+  <MenuItem value="All">All</MenuItem>
+  {brand.length === 0 ? (
+    <MenuItem disabled>No option</MenuItem>
+  ) : (
+    brand.map((user) => (
+      <MenuItem key={user._id} value={user.name}>
+        {user.name}
+      </MenuItem>
+    ))
+  )}
+</Select>
+
 </FormControl>
   <Box display="flex" gap={2} >
       {/* Start Date */}
@@ -619,26 +626,27 @@ console.log(newUser)
       <FormControl fullWidth margin="normal" sx={{ width: '200px' }}>
 
     <InputLabel id="role-label">Select Content Writer</InputLabel>
-    <Select
-            labelId="role-label"
-            id="role"
-            value={searchUser}
-            onChange={(e) => setSearchUser(e.target.value)}
-            label="Select Content Writer"
-          >
-           
-              {userinfo.length ===0 ?(
-                  <MenuItem disabled>No option </MenuItem>
-              ): userinfo?.map((user) => (
-         
-          user?.role !=="admin" && (
-            <MenuItem key={user._id} value={user.name}>
-            {user.name}
-          </MenuItem>
-          )
-         
-        ))}
-          </Select>
+<Select
+  id="role"
+  value={searchUser}
+  onChange={(e) => setSearchUser(e.target.value)}
+  label="Select Content Writer"
+>
+  <MenuItem value="All">All</MenuItem>
+  {userinfo.length === 0 ? (
+    <MenuItem disabled>No option</MenuItem>
+  ) : (
+    userinfo
+      .filter(user => user.role !== "admin")
+      .map(user => (
+        <MenuItem key={user._id} value={user.name}>
+          {user.name}
+        </MenuItem>
+      ))
+  )}
+</Select>
+
+
   </FormControl>
       </Box>
     
@@ -734,9 +742,10 @@ console.log(newUser)
         <TableCell align="left">{item?.user?.name}</TableCell>
         <TableCell align="left">{item?.brand?.name}</TableCell>
         <TableCell align="left">{formatDate(item?.deadline)}</TableCell>
-        <TableCell align="left">
-          {`${dayjs().month(row?._id?.month - 1).format("MMMM")} ${row?._id?.year}`}
-        </TableCell>
+       <TableCell align="left">
+ {item?.year} - {["1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th", "10th", "11th", "12th"][item?.month - 1]} Month 
+</TableCell>
+
         <TableCell align="left">
           <IconButton
             onClick={(e) => {
@@ -890,35 +899,59 @@ console.log(newUser)
               margin='normal'
               type="number"
             />
-                 {/* <FormControl fullWidth margin="normal">
-        <InputLabel id="role-label">Select Category</InputLabel>
-        <Select
-                labelId="role-label"
-                id="role"
-                value={newUser.category}
-                onChange={(e) => setNewUser({ ...newUser, category: e.target.value })}
-                label="Select Category"
-              >
-               
-                  {category.length ===0 ? (
-                       <MenuItem disabled>No option </MenuItem>
-                  ):category?.map((user) => (
-              <MenuItem key={user._id} value={user._id}>
-                {user.name}
-              </MenuItem>
-            ))}
-              </Select>
-      </FormControl> */}
+         <FormControl fullWidth margin="normal">
+  <InputLabel id="year-label">Select Year</InputLabel>
+  <Select
+    labelId="year-label"
+    id="year"
+    value={newUser.year}
+    label="Select Year"
+    onChange={(e) => setNewUser({ ...newUser, year: e.target.value })}
+  >
+    {filtered?.length === 0 || !filtered?.[0]?.months ? (
+      <MenuItem disabled>No option</MenuItem>
+    ) : (
+      [...new Set(filtered?.[0]?.months?.map((m) => m.year))].map((year) => (
+        <MenuItem key={year} value={year}>
+          {year}
+        </MenuItem>
+      ))
+    )}
+  </Select>
+</FormControl>
+
+   <FormControl fullWidth margin="normal">
+  <InputLabel id="month-label">Select Month</InputLabel>
+  <Select
+    labelId="month-label"
+    id="month"
+    value={newUser.month}
+    label="Select Month"
+    onChange={(e) => setNewUser({ ...newUser, month: e.target.value })}
+  >
+    {filteredMonth?.length === 0 ? (
+      <MenuItem disabled>No option</MenuItem>
+    ) : (
+      filteredMonth?.map((user) => (
+        <MenuItem key={user._id} value={user.month}>
+          {["First", "Second", "Third", "Fourth", "Fifth", "Sixth", "Seventh", "Eighth", "Ninth", "Tenth", "Eleventh", "Twelfth"][user.month - 1]} Month
+        </MenuItem>
+      ))
+    )}
+  </Select>
+</FormControl>
+
+
                     <Box display="flex" gap={2} mt={2}>
       {/* Start Date */}
-      <Box flex={1}>
+      {/* <Box flex={1}>
         <InputLabel shrink>Month</InputLabel>
         <Monthpicker
           value={newUser.month}
           onChange={(e) => setNewUser({ ...newUser, month: e.target.value })}
           name="startDate"
         />
-      </Box>
+      </Box> */}
     
       {/* End Date */}
       <Box flex={1}>
@@ -997,7 +1030,7 @@ label="Select Content Writer"
 </Select>
 
     </FormControl>
-      <FormControl fullWidth margin="normal">
+      {/* <FormControl fullWidth margin="normal">
       <InputLabel id="role-label">Select Brand</InputLabel>
       <Select
 labelId="role-label"
@@ -1018,7 +1051,7 @@ label="Select Brand"
   )
 )}
 </Select>
-    </FormControl>
+    </FormControl> */}
 
     <FormControl fullWidth margin="normal">
       <InputLabel id="role-label">Select Media</InputLabel>
@@ -1037,14 +1070,14 @@ label="Select Media"
     </FormControl>
     <Box display="flex" gap={2} mt={2}>
       {/* Start Date */}
-      <Box flex={1}>
+      {/* <Box flex={1}>
         <InputLabel shrink>Month</InputLabel>
         <Monthpicker
           value={editUser.month}
           onChange={(e) => setEditUser({ ...editUser, month: e.target.value })}
           name="startDate"
         />
-      </Box>
+      </Box> */}
     
       {/* End Date */}
       <Box flex={1}>

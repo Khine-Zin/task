@@ -19,7 +19,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import Button from '@mui/material/Button';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import toast, { Toaster } from 'react-hot-toast';  // Import toast and Toaster
-
+import AddIcon from '@mui/icons-material/Add';
 import { Box, FormControl, InputLabel, MenuItem, Select, useMediaQuery } from '@mui/material';
 import axios from 'axios';
 import { SERVER_URL } from '../../api/url';
@@ -29,6 +29,7 @@ import { HiChevronLeft, HiChevronRight } from 'react-icons/hi';
 import { Storefront } from '@mui/icons-material';
 import FileUpload from '../../components/FileUpload';
 import Datepicker from '../../components/DatePicker';
+import { useState } from 'react';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -56,12 +57,16 @@ const Brand = () => {
 
   const [searchQuery, setSearchQuery] = React.useState("");
   const [openDialog, setOpenDialog] = React.useState(false);
+   const [openSeeDialog, setOpenSeeDialog] = React.useState(false);
   const [selectedUser, setSelectedUser] = React.useState(null);
  const setUser = userStore((state) => state.setUser);
+ const [see,setsee]=useState([])
   const [openCreateDialog, setOpenCreateDialog] = React.useState(false);
   const [newUser, setNewUser] = React.useState({ name: '', email: '', role: '', password: '' });
   const [editUser,setEditUser]=React.useState([])
   const [openEditDialog, setOpenEditDialog] = React.useState(false);
+    const [openMonthDialog, setOpenMonthDialog] = React.useState(false);
+      const [OpenMonthEditDialog, setOpenMonthEditDialog] = React.useState(false);
   const [loading,setLoading]=React.useState(false)
   const [Create,setCreate]=React.useState(false)
     const navigate = useNavigate();
@@ -70,10 +75,14 @@ const Brand = () => {
   const [pager, setPager] = React.useState({ currentPage: 1, pageSize: 9 });
   const debounceTimer = React.useRef(null);
   const [bannerImage, setBannerImage] = React.useState("");
+  const [brand,setBrand]=useState("")
+  const [month, setMonth]=useState("")
   const formatDate = (dateString) => {
     const options = { day: '2-digit', month: 'short', year: 'numeric' };
     return new Date(dateString).toLocaleDateString('en-GB', options);
   };
+
+
 
   const fetchData= async () => {
     setLoading(true);
@@ -207,14 +216,34 @@ const Brand = () => {
     
   };
 
+const handleMonth=(id)=>{
+  setOpenMonthDialog(true)
+   
+  setBrand(id)
+}
+
+const handleEditMonth=(user,id)=>{
+  setOpenMonthEditDialog(true)
+   setEditUser({
+    ...editUser,
+    startMonthDate: user.startDate,
+    endMonthDate:user.endDate,
+  });
+
+  setMonth(user._id)
+  setBrand(id)
+}
+
   const handleSearchChange = (event) => {
     setSearchQuery(event.target.value);
   };
 
+  console.log(newUser.startDate)
+
   const handleDelete = (user) => {
     setSelectedUser(user);
     setOpenDialog(true);
-  };console.log(bannerImage)
+  };
 
   const confirmDelete =async () => {
  
@@ -285,6 +314,10 @@ setOpenDialog(false)
   const cancelDelete = () => {
     setOpenDialog(false);
   };
+    const handleMonthSee = (row) => {
+    setOpenSeeDialog(true);
+    setsee(row)
+  };
 
   const handleCreateAccountClick = () => {
     setOpenCreateDialog(true);
@@ -300,7 +333,16 @@ if(newUser?.color?.length !==7){
     duration: 5000,
     
 });
+
 setCreate(false)
+return false
+}
+if(newUser.startDate >= newUser.endDate){
+    toast.error("Start Date must be less than End Date", {
+          position: 'top-right',
+          duration: 5000,
+      });
+      setCreate(false)
 return false
 }
     try {
@@ -311,8 +353,16 @@ return false
             "business_name":newUser.bussinessName,
             "color":newUser.color,
              "text_color":newUser.text_color,
-             "start_date":newUser.startDate,
-             "end_date":newUser.endDate,
+             "months":[
+              {
+                month:1,
+                startDate:newUser.startDate,
+                 endDate:newUser.endDate,
+                 "year":`${new Date(newUser.startDate).getFullYear()}`
+              }
+             ],
+            //  "start_date":newUser.startDate,
+            //  "end_date":newUser.endDate,
              "image":bannerImage,
             
             }, 
@@ -384,6 +434,168 @@ return false
 
   };
 
+  
+
+   const handleCreateMonthSubmit = async() => {
+   setCreate(true)
+    const token = localStorage.getItem("token");
+    if(newUser.startMonthDate >= newUser.endMonthDate){
+    toast.error("Start Date must be less than End Date", {
+          position: 'top-right',
+          duration: 5000,
+      });
+      setCreate(false)
+return false
+}
+
+
+    try {
+      const response = await axios.post(
+          `${SERVER_URL}/brand/create-month-brand/${brand}`, 
+          {
+              "startDate":newUser.startMonthDate,
+                 "endDate":newUser.endMonthDate,
+                  "year":`${new Date(newUser.startMonthDate).getFullYear()}`
+            }, 
+          {
+              headers: {
+                "Authorization":token,
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json',
+              },
+             
+          }
+      );
+
+        toast.success('Successful Created!', {
+        position: 'top-right',
+        duration: 5000,
+    });
+    setCreate(false)
+    fetchData()
+        setOpenMonthDialog(false);
+    setNewUser("");
+ 
+  } catch (err) {
+      let errorMessage = 'An error occurred. Please try again later.';
+      setCreate(false)
+     
+      if (err.response) {
+          switch (err.response.status) {
+              case 401:
+              case 400:
+                  errorMessage = err.response.data?.message || 'Unauthorized';
+                  localStorage.clear();
+                  setUser(null);
+                  navigate("/"); // Redirect to login
+                  break;
+              case 500:
+                  errorMessage = err.response.data?.message || 'Server error. Please try again later.';
+                  break;
+              case 503:
+                  errorMessage = 'Service is temporarily unavailable. Please try again later.';
+                  break;
+              case 502:
+                  errorMessage = 'Bad Gateway: The server is down. Please try again later.';
+                  break;
+              default:
+                  errorMessage = err.response.data?.message || 'An error occurred.';
+          }
+      } else if (err.request) {
+          errorMessage = 'Network error. Please check your internet connection.';
+      } else {
+          errorMessage = `Error: ${err.message}`;
+      }
+
+   
+      // Error toast
+      toast.error(errorMessage, {
+          position: 'top-right',
+          duration: 5000,
+      });
+  }
+
+  };
+    const handleEditMonthSubmit = async() => {
+   setCreate(true)
+    const token = localStorage.getItem("token");
+if(editUser.startMonthDate >= editUser.endMonthDate){
+    toast.error("Start Date must be less than End Date", {
+          position: 'top-right',
+          duration: 5000,
+      });
+      setCreate(false)
+return false
+}
+
+    try {
+      const response = await axios.put(
+          `${SERVER_URL}/brand/update-month-brand/${brand}/${month}`, 
+          {
+              "startDate":editUser.startMonthDate,
+                 "endDate":editUser.endMonthDate,
+                   "year":`${new Date(editUser.startMonthDate).getFullYear()}`
+            }, 
+          {
+              headers: {
+                "Authorization":token,
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json',
+              },
+             
+          }
+      );
+
+        toast.success('Successful Updated!', {
+        position: 'top-right',
+        duration: 5000,
+    });
+    setCreate(false)
+    fetchData()
+        setOpenMonthEditDialog(false);
+    setEditUser("");
+ 
+  } catch (err) {
+      let errorMessage = 'An error occurred. Please try again later.';
+      setCreate(false)
+     
+      if (err.response) {
+          switch (err.response.status) {
+              case 401:
+              case 400:
+                  errorMessage = err.response.data?.message || 'Unauthorized';
+                  localStorage.clear();
+                  setUser(null);
+                  navigate("/"); // Redirect to login
+                  break;
+              case 500:
+                  errorMessage = err.response.data?.message || 'Server error. Please try again later.';
+                  break;
+              case 503:
+                  errorMessage = 'Service is temporarily unavailable. Please try again later.';
+                  break;
+              case 502:
+                  errorMessage = 'Bad Gateway: The server is down. Please try again later.';
+                  break;
+              default:
+                  errorMessage = err.response.data?.message || 'An error occurred.';
+          }
+      } else if (err.request) {
+          errorMessage = 'Network error. Please check your internet connection.';
+      } else {
+          errorMessage = `Error: ${err.message}`;
+      }
+
+   
+      // Error toast
+      toast.error(errorMessage, {
+          position: 'top-right',
+          duration: 5000,
+      });
+  }
+
+  };
+console.log(see)
   const handleEditUserSubmit = async () => {
     setCreate(true);
     const token = localStorage.getItem("token");
@@ -393,8 +605,8 @@ return false
     formData.append("business_name", editUser.business_name);
     formData.append("color", editUser.color);
      formData.append("text_color", editUser.text_color);
-    formData.append("start_date", editUser.start_date);
-    formData.append("end_date", editUser.end_date);
+    // formData.append("start_date", editUser.start_date);
+    // formData.append("end_date", editUser.end_date);
    if(bannerImage){
     formData.append("image", bannerImage);
    }
@@ -466,7 +678,7 @@ return false
     }
   };
   
-console.log(editUser)
+
   return (
     <div className="mt-24 lg:mx-4 mx-2">
       <div className='hidden lg:block'>
@@ -529,61 +741,121 @@ console.log(editUser)
           </Button>
         </div>
       </div>
-      <TableContainer component={Paper}>
-        <Table sx={{ minWidth: 500 }} aria-label="customized table">
-          <TableHead>
-            <TableRow>
-            <StyledTableCell align="left">Brand Name</StyledTableCell>
-            <StyledTableCell align="left">Bussiness Name</StyledTableCell>
-              {
-                !isTabletOrSmaller && (
-                <StyledTableCell align="left">Start Date</StyledTableCell>
-                )
-              }
-                {
-                !isTabletOrSmaller && (
-                  <StyledTableCell align="left">End Date</StyledTableCell>
-                )
-              }
-             
-              <StyledTableCell align="left">Action</StyledTableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {data?.currentDatas?.length===0? (
-               <StyledTableRow>
-               <StyledTableCell colSpan={5} align="center">
-                 There is no Brand found
-               </StyledTableCell>
-             </StyledTableRow> 
-            ):data?.currentDatas?.map((row,index) => (
-                <StyledTableRow key={row._id}>
-                     <StyledTableCell align="left">{row.name }</StyledTableCell>
-                  <StyledTableCell align="left">{row.business_name}</StyledTableCell>
-                  {
-                    !isTabletOrSmaller && (
-                      <StyledTableCell align="left">{formatDate(row.start_date)}</StyledTableCell>
-                    )
-                  }
-                  {
-                    !isTabletOrSmaller && (
-                      <StyledTableCell align="left">{formatDate(row.end_date)}</StyledTableCell>
-                    )
-                  }
-                 
-                  <StyledTableCell align="left">
-                    <IconButton onClick={() => handleEdit(row)}  aria-label="update">
-                      <EditIcon />
-                    </IconButton>
-                    <IconButton onClick={() => handleDelete(row)} sx={{ color: 'red' }} aria-label="delete">
-                      <DeleteIcon />
-                    </IconButton>
-                  </StyledTableCell>
-                </StyledTableRow>
-              ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+<TableContainer component={Paper}>
+  <Table sx={{ minWidth: 500 }} aria-label="customized table">
+    <TableHead>
+      <TableRow>
+        <StyledTableCell align="left">Brand Name</StyledTableCell>
+        <StyledTableCell align="left">Business Name</StyledTableCell>
+        <StyledTableCell align="center">Number of Month</StyledTableCell>
+        <StyledTableCell align="center">Start Date</StyledTableCell>
+        <StyledTableCell align="center">End Date</StyledTableCell>
+        <StyledTableCell align="center">Action</StyledTableCell>
+      </TableRow>
+    </TableHead>
+    <TableBody>
+      {data?.currentDatas?.length === 0 ? (
+        <StyledTableRow>
+          <StyledTableCell colSpan={6} align="center">
+            There is no Brand found
+          </StyledTableCell>
+        </StyledTableRow>
+      ) : (
+        data?.currentDatas?.map((row) => {
+          // Find the last month (assuming months are sorted in ascending order)
+          const lastMonth = row.months[row.months?.length - 1];
+
+          return (
+            <StyledTableRow key={row._id}>
+              <StyledTableCell align="left">{row.name}</StyledTableCell>
+              <StyledTableCell align="left">{row.business_name}</StyledTableCell>
+              <StyledTableCell align="center"> <Button
+                  onClick={() => handleMonthSee(row)} // This is for adding a new month
+                  variant="outlined"
+                  sx={{
+                    textTransform: 'none',
+                    backgroundColor: 'green',
+                    color: 'white',
+                    padding: '2px 4px',
+                    fontSize: '0.75rem',
+                  }}
+                >
+                  {row.months?.length} Month
+                </Button></StyledTableCell>
+
+              {/* Start Date and End Date for the last month */}
+              <StyledTableCell align="center">
+                {lastMonth ? new Date(lastMonth.startDate).toLocaleDateString() : '-'}
+              </StyledTableCell>
+              <StyledTableCell align="center">
+                {lastMonth ? new Date(lastMonth.endDate).toLocaleDateString() : '-'}
+              </StyledTableCell>
+
+              {/* Action Buttons */}
+              <StyledTableCell align="center" sx={{ display: 'flex', justifyContent: 'center', gap: 1 }}>
+                <Button
+                  onClick={() => handleMonth(row._id)} // This is for adding a new month
+                  variant="outlined"
+                  sx={{
+                    textTransform: 'none',
+                    backgroundColor: 'green',
+                    color: 'white',
+                    padding: '2px 4px',
+                    fontSize: '0.75rem',
+                  }}
+                >
+                  Add Month
+                </Button>
+                
+                {/* Edit Button for the last month */}
+                <Button
+                 onClick={() => handleEdit(row)}
+                  sx={{
+                    textTransform: 'none',
+                    backgroundColor: 'orange',
+                    color: 'white',
+                    padding: '2px 4px',
+                    fontSize: '0.75rem',
+                  }}
+                >
+                  Edit 
+                </Button>
+        <Button
+                  onClick={() => handleEditMonth(lastMonth,row._id)} // Pass last month's ID
+                  sx={{
+                    textTransform: 'none',
+                    backgroundColor: 'gray',
+                    color: 'white',
+                    padding: '2px 4px',
+                    fontSize: '0.75rem',
+                  }}
+                >
+                  Edit Month
+                </Button>
+                {/* Other action buttons */}
+                <Button
+                  onClick={() => handleDelete(row)}
+                  variant="outlined"
+                  sx={{
+                    textTransform: 'none',
+                    backgroundColor: 'red',
+                    color: 'white',
+                    padding: '2px 4px',
+                    fontSize: '0.75rem',
+                  }}
+                >
+                  Delete
+                </Button>
+              </StyledTableCell>
+            </StyledTableRow>
+          );
+        })
+      )}
+    </TableBody>
+  </Table>
+</TableContainer>
+
+
       <div className="flex gap-2 justify-end items-center mt-4">
         <p>Page {pager.currentPage} of {data.totalPages}</p>
         <div className="flex gap-2">
@@ -610,6 +882,20 @@ console.log(editUser)
           </Button>
         </DialogActions>
       </Dialog>
+          {/* <Dialog open={openSeeDialog} onClose={cancelDelete}>
+        <DialogTitle>Brand</DialogTitle>
+        <DialogContent>
+          Are you sure you want to delete the {selectedUser?.business_name }?
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={cancelDelete} sx={{color:"#666464"}}>
+            Cancel
+          </Button>
+          <Button onClick={confirmDelete} sx={{ color: 'red' }}>
+          {Create ? "loading...":"Delete"}
+          </Button>
+        </DialogActions>
+      </Dialog> */}
 
       {/* Create User Form Dialog */}
       <Dialog open={openCreateDialog} onClose={() => setOpenCreateDialog(false)} fullWidth maxWidth="sm">
@@ -687,6 +973,97 @@ console.log(editUser)
   </DialogActions>
 </Dialog>
 
+     <Dialog open={openMonthDialog} onClose={() => setOpenMonthDialog(false)} fullWidth maxWidth="sm">
+  <DialogTitle>Add Month</DialogTitle>
+  <DialogContent>
+ 
+<Box display="flex" gap={2} mt={2}>
+  {/* Start Date */}
+  <Box flex={1}>
+    <InputLabel shrink>Start Date</InputLabel>
+    <Datepicker
+      value={newUser.startMonthDate}
+      onChange={(e) => setNewUser({ ...newUser, startMonthDate: e.target.value })}
+      name="startDate"
+    />
+  </Box>
+
+  {/* End Date */}
+  <Box flex={1}>
+    <InputLabel shrink>End Date</InputLabel>
+    <Datepicker
+      value={newUser.endMonthDate}
+      onChange={(e) => setNewUser({ ...newUser, endMonthDate: e.target.value })}
+      name="endDate"
+    />
+  </Box>
+</Box>
+
+    
+  </DialogContent>
+
+  <DialogActions sx={{ mb: 2, mr: 2 }}>
+    <Button
+      onClick={() => {
+       
+        setNewUser("");
+        setOpenMonthDialog(false);
+      }}
+      sx={{ color: "#666464" }}
+    >
+      Cancel
+    </Button>
+    <Button onClick={handleCreateMonthSubmit} sx={{ backgroundColor: "#262323", color: "#ffffff" }}>
+      {Create ? "loading..." : "Add"}
+    </Button>
+  </DialogActions>
+</Dialog>
+   <Dialog open={OpenMonthEditDialog} onClose={() => setOpenMonthEditDialog(false)} fullWidth maxWidth="sm">
+  <DialogTitle>Edit Month</DialogTitle>
+  <DialogContent>
+ 
+<Box display="flex" gap={2} mt={2}>
+  {/* Start Date */}
+  <Box flex={1}>
+    <InputLabel shrink>Start Date</InputLabel>
+    <Datepicker
+      value={editUser.startMonthDate}
+      onChange={(e) => setEditUser({ ...editUser, startMonthDate: e.target.value })}
+      name="startDate"
+    />
+  </Box>
+
+  {/* End Date */}
+  <Box flex={1}>
+    <InputLabel shrink>End Date</InputLabel>
+    <Datepicker
+      value={editUser.endMonthDate}
+      onChange={(e) => setEditUser({ ...editUser, endMonthDate: e.target.value })}
+      name="endDate"
+    />
+  </Box>
+</Box>
+
+    
+  </DialogContent>
+
+  <DialogActions sx={{ mb: 2, mr: 2 }}>
+    <Button
+      onClick={() => {
+       
+        setEditUser("");
+        setOpenMonthEditDialog(false);
+      }}
+      sx={{ color: "#666464" }}
+    >
+      Cancel
+    </Button>
+    <Button onClick={handleEditMonthSubmit} sx={{ backgroundColor: "#262323", color: "#ffffff" }}>
+      {Create ? "loading..." : "Edit"}
+    </Button>
+  </DialogActions>
+</Dialog>
+
 
       <Dialog open={openEditDialog} onClose={() => setOpenEditDialog(false)} fullWidth maxWidth="sm">
         <DialogTitle>Edit Brand</DialogTitle>
@@ -719,27 +1096,7 @@ console.log(editUser)
       fullWidth
       margin="normal"
     />
- <Box display="flex" gap={2} mt={2}>
-  {/* Start Date */}
-  <Box flex={1}>
-    <InputLabel shrink>Start Date</InputLabel>
-    <Datepicker
-      value={editUser.start_date}
-      onChange={(e) => setEditUser({ ...editUser, start_date: e.target.value })}
-      name="startDate"
-    />
-  </Box>
 
-  {/* End Date */}
-  <Box flex={1}>
-    <InputLabel shrink>End Date</InputLabel>
-    <Datepicker
-      value={editUser.end_date}
-      onChange={(e) => setEditUser({ ...editUser, end_date: e.target.value })}
-      name="endDate"
-    />
-  </Box>
-</Box>
     <FileUpload setBannerImage={setBannerImage} image={bannerImage} />
   </DialogContent>
         <DialogActions sx={{ mb: 2, mr: 2 }}>

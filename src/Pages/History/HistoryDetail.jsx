@@ -13,6 +13,7 @@ import toast, { Toaster } from 'react-hot-toast';
 import userStore from '../../store/userStore';
 import axios from "axios";
 import { SERVER_URL } from "../../api/url";
+import Datepicker from "../../components/DatePicker";
 
 const HistoryDetail = () => {
     const location = useLocation();
@@ -33,7 +34,8 @@ const HistoryDetail = () => {
         total:state.total_reach,
         category:state?.task?.category?._id,
         description:state?.task?.description,
-        design_brief:state?.design_brief
+        design_brief:state?.design_brief,
+        design_date:state?.design_date
 
       })
       const [create,setCreate]=useState(false)
@@ -67,6 +69,7 @@ const HistoryDetail = () => {
           formData.append("headline", headline);
           formData.append("description", data?.description);
           formData.append("design_brief", data?.design_brief);
+            formData.append("design_date", data?. design_date);
           formData.append("content", content); // if this is a file or text
           if(bannerImage){
             formData.append("image", bannerImage);
@@ -302,6 +305,16 @@ const HistoryDetail = () => {
                               fullWidth
                               margin="normal"
                             />
+                            <div className="mt-5">
+                               <Box flex={1}>
+                                <InputLabel shrink>Design Date</InputLabel>
+                                <Datepicker
+                                  value={data.design_date}
+                                  onChange={(e) => setData({ ...data, design_date: e.target.value })}
+                                  name="startDate"
+                                />
+                              </Box>
+                            </div>
          <div  className=" font-bold text-secondaryColor mb-3 mt-8">
            Content
           </div>
