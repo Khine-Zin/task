@@ -7,13 +7,13 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
-
+import VpnKeyIcon from '@mui/icons-material/VpnKey';
 import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
 
 import toast, { Toaster } from 'react-hot-toast';  // Import toast and Toaster
 
-import { Box, FormControl, InputLabel, MenuItem, Select, useMediaQuery } from '@mui/material';
+import { Box, Button, Checkbox, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, FormGroup, InputLabel, MenuItem, Select, useMediaQuery } from '@mui/material';
 import axios from 'axios';
 import { SERVER_URL } from '../../api/url';
 import userStore from '../../store/userStore';
@@ -63,10 +63,12 @@ const [monthsearch,setMonthSearch]=React.useState("")
   const [data, setData] = React.useState([]);
   const [postData,setPostData]=React.useState([])
   const [pager, setPager] = React.useState({ currentPage: 1, pageSize: 9 });
-  const debounceTimer = React.useRef(null);
+ const [openDialog,setOpenDialog]=React.useState(false)
     const [brand,setBrand]=React.useState([])
-    
-  const [bannerImage, setBannerImage] = React.useState("");
+  const [updateBrand,setUpdateBrand]=React.useState("")
+  const [updateYear,setUpdateYear]=React.useState("")
+  const [updateMonth,setUpdateMonth]=React.useState("")
+  const [updatePost,setUpdatePost]=React.useState([])
   const formatDate = (dateString) => {
     const options = { day: '2-digit', month: 'short', year: 'numeric' };
     return new Date(dateString).toLocaleDateString('en-GB', options);
@@ -75,15 +77,8 @@ const [monthsearch,setMonthSearch]=React.useState("")
    const filtered = brand.filter(item => item.name === searchQuery);
 
 const filteredMonth = filtered?.[0]?.months.filter(item => item.year === yearsearch);
-
-  const formatMonth = (dateString) => {
-    const options = { day: '2-digit', month: 'short', year: 'numeric' };
-    return new Date(dateString).toLocaleDateString('en-GB', options);
-
-  };
-
-
-
+const [firstPost,setFirstPost]=React.useState("")
+const [secondPost,setSecondPost]=React.useState("")
 
   const fetchData= async () => {
     setLoading(true);
@@ -139,7 +134,57 @@ setPostData(allTasks)
       setLoading(false);
     }
   };
-console.log(post)
+    const fetchDataUpdate= async () => {
+    setLoading(true);
+    const token = localStorage.getItem("token");
+    try {
+      const response = await axios.get(`${SERVER_URL}/history/view-history?page=${pager.currentPage}&limit=30&brand=${updateBrand}&search=${updateYear}&category=${updateMonth}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: token,
+        },
+      });
+    setUpdatePost(response?.data?.data?.currentDatas?.[0]?.content)
+    
+    } catch (err) {
+      let errorMessage = 'An error occurred. Please try again later.';
+
+      if (err.response) {
+        switch (err.response.status) {
+          case 401:
+          case 400:
+            errorMessage = err.response.data?.message || 'Your Token is blacklist.';
+            localStorage.clear();
+            setUser(null);
+            navigate("/");
+            break;
+          case 500:
+            errorMessage = err.response.data?.message || 'Server error. Please try again later.';
+            break;
+          case 503:
+            errorMessage = 'Service is temporarily unavailable. Please try again later.';
+            break;
+          case 502:
+            errorMessage = 'Bad Gateway: The server is down. Please try again later.';
+            break;
+          default:
+            errorMessage = err.response.data?.message || 'An error occurred.';
+        }
+      } else if (err.request) {
+        errorMessage = 'Network error. Please check your internet connection.';
+      } else {
+        errorMessage = `Error: ${err.message}`;
+      }
+
+      toast.error(errorMessage, {
+        position: 'top-right',
+        duration: 5000,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const fetchBrand = async () => {
     setLoading(true);
     const token = localStorage.getItem("token");
@@ -165,11 +210,28 @@ console.log(post)
     }
   };
   
-console.log(post)
+
 
   React.useEffect(() => {
    fetchBrand()
     }, []); 
+
+ const handleChange = (row) => {
+  setOpenDialog(true);
+  setUpdateBrand(row?.brand?.name);
+  setUpdateYear(row?.year);
+  setUpdateMonth(row?.month);
+  setFirstPost(row?._id);
+
+  setTimeout(() => {
+    if (row?.brand?.name && row?.month && row?.year) {
+      fetchDataUpdate();
+    }
+  }, 100); // delay 100ms to wait for state updates
+};
+
+
+
 
   React.useEffect(() => {
  fetchData()
@@ -185,6 +247,72 @@ console.log(post)
     });
   };
 
+  const handleCreateUserSubmit = async () => {
+    setCreate(true);
+    const token = localStorage.getItem("token");
+  
+  
+  
+    try {
+      const response = await axios.put(
+        `${SERVER_URL}/history/update-history`,{
+          from:firstPost,
+          to:secondPost
+        },
+        {
+          headers: {
+            Authorization: token,
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+         
+        }
+        
+      );
+  
+      console.log(response)
+setFirstPost("")
+setSecondPost("")
+setOpenDialog(false)
+  
+    } catch (err) {
+      setCreate(false);
+      let errorMessage = 'An error occurred. Please try again later.';
+  
+      if (err.response) {
+        switch (err.response.status) {
+          case 401:
+          case 400:
+            errorMessage = err.response.data?.message || 'Unauthorized';
+            localStorage.clear();
+            setUser(null);
+            navigate("/"); // Redirect to login
+            break;
+          case 500:
+            errorMessage = err.response.data?.message || 'Server error. Please try again later.';
+            break;
+          case 503:
+            errorMessage = 'Service is temporarily unavailable. Please try again later.';
+            break;
+          case 502:
+            errorMessage = 'Bad Gateway: The server is down. Please try again later.';
+            break;
+          default:
+            errorMessage = err.response.data?.message || 'An error occurred.';
+        }
+      } else if (err.request) {
+        errorMessage = 'Network error. Please check your internet connection.';
+      } else {
+        errorMessage = `Error: ${err.message}`;
+      }
+  
+      toast.error(errorMessage, {
+        position: 'top-right',
+        duration: 5000,
+      });
+    }
+  };
+
 const filteredTasks = data?.currentDatas?.flatMap((dataItem) =>
   dataItem?.content?.flatMap((row) =>
     row?.tasks?.filter((taskItem) =>
@@ -193,7 +321,7 @@ const filteredTasks = data?.currentDatas?.flatMap((dataItem) =>
   )
 ) || [];
 
-
+console.log(updatePost)
 
   return (
     <div className="mt-24 lg:mx-4 mx-2">
@@ -363,6 +491,12 @@ const filteredTasks = data?.currentDatas?.flatMap((dataItem) =>
                 <Info />
               </IconButton>
             </Tooltip>
+             <IconButton
+                onClick={() => handleChange(taskItem?.task)}
+                aria-label="detail"
+              >
+                  <VpnKeyIcon />
+              </IconButton>
           </StyledTableCell>
         </StyledTableRow>
       );
@@ -386,8 +520,57 @@ const filteredTasks = data?.currentDatas?.flatMap((dataItem) =>
         </div>
       </div>
   
+  <Dialog open={openDialog} onClose={() => 
+ { setSecondPost("")
+    setOpenDialog(false)}
+    } fullWidth maxWidth="sm">
+                 <DialogTitle>Switch PostNumber</DialogTitle>
+                 <DialogContent style={{ width: '100%' }}>
+             
+        
+         
+ <div className="my-5">
+  {updatePost?.length === 0 || updatePost === "undefined" ? (
+    <div>There is no post</div>
+  ) : (
+    updatePost?.[0]?.tasks
+      ?.filter(post => post?.task?._id !== firstPost) // Exclude firstpost
+      ?.sort((a, b) => a.postNumber - b.postNumber)
+      ?.map((post) => (
+        <div key={post._id || ""}>
+          <FormGroup>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={secondPost === post?.task?._id}
+                  onChange={() => setSecondPost(post?.task?._id)}
+                />
+              }
+              label={`Post: ${post.task?.postNumber}`}
+            />
+          </FormGroup>
+        </div>
+      ))
+  )}
+</div>
 
   
+                 </DialogContent>
+                 <DialogActions sx={{ mb: 2, mr: 2 }}>
+                   <Button onClick={() => {
+                  setSecondPost("")
+                     setOpenDialog(false)
+                     }} sx={{ color: "#666464" }}>
+                     Cancel
+                   </Button>
+                   <Button
+                     onClick={handleCreateUserSubmit}
+                     sx={{ backgroundColor: "#262323", color: "#ffffff" }}
+                   >
+                   {Create ? "loading...":"Update"}
+                   </Button>
+                 </DialogActions>
+               </Dialog>
 
      
     </div>

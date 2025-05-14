@@ -20,7 +20,7 @@ import Button from '@mui/material/Button';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import toast, { Toaster } from 'react-hot-toast';  // Import toast and Toaster
 import AddIcon from '@mui/icons-material/Add';
-import { Box, FormControl, InputLabel, MenuItem, Select, useMediaQuery } from '@mui/material';
+import { Box, FormControl, InputLabel, MenuItem, Select, Typography, useMediaQuery } from '@mui/material';
 import axios from 'axios';
 import { SERVER_URL } from '../../api/url';
 import userStore from '../../store/userStore';
@@ -313,6 +313,7 @@ setOpenDialog(false)
 
   const cancelDelete = () => {
     setOpenDialog(false);
+    setOpenSeeDialog(false)
   };
     const handleMonthSee = (row) => {
     setOpenSeeDialog(true);
@@ -882,20 +883,35 @@ console.log(see)
           </Button>
         </DialogActions>
       </Dialog>
-          {/* <Dialog open={openSeeDialog} onClose={cancelDelete}>
-        <DialogTitle>Brand</DialogTitle>
-        <DialogContent>
-          Are you sure you want to delete the {selectedUser?.business_name }?
-        </DialogContent>
+          <Dialog open={openSeeDialog} onClose={cancelDelete}>
+        <DialogTitle>{`${see?.name} (${see?.business_name})`}</DialogTitle>
+          <DialogContent>
+  
+
+    {/* Render months list */}
+    {see?.months?.length > 0 && (
+      <Box mt={2}>
+        {see?.months?.map((item, index) => (
+          <Box key={item._id} mb={1}>
+            <Typography variant="body2" sx={{ fontWeight: 500 }}>
+              ({item.year})
+            </Typography>
+            <Typography variant="body2">
+             {["1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th", "10th", "11th", "12th"][item?.month - 1]} Month     {`(${new Date(item.startDate).toLocaleDateString()} - ${new Date(item.endDate).toLocaleDateString()})`}
+            </Typography>
+           
+          </Box>
+        ))}
+      </Box>
+    )}
+  </DialogContent>
         <DialogActions>
           <Button onClick={cancelDelete} sx={{color:"#666464"}}>
-            Cancel
+           Close
           </Button>
-          <Button onClick={confirmDelete} sx={{ color: 'red' }}>
-          {Create ? "loading...":"Delete"}
-          </Button>
+        
         </DialogActions>
-      </Dialog> */}
+      </Dialog>
 
       {/* Create User Form Dialog */}
       <Dialog open={openCreateDialog} onClose={() => setOpenCreateDialog(false)} fullWidth maxWidth="sm">
