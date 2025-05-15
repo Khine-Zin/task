@@ -71,6 +71,7 @@ const [yearsearch,setYearSearch]=useState("")
   const debounceTimer = React.useRef(null);
   const role = localStorage.getItem("userRole");
   const [type, setType] = React.useState("headline");
+  const [loadingDownload,setLoadingDownload]=useState(false)
   const filteredDownload = brand.filter(item => item.name === newUser?.brand);
 
 const filteredMonthDownload = filteredDownload?.[0]?.months.filter(item => item.year === newUser.year);
@@ -310,7 +311,7 @@ setOpenDialog(false)
   };
 
     const fetchDownload = async () => {
-      setLoading(true);
+      setLoadingDownload(true);
       const token = localStorage.getItem("token");
   
       try {
@@ -336,7 +337,7 @@ setOpenDialog(false)
           setErrorShown(true); // Mark that the error has been shown
         }
       } finally {
-        setLoading(false);
+        setLoadingDownload(false);
       }
     };
 
@@ -350,7 +351,7 @@ setOpenDialog(false)
     if(newUser.brand && newUser.month && newUser.year){
       const timeoutId = setTimeout(() => {
         fetchDownload();
-      }, 1000); // Set the delay in milliseconds (e.g., 1000ms = 1 second)
+      }, 100); // Set the delay in milliseconds (e.g., 1000ms = 1 second)
     
       return () => clearTimeout(timeoutId); // Cleanup the timeout on unmount
     }
@@ -756,13 +757,13 @@ console.log(download)
                </Select>
              </FormControl>
          
-   {newUser.year && newUser.month && !loading && (
+   {newUser.year && newUser.month && !loadingDownload && (
     <div className="my-5">
       { download?.length===0 || download==="undefined" ?(
           <div>There is no post</div>
       ):(
         download?.[0]?.tasks
-          ?.sort((a, b) => a.postNumber - b.postNumber)
+          ?.sort((a, b) => a?.task?.postNumber - b?.task?.postNumber)
           ?.map((post) => (
             <div key={post._id || ""}>
               <FormGroup>
