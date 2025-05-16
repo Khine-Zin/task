@@ -764,7 +764,7 @@ console.log(see)
       ) : (
         data?.currentDatas?.map((row) => {
           // Find the last month (assuming months are sorted in ascending order)
-          const lastMonth = row.months[row.months?.length - 1];
+          const lastMonth = row?.months[row?.months?.length - 1];
 
           return (
             <StyledTableRow key={row._id}>
