@@ -99,7 +99,7 @@ const FileUpload = ({setBannerImage,image}) => {
           <div className="flex justify-between items-center mb-2">
             <div className="flex items-center gap-x-3">
               <span className=" w-12 flex justify-center items-center bg-gray-200 text-gray-500 ">
-                <img crossOrigin="anonymous" className="rounded-lg" src={`http://150.95.85.5/${editImage}`} alt="file-thumbnail" />
+                <img crossOrigin="anonymous" className="rounded-lg" src={`http://150.95.85.5/upload/${editImage}`} alt="file-thumbnail" />
               </span>
               <div>
   <p className="text-sm font-medium text-gray-800 truncate">
