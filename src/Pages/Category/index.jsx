@@ -528,7 +528,7 @@ setOpenDialog(false)
 
       {/* Create User Form Dialog */}
       <Dialog open={openCreateDialog} onClose={() => setOpenCreateDialog(false)} fullWidth maxWidth="sm">
-        <DialogTitle>Create New Account</DialogTitle>
+        <DialogTitle>Create New Category</DialogTitle>
         <DialogContent style={{ width: '100%' }}>
        
             <TextField
