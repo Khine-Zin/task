@@ -1,30 +1,30 @@
 import React, { useState, useRef, useEffect } from 'react';
-import ReactQuill from 'react-quill'; // import the ReactQuill component
-import 'react-quill/dist/quill.snow.css'; // import the styles for Quill
+import ReactQuill from 'react-quill'; // ReactQuill import
+import 'react-quill/dist/quill.snow.css'; // Quill styles
 
-const TextEditor = ({ onChange, value }) => {
+const TextEditor = ({ value, onChange }) => {
   const [editorData, setEditorData] = useState(value || '');
   const quillRef = useRef(null);
 
-  const handleEditorChange = (value) => {
-    setEditorData(value);
-    onChange(value);
+  // Wrap English words with span.english-text to style them differently
+  const wrapEnglishText = (html) => {
+    if (!html) return '';
+    // Simple regex to wrap English words/numbers and punctuation with span
+    return html.replace(/([A-Za-z0-9,.!?"'@#\$%\^&\*\-]+)/g, (match) => {
+      return `<span class="english-text">${match}</span>`;
+    });
   };
 
-  useEffect(() => {
-    // Ensure Quill instance is available after component mounts
-    if (quillRef.current) {
-      const quill = quillRef.current.getEditor();
-      // Register custom button for inserting table
-      const toolbar = quill.getModule('toolbar');
-      toolbar.addHandler('insertTable', () => insertTable(quill));
-      toolbar.addHandler('insertRow', () => insertRow(quill));
-    }
-  }, []);
+  const handleEditorChange = (content, delta, source, editor) => {
+    // Wrap English text dynamically
+    const processedContent = wrapEnglishText(content);
+    setEditorData(processedContent);
+    if (onChange) onChange(processedContent);
+  };
 
-  // Function to insert a table at the cursor position
+  // Insert table function (from your original)
   const insertTable = (quill) => {
-    const cursorPosition = quill.getSelection().index;
+    const cursorPosition = quill.getSelection()?.index || 0;
     const tableHTML = `
       <table border="1" style="width: 100%; border-collapse: collapse;">
         <tr>
@@ -37,7 +37,7 @@ const TextEditor = ({ onChange, value }) => {
     quill.clipboard.dangerouslyPasteHTML(cursorPosition, tableHTML);
   };
 
-  // Function to insert a row into an existing table
+  // Insert row function (from your original)
   const insertRow = (quill) => {
     const table = quill.root.querySelector('table');
     if (table) {
@@ -46,21 +46,37 @@ const TextEditor = ({ onChange, value }) => {
     }
   };
 
+  useEffect(() => {
+    if (quillRef.current) {
+      const quill = quillRef.current.getEditor();
+      const toolbar = quill.getModule('toolbar');
+      toolbar.addHandler('insertTable', () => insertTable(quill));
+      toolbar.addHandler('insertRow', () => insertRow(quill));
+    }
+  }, []);
+
+  useEffect(() => {
+    // If value prop changes from outside, update the editor content
+    if (value && value !== editorData) {
+      setEditorData(wrapEnglishText(value));
+    }
+  }, [value]);
+
   const modules = {
     toolbar: [
-       [{ header: [1,2, 3, 4, 5, 6, false] }, { font: [] }],
-      [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+      [{ header: [1, 2, 3, 4, 5, 6, false] }, { font: [] }],
+      [{ list: 'ordered' }, { list: 'bullet' }],
       ['bold', 'italic', 'underline'],
-      [{ 'align': [] }],
+      [{ align: [] }],
       ['link'],
-      [{ 'color': [] }, { 'background': [] }],
+      [{ color: [] }, { background: [] }],
       ['blockquote', 'code-block'],
-      [{ 'insertTable': 'Insert Table' }, { 'insertRow': 'Insert Row' }], // Custom buttons for table actions
+      [{ insertTable: 'Insert Table' }, { insertRow: 'Insert Row' }], // Your custom buttons
     ],
   };
 
   return (
-    <div>
+    <>
       <ReactQuill
         ref={quillRef}
         value={editorData}
@@ -68,7 +84,14 @@ const TextEditor = ({ onChange, value }) => {
         theme="snow"
         modules={modules}
       />
-    </div>
+      <style>{`
+        .english-text {
+          font-family: 'Arial Black', Arial, sans-serif;
+          font-size: 18px;
+          color: black;
+        }
+      `}</style>
+    </>
   );
 };
 
