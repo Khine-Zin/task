@@ -53,18 +53,31 @@ const TextEditor = ({ onChange, value }) => {
     }
   };
 
-  const modules = {
-    toolbar: [
-      [{ font: Font.whitelist }, { header: [1, 2, 3, 4, 5, 6, false] }],
-      [{ list: 'ordered' }, { list: 'bullet' }],
-      ['bold', 'italic', 'underline'],
-      [{ align: [] }],
-      ['link'],
-      [{ color: [] }, { background: [] }],
-      ['blockquote', 'code-block'],
-      [{ insertTable: 'Insert Table' }, { insertRow: 'Insert Row' }],
+const modules = {
+  toolbar: [
+    [
+      {
+        font: [
+          'arial',
+          'times-new-roman',
+          'comic-sans',
+          'monospace',
+          'serif',
+          'sans-serif'
+        ]
+      },
+      { header: [1, 2, 3, 4, 5, 6, false] }
     ],
-  };
+    [{ list: 'ordered' }, { list: 'bullet' }],
+    ['bold', 'italic', 'underline'],
+    [{ align: [] }],
+    ['link'],
+    [{ color: [] }, { background: [] }],
+    ['blockquote', 'code-block'],
+    [{ insertTable: 'Insert Table' }, { insertRow: 'Insert Row' }]
+  ]
+};
+
 
   return (
     <div>
