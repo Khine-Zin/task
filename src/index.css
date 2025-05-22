@@ -77,14 +77,15 @@ select {
   
   }
 
-  .ql-font-arial {
+  /* Font families */
+.ql-font-arial {
   font-family: Arial, sans-serif;
 }
 .ql-font-times-new-roman {
-  font-family: 'Times New Roman', serif;
+  font-family: "Times New Roman", Times, serif;
 }
 .ql-font-comic-sans {
-  font-family: 'Comic Sans MS', cursive, sans-serif;
+  font-family: "Comic Sans MS", cursive, sans-serif;
 }
 .ql-font-monospace {
   font-family: monospace;
@@ -94,4 +95,30 @@ select {
 }
 .ql-font-sans-serif {
   font-family: sans-serif;
+}
+
+/* Dropdown font label overrides */
+.ql-picker.ql-font .ql-picker-label[data-value="arial"]::before,
+.ql-picker.ql-font .ql-picker-item[data-value="arial"]::before {
+  content: 'Arial';
+}
+.ql-picker.ql-font .ql-picker-label[data-value="times-new-roman"]::before,
+.ql-picker.ql-font .ql-picker-item[data-value="times-new-roman"]::before {
+  content: 'Times New Roman';
+}
+.ql-picker.ql-font .ql-picker-label[data-value="comic-sans"]::before,
+.ql-picker.ql-font .ql-picker-item[data-value="comic-sans"]::before {
+  content: 'Comic Sans';
+}
+.ql-picker.ql-font .ql-picker-label[data-value="monospace"]::before,
+.ql-picker.ql-font .ql-picker-item[data-value="monospace"]::before {
+  content: 'Monospace';
+}
+.ql-picker.ql-font .ql-picker-label[data-value="serif"]::before,
+.ql-picker.ql-font .ql-picker-item[data-value="serif"]::before {
+  content: 'Serif';
+}
+.ql-picker.ql-font .ql-picker-label[data-value="sans-serif"]::before,
+.ql-picker.ql-font .ql-picker-item[data-value="sans-serif"]::before {
+  content: 'Sans Serif';
 }
