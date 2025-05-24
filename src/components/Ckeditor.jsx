@@ -6,7 +6,7 @@ import 'react-quill/dist/quill.snow.css';
 
 // Register font whitelist
 const Font = Quill.import('formats/font');
-Font.whitelist = ['arial', 'times-new-roman', 'comic-sans', 'monospace', 'serif', 'sans-serif'];
+Font.whitelist = ['monospace', 'serif', 'sans-serif'];
 Quill.register(Font, true);
 
 const TextEditor = ({ onChange, value }) => {
