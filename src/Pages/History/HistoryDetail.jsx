@@ -233,7 +233,7 @@ const HistoryDetail = () => {
                     </div>
                   ),
                 },
-                { icon: <PiListNumbers />, label: "Post No", value: state.post },
+                { icon: <PiListNumbers />, label: "Post No", value: state?.task?.postNumber },
                 {
                   icon: <HiOutlineCalendar />,
                   label: "Deadline",
