@@ -58,9 +58,7 @@ const modules = {
     [
       {
         font: [
-          'arial',
-          'times-new-roman',
-          'comic-sans',
+         
           'monospace',
           'serif',
           'sans-serif'
