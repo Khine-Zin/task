@@ -70,7 +70,7 @@ console.log(state)
                 </div>
               ),
             },
-            { icon: <PiListNumbers />, label: "Post No", value: state.post },
+            { icon: <PiListNumbers />, label: "Post No", value: state?.postNumber },
             {
               icon: <HiOutlineCalendar />,
               label: "Deadline",
