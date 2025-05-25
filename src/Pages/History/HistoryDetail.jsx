@@ -69,7 +69,9 @@ const HistoryDetail = () => {
           formData.append("headline", headline);
           formData.append("description", data?.description);
           formData.append("design_brief", data?.design_brief);
-            formData.append("design_date", data?. design_date);
+        if(data?.design_date !==state?.design_date){
+              formData.append("design_date", data?.design_date);
+        }
           formData.append("content", content); // if this is a file or text
           if(bannerImage){
             formData.append("image", bannerImage);
