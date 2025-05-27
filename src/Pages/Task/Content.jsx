@@ -203,7 +203,7 @@ const Content= () => {
 
     try {
      
-      const brandResponse = await axios.get(`${SERVER_URL}/brand/view-brand?page=${pager.currentPage}&limit=${pager.pageSize}`, {
+      const brandResponse = await axios.get(`${SERVER_URL}/brand/view-brand`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: token,
@@ -228,7 +228,7 @@ const Content= () => {
     try {
    
 
-      const userResponse = await axios.get(`${SERVER_URL}/auth/view-users?page=${pager.currentPage}&limit=${pager.pageSize}`, {
+      const userResponse = await axios.get(`${SERVER_URL}/auth/view-users`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: token,

@@ -191,7 +191,7 @@ setPostData(allTasks)
 
     try {
      
-      const brandResponse = await axios.get(`${SERVER_URL}/brand/view-brand?page=${pager.currentPage}&limit=${pager.pageSize}`, {
+      const brandResponse = await axios.get(`${SERVER_URL}/brand/view-brand`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: token,
