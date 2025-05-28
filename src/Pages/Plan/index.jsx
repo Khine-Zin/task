@@ -243,7 +243,7 @@ const filteredMonth = filtered?.[0]?.months.filter(item => item.year === yearsea
   
       try {
        
-        const brandResponse = await axios.get(`${SERVER_URL}/brand/view-brand`, {
+        const brandResponse = await axios.get(`${SERVER_URL}/brand/view-brand?page=1&limit=30`, {
           headers: {
             'Content-Type': 'application/json',
             Authorization: token,

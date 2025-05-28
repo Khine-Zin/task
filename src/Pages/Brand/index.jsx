@@ -72,7 +72,7 @@ const Brand = () => {
     const navigate = useNavigate();
   const isTabletOrSmaller = useMediaQuery('(max-width: 960px)');
   const [data, setData] = React.useState([]);
-  const [pager, setPager] = React.useState({ currentPage: 1, pageSize: 13 });
+  const [pager, setPager] = React.useState({ currentPage: 1, pageSize: 15 });
   const debounceTimer = React.useRef(null);
   const [bannerImage, setBannerImage] = React.useState("");
   const [brand,setBrand]=useState("")
