@@ -490,9 +490,9 @@ setOpenDialog(false)
              <IconButton onClick={() => handleEdit(row)}  aria-label="update">
                <EditIcon />
              </IconButton>
-             <IconButton onClick={() => handleDelete(row)} sx={{ color: 'red' }} aria-label="delete">
+             {/* <IconButton onClick={() => handleDelete(row)} sx={{ color: 'red' }} aria-label="delete">
                <DeleteIcon />
-             </IconButton>
+             </IconButton> */}
            </StyledTableCell>
          </StyledTableRow>
               ))}
