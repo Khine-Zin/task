@@ -834,7 +834,19 @@ console.log(see)
                   Edit Month
                 </Button>
                
-               
+                <Button
+                  onClick={() => handleDelete(row)}
+                  variant="outlined"
+                  sx={{
+                    textTransform: 'none',
+                    backgroundColor: 'red',
+                    color: 'white',
+                    padding: '2px 4px',
+                    fontSize: '0.75rem',
+                  }}
+                >
+                  Delete
+                </Button>
               </StyledTableCell>
             </StyledTableRow>
           );

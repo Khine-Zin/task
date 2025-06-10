@@ -451,9 +451,7 @@ setDownload([])
        <div className='hidden lg:block'>
      <div className='flex justify-between gap-3 items-center mb-5 mt-[100px]'>
      <h2 className="text-xl text-gray-700">Total: {loading ? "0":total?.total?.headline}</h2>
-     {
-          role ==="admin" && (
-            <div className='flex gap-3 items-center'>
+        <div className='flex gap-3 items-center'>
      <div className="relative flex gap-5">
           <FormControl sx={{ width: 200 }} margin="normal">
   <InputLabel id="role-label">Select Brand</InputLabel>
@@ -523,7 +521,8 @@ setDownload([])
         
           </div>
 
-
+ {
+          role ==="admin" && (
           <Button
             variant="contained"
             sx={{
@@ -540,12 +539,16 @@ setDownload([])
           >
            Download
           </Button>
-        </div>
           )
         }
+         
+        </div>
+    
       </div>
      </div>
-     <div className='flex justify-between gap-3 items-center mb-5 mt-[100px] lg:hidden'>
+    {
+      role==="admin" && (
+         <div className='flex justify-between gap-3 items-center mb-5 mt-[100px] lg:hidden'>
      <h2 className="text-xl text-gray-700">Total: {loading ? "0":total?.total?.headline}</h2>
         <div className='flex gap-3 items-center'>
           
@@ -570,6 +573,8 @@ setDownload([])
           }
         </div>
       </div>
+      )
+    }
       <TableContainer component={Paper}>
   <Table sx={{ minWidth: 500 }} aria-label="customized table">
     <TableHead>
@@ -591,7 +596,13 @@ setDownload([])
     dataHeadline?.map((row) =>
       row?.tasks.map((item, index) => (
         <StyledTableRow key={index}>
-            <StyledTableCell align="left">post - {item?.postNumber}</StyledTableCell>
+            <StyledTableCell align="left"> {item?.soical_media === "tiktok-trend"
+    ? `tiktok-trend-${item?.postNumber}`
+    : item?.soical_media === "tiktok-slide"
+    ? `tiktok-slide-${item?.postNumber}`
+    : item?.soical_media === "tiktok-script"
+    ? `tiktok-script-${item?.postNumber}`
+    : `post-${item?.postNumber}`}</StyledTableCell>
           <StyledTableCell align="left">{item?.brand?.name}</StyledTableCell>
            <TableCell align="left">
                    {item?.year} - {["1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th", "10th", "11th", "12th"][item?.month - 1]} Month 
@@ -779,7 +790,13 @@ setDownload([])
                     onChange={() => handleChange(post._id)}
                   />
                 }
-                label={`Post: ${post.postNumber}`}
+                label={post?.soical_media === "tiktok-trend"
+    ? `tiktok-trend-${post?.postNumber}`
+    : post?.soical_media === "tiktok-slide"
+    ? `tiktok-slide-${post?.postNumber}`
+    : post?.soical_media === "tiktok-script"
+    ? `tiktok-script-${post?.postNumber}`
+    : `post-${post?.postNumber}`}
               />
             </FormGroup>
           </div>

@@ -130,7 +130,7 @@ console.log(selectedMonth,currentMonth)
    
     {/* <ChartGroup/> */}
   {
-    loading ? "Loading...." :(
+    loading ? <div className="text-center">Loading....</div> :(
       <EnhancedTable data={data}/>
     )
   }

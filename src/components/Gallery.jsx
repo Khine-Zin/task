@@ -14,7 +14,7 @@ console.log("image",image)
     setSelectedImage(imageSrc);
     setOpen(true);
   };
-  const url=`http://150.95.85.5/upload/${image}`;
+  const url=`http://localhost:5000/${image}`;
 
   // Function to close modal
   const handleClose = () => {

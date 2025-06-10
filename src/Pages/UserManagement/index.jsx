@@ -604,8 +604,9 @@ setOpenDialog(false)
         label="Select Role"
       >
         <MenuItem value="admin">Admin</MenuItem>
+        <MenuItem value="content-head">Content Head</MenuItem>
         <MenuItem value="content-writer">Content Writer</MenuItem>
-        <MenuItem value="marketing-manager">Marketing Manager</MenuItem>
+       
       </Select>
     </FormControl>
   </DialogContent>
@@ -657,9 +658,10 @@ setOpenDialog(false)
           label="Select Role"
         >
           <MenuItem value="admin">Admin</MenuItem>
+          <MenuItem value="content-head">Content Head</MenuItem>
           <MenuItem value="content-writer">Content Writer</MenuItem>
          
-          <MenuItem value="marketing-manager">Marketing Manager</MenuItem>
+          
         </Select>
       </FormControl>
         

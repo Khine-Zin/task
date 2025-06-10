@@ -595,7 +595,7 @@ const filteredMonth = filtered?.[0]?.months.filter(item => item.year === newUser
      <div className='flex justify-between gap-3 items-center mb-5 mt-[100px]'>
      <h2 className="text-xl text-gray-700">Total Headline: {loading ? "0":total?.total?.headline       }</h2>
         {
-          role ==="admin" && (
+          role !=="content-writer" && (
             <div className='flex gap-3 items-center'>
      <div className="relative flex gap-5">
           <FormControl sx={{ width: 200 }} margin="normal">
@@ -637,8 +637,7 @@ const filteredMonth = filtered?.[0]?.months.filter(item => item.year === newUser
     <MenuItem disabled>No option</MenuItem>
   ) : (
     userinfo
-      .filter(user => user.role !== "admin")
-      .map(user => (
+    .filter(user => user.role !== "admin" && user.role !== "content-head").map(user => (
         <MenuItem key={user._id} value={user.name}>
           {user.name}
         </MenuItem>
@@ -708,9 +707,7 @@ const filteredMonth = filtered?.[0]?.months.filter(item => item.year === newUser
           <TableRow>
            
             <StyledTableCell align="left">Post No</StyledTableCell>
-            {role === "admin" && (
-              <StyledTableCell align="left">Content Writer</StyledTableCell>
-            )}
+            <StyledTableCell align="left">Content Writer</StyledTableCell>
             <StyledTableCell align="left">Brand Name</StyledTableCell>
             <StyledTableCell align="left">Deadline</StyledTableCell>
             <StyledTableCell align="left">Month</StyledTableCell>
@@ -720,7 +717,7 @@ const filteredMonth = filtered?.[0]?.months.filter(item => item.year === newUser
         <TableBody>
 {dataHeadline?.length === 0 || dataHeadline === undefined ? (
   <StyledTableRow>
-    <StyledTableCell colSpan={role === "admin" ? 6 : 5} align="center">
+    <StyledTableCell colSpan={6} align="center">
       There is no headline task
     </StyledTableCell>
   </StyledTableRow>
@@ -738,7 +735,17 @@ const filteredMonth = filtered?.[0]?.months.filter(item => item.year === newUser
 
     return sortedTasks.map((item, subIndex) => (
       <TableRow key={`${index}-${subIndex}`}>
-        <TableCell align="left">post - {item?.postNumber}</TableCell>
+    <TableCell align="left">
+  {item?.soical_media === "tiktok-trend"
+    ? `tiktok-trend-${item?.postNumber}`
+    : item?.soical_media === "tiktok-slide"
+    ? `tiktok-slide-${item?.postNumber}`
+    : item?.soical_media === "tiktok-script"
+    ? `tiktok-script-${item?.postNumber}`
+    : `post-${item?.postNumber}`}
+</TableCell>
+
+
         <TableCell align="left">{item?.user?.name}</TableCell>
         <TableCell align="left">{item?.brand?.name}</TableCell>
         <TableCell align="left">{formatDate(item?.deadline)}</TableCell>
@@ -840,7 +847,7 @@ const filteredMonth = filtered?.[0]?.months.filter(item => item.year === newUser
                   <MenuItem disabled>No option </MenuItem>
               ): userinfo?.map((user) => (
          
-          user?.role !=="admin" && (
+          user?.role !=="admin" && user?.role !=="content-head" && (
             <MenuItem key={user._id} value={user._id}>
             {user.name}
           </MenuItem>
@@ -885,9 +892,10 @@ const filteredMonth = filtered?.[0]?.months.filter(item => item.year === newUser
                 onChange={(e) => setNewUser({ ...newUser, soical_media: e.target.value })}
                 label="Select Media"
               >
-                <MenuItem value="tiktok">Tiktok</MenuItem>
                 <MenuItem value="facebook">Facebook</MenuItem>
-               
+                {/* <MenuItem value="tiktok-slide">Tiktok Slide</MenuItem> */}
+                 <MenuItem value="tiktok-trend">Tiktok Trend</MenuItem>
+                <MenuItem value="tiktok-script">Tiktok Script</MenuItem>
                 <MenuItem value="instagram">Instagram</MenuItem>
               </Select>
             </FormControl>
@@ -1020,7 +1028,7 @@ label="Select Content Writer"
   <MenuItem disabled>No option</MenuItem>
 ) : (
   userinfo.map((user) =>
-    user?.role !== 'admin' && (
+    user?.role !== 'admin' && user?.role !=="content-head" && (
       <MenuItem key={user._id} value={user.name}>
         {user.name}
       </MenuItem>
@@ -1062,9 +1070,11 @@ value={editUser?.soical_media || ''}  // Ensure it reflects the selected value, 
 onChange={(e) => setEditUser({ ...editUser, soical_media: e.target.value })}  // Update state when value changes
 label="Select Media"
 >
-<MenuItem value="tiktok">Tiktok</MenuItem>  {/* Corrected value to match your possible choices */}
 <MenuItem value="facebook">Facebook</MenuItem>
-<MenuItem value="instagram">Instagram</MenuItem>
+                {/* <MenuItem value="tiktok-slide">Tiktok Slide</MenuItem> */}
+                 <MenuItem value="tiktok-trend">Tiktok Trend</MenuItem>
+                <MenuItem value="tiktok-script">Tiktok Script</MenuItem>
+                <MenuItem value="instagram">Instagram</MenuItem>
 </Select>
 
     </FormControl>

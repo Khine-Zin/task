@@ -49,7 +49,7 @@ console.log(state)
       <table className="mt-8 font-medium text-bodyColor">
         <tbody>
           {[
-            { icon: <HiUsers />, label: "Assignee", value: state?.task?.user?.name },
+            { icon: <HiUsers />, label: "Assignee", value: state?.content_writer },
             {
               icon: <HiOutlineBriefcase />,
               label: "Brand Name",
@@ -60,12 +60,13 @@ console.log(state)
               label: "Social Media",
               value: (
                 <div className="flex items-center gap-2">
-                  {state?.soical_media === "facebook" ? (
+                  {state?.task?.soical_media === "facebook" ? (
                     <FaFacebook />
-                  ) : state?.soical_media === "tiktok" ? (
-                    <FaTiktok />
+                  ) : state?.task?.soical_media === "instagram" ? (
+                      <FaInstagram />
+                   
                   ) : (
-                    <FaInstagram />
+                   <FaTiktok />
                   )}
                   <span>{state?.task?.soical_media}</span>
                 </div>
@@ -103,16 +104,20 @@ console.log(state)
            {
             state?.content && (
              <>
-              <div className=" font-bold text-secondaryColor mt-8">Content</div>
+              <div className=" font-bold text-secondaryColor mt-8">{state?.task?.soical_media ==="facebook" ? "Content" :"Script"}</div>
               <p className="text-sm text-bodyColor mt-5 mb-8" dangerouslySetInnerHTML={{ __html:state?.content || "<p>No content available</p>" }}/></>
             )
            }
     
       </div>
 
-     <div className="mt-10">
+    {
+      state?.task?.soical_media !=="tiktok-script" && (
+         <div className="mt-10">
      <Gallery image={state?.task?.design}/>
      </div>
+      )
+    }
 
       <div className="h-[100px]"></div>
     </div>

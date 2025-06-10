@@ -450,9 +450,7 @@ console.log(download)
        <div className='hidden lg:block'>
      <div className='flex justify-between gap-3 items-center mb-5 mt-[100px]'>
      <h2 className="text-xl text-gray-700">Total: {loading ? "0":total?.total?.content}</h2>
-     {
-          role ==="admin" && (
-            <div className='flex gap-3 items-center'>
+          <div className='flex gap-3 items-center'>
      <div className="relative flex gap-5">
               <FormControl sx={{ width: 200 }} margin="normal">
       <InputLabel id="role-label">Select Brand</InputLabel>
@@ -521,7 +519,9 @@ console.log(download)
     </FormControl>
             
               </div>
-
+  {
+          role ==="admin" && (
+       
           <Button
             variant="contained"
             sx={{
@@ -538,9 +538,10 @@ console.log(download)
           >
            Download
           </Button>
-        </div>
           )
         }
+        </div>
+   
       </div>
      </div>
      <div className='flex justify-between gap-3 items-center mb-5 mt-[100px] lg:hidden'>
@@ -589,7 +590,13 @@ console.log(download)
     datacontent?.flatMap((row) =>
       row?.tasks.map((item, index) => (
         <StyledTableRow key={item._id || index}>
-          <StyledTableCell align="left">post - {item?.task?.postNumber}</StyledTableCell>
+          <StyledTableCell align="left"> {item?.task?.soical_media === "tiktok-trend"
+    ? `tiktok-trend-${item?.task?.postNumber}`
+    : item?.task?.soical_media === "tiktok-slide"
+    ? `tiktok-slide-${item?.task?.postNumber}`
+    : item?.task?.soical_media === "tiktok-script"
+    ? `tiktok-script-${item?.task?.postNumber}`
+    : `post-${item?.task?.postNumber}`}</StyledTableCell>
           <StyledTableCell align="left">{item?.task?.brand?.name}</StyledTableCell>
          <TableCell align="left">
                              {item?.task?.year} - {["1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th", "10th", "11th", "12th"][item?.task?.month - 1]} Month 
@@ -655,13 +662,13 @@ console.log(download)
 
 
    <div className="flex gap-5 justify-end items-center mt-4">
-        <p>Headline Page {pager.currentPage} of {total?.totalPages?.headline}</p>
+        <p>Content Page {pager.currentPage} of {total?.totalPages?.content}</p>
       
         <div className="flex gap-2">
           <button disabled={pager.currentPage === 1} onClick={() => handlePageChange(-1)} className="p-2 bg-gray-200 rounded-l hover:bg-gray-300">
             <HiChevronLeft />
           </button>
-          <button disabled={pager.currentPage === total?.totalPages?.headline } onClick={() => handlePageChange(1)} className="p-2 bg-gray-200 rounded-r hover:bg-gray-300">
+          <button disabled={pager.currentPage === total?.totalPages?.content } onClick={() => handlePageChange(1)} className="p-2 bg-gray-200 rounded-r hover:bg-gray-300">
             <HiChevronRight />
           </button>
         </div>
@@ -774,7 +781,13 @@ console.log(download)
                       onChange={() => handleChange(post?._id)}
                     />
                   }
-                  label={`Post: ${post.task?.postNumber}`}
+                  label={post?.task?.social_media === "tiktok-trend"
+    ? `tiktok-trend-${post?.task?.postNumber}`
+    : post?.task?.social_media === "tiktok-slide"
+    ? `tiktok-slide-${post?.task?.postNumber}`
+    : post?.task?.social_media === "tiktok-script"
+    ? `tiktok-script-${post?.task?.postNumber}`
+    : `post-${post?.task?.postNumber}`}
                 />
               </FormGroup>
             </div>

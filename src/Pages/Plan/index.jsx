@@ -374,7 +374,13 @@ console.log(data)
           const task = taskItem?.task;
           return (
             <StyledTableRow key={index}>
-               <StyledTableCell align="left">post - {task.postNumber}</StyledTableCell>
+               <StyledTableCell align="left"> {task?.soical_media === "tiktok-trend"
+    ? `tiktok-trend-${task?.postNumber}`
+    : task?.soical_media === "tiktok-slide"
+    ? `tiktok-slide-${task?.postNumber}`
+    : task?.soical_media === "tiktok-script"
+    ? `tiktok-script-${task?.postNumber}`
+    : `post-${task?.postNumber}`}</StyledTableCell>
               <StyledTableCell align="left">{task?.brand?.name}</StyledTableCell>
             <TableCell align="left">
                      {task?.year} - {["1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th", "10th", "11th", "12th"][task?.month - 1]} Month 

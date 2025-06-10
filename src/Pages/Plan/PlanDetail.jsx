@@ -48,7 +48,7 @@ console.log("state",state)
       <table className="mt-8 font-medium text-bodyColor">
         <tbody>
           {[
-            { icon: <HiUsers />, label: "Assignee", value: state?.task?.user?.name },
+            // { icon: <HiUsers />, label: "Assignee", value: state?.task?.user?.name },
             {
               icon: <HiOutlineBriefcase />,
               label: "Brand Name",
@@ -94,8 +94,12 @@ console.log("state",state)
 
       {/* Headline */}
       <div className="mt-10 lg:w-[70%] w-[95%]">
-      <div className=" font-bold text-secondaryColor mt-8">Design Brief</div>
-      <p className="text-sm text-bodyColor mt-5 mb-8">{state?.task?.headlinedesign_brief || state.design_brief}</p>
+    {
+      state?.task?.soical_media==="facebook" && (
+        <>  <div className=" font-bold text-secondaryColor mt-8">Design Brief</div>
+      <p className="text-sm text-bodyColor mt-5 mb-8">{state?.task?.headlinedesign_brief || state.design_brief}</p></>
+      )
+    }
 
       <div className=" font-bold text-secondaryColor mt-8">Headline</div>
             <p className="text-sm text-bodyColor mt-5 mb-8">{state?.task?.headline || state.headline}</p>
@@ -104,7 +108,7 @@ console.log("state",state)
            {
             state?.content && (
              <>
-              <div className=" font-bold text-secondaryColor mt-8">Content</div>
+              <div className=" font-bold text-secondaryColor mt-8">{state?.task?.soical_media==="facebook" ? "Content" :"Script"}</div>
               <p className="text-sm text-bodyColor mt-5 mb-8" dangerouslySetInnerHTML={{ __html:state?.content || "<p>No content available</p>" }}/></>
             )
            }

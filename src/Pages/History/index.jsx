@@ -475,7 +475,13 @@ console.log(updatePost)
       const task = taskItem.task;
       return (
         <StyledTableRow key={taskItem._id}>
-          <StyledTableCell align="left">post - {task?.postNumber}</StyledTableCell>
+          <StyledTableCell align="left">{task?.social_media === "tiktok-trend"
+    ? `tiktok-trend-${task?.postNumber}`
+    : task?.social_media === "tiktok-slide"
+    ? `tiktok-slide-${task?.postNumber}`
+    : task?.social_media === "tiktok-script"
+    ? `tiktok-script-${task?.postNumber}`
+    : `post-${task?.postNumber}`}</StyledTableCell>
           <StyledTableCell align="left">{task?.brand?.name}</StyledTableCell>
           
          <TableCell align="left">

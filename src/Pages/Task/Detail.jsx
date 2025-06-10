@@ -63,8 +63,8 @@ const Detail = () => {
        const response = await axios.put(
            `${SERVER_URL}/task/edit-task/${state?._id}`, 
            {
-            content:content,
-            design_brief:taskData.description
+            content:content ,
+            design_brief:taskData.description || "hello"
              }, 
            {
                headers: {
@@ -141,7 +141,7 @@ console.log("detailstate",state)
       <table className="mt-8 font-medium text-bodyColor">
         <tbody>
           {[
-            { icon: <HiUsers />, label: "Assignee", value: state?.task?.user?.name },
+            { icon: <HiUsers />, label: "Assignee", value: state?.content_writer },
             {
               icon: <HiOutlineBriefcase />,
               label: "Brand Name",
@@ -154,10 +154,11 @@ console.log("detailstate",state)
                 <div className="flex items-center gap-2">
                   {state?.task?.soical_media === "facebook" ? (
                     <FaFacebook />
-                  ) : state?.task?.soical_media === "tiktok" ? (
-                    <FaTiktok />
-                  ) : (
+                  ) : state?.task?.soical_media === "instagram" ? (
                     <FaInstagram />
+                  ) : (
+                     <FaTiktok />
+                   
                   )}
                   <span>{state?.task?.soical_media}</span>
                 </div>
@@ -201,12 +202,14 @@ console.log("detailstate",state)
      }
 
           <div className="mb-8">
-          <div className=" font-bold text-secondaryColor my-8">Content</div>
+          <div className=" font-bold text-secondaryColor my-8">{state?.task?.soical_media ==="facebook" ? "Content" :"Script"}</div>
           <Ckeditor value={content} onChange={setContent} />
           </div>
   
     
-                    <TextField
+               {
+                state?.task?.soical_media ==="facebook" && (
+                       <TextField
                      label="Design Brief"
                      multiline
                      rows={3} // Set the number of visible rows in the textarea
@@ -215,6 +218,8 @@ console.log("detailstate",state)
                      fullWidth
                      margin="normal"
                    />
+                )
+               }
        {
         state?.task?.status ==="confirm" && (
           <div className="flex justify-end">

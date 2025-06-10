@@ -8,6 +8,7 @@ import { useMediaQuery } from "@mui/material";
 
 const Header = ({toggleHidden}) => {
   const role=localStorage.getItem("userRole")
+ const userName=localStorage.getItem("userName")
   const [showLogout, setShowLogout] = useState(false);
   const { setUser } = userStore();
   const isTabletOrSmaller = useMediaQuery('(max-width: 420px)');
@@ -55,7 +56,7 @@ const Header = ({toggleHidden}) => {
           {/* User Profile and Logout Dropdown */}
           <div className="text-primaryColor flex items-center gap-2 relative cursor-pointer" onClick={toggleLogoutNav}>
             <HiUserCircle  className="size-6 lg:size-10"/>
-            <span className="text-lg lg:text-2xl font-semibold">{role==="content" ? "Content!" : role==="marketing" ?"Marketing!" :"Admin!"}</span>
+            <span className="text-lg lg:text-2xl font-semibold">{userName}</span>
             
             {showLogout  && (
               <motion.div

@@ -3,7 +3,7 @@ import { HiUsers, HiOutlineCalendar ,HiOutlineBriefcase,HiChartBar} from "react-
 import { PiNotePencilDuotone,PiListNumbers } from "react-icons/pi";
 import Ckeditor from "../../components/Ckeditor";
 import { IoShareSocialOutline } from "react-icons/io5";
-import { FaInstagram, FaTiktok } from "react-icons/fa6";
+import { FaFacebook, FaInstagram, FaTiktok } from "react-icons/fa6";
 import SmallBreadcrumbs from "../../components/BreadCrumbs";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
@@ -213,7 +213,7 @@ const HistoryDetail = () => {
       <table className="mt-8 font-medium text-bodyColor">
             <tbody>
               {[
-                { icon: <HiUsers />, label: "Assignee", value: state?.task?.user?.name },
+                // { icon: <HiUsers />, label: "Assignee", value: state?.task?.user?.name },
                 {
                   icon: <HiOutlineBriefcase />,
                   label: "Brand Name",
@@ -224,12 +224,13 @@ const HistoryDetail = () => {
                   label: "Social Media",
                   value: (
                     <div className="flex items-center gap-2">
-                      {state.task?.soical_media === "facebook" ? (
+                      {state.task?.social_media === "facebook" ? (
                         <FaFacebook />
-                      ) : state?.task?.soical_media === "tiktok" ? (
-                        <FaTiktok />
+                      ) : state?.task?.social_media === "instagram" ? (
+                          <FaInstagram />
+                       
                       ) : (
-                        <FaInstagram />
+                        <FaTiktok />
                       )}
                       <span>{state?.task?.social_media}</span>
                     </div>
@@ -298,7 +299,10 @@ const HistoryDetail = () => {
                               fullWidth
                               margin="normal"
                             />
-                              <TextField
+                            {
+                              state?.task?.social_media!=="tiktok-script" && (
+                                <> 
+                                <TextField
                               label="Design Brief"
                               multiline
                               rows={3} // Set the number of visible rows in the textarea
@@ -307,7 +311,7 @@ const HistoryDetail = () => {
                               fullWidth
                               margin="normal"
                             />
-                            <div className="mt-5">
+                                <div className="mt-5">
                                <Box flex={1}>
                                 <InputLabel shrink>Design Date</InputLabel>
                                 <Datepicker
@@ -316,14 +320,22 @@ const HistoryDetail = () => {
                                   name="startDate"
                                 />
                               </Box>
-                            </div>
+                            </div></>
+                                  
+                              )
+                            }
+                           
          <div  className=" font-bold text-secondaryColor mb-3 mt-8">
-           Content
+          {state?.task?.social_media ==="facebook" ? "Content" :"Script"}
           </div>
           <Ckeditor value={content} onChange={setContent} />
-          <Box mt={2}>
+       {
+        state?.task?.social_media !=="tiktok-script" && (
+             <Box mt={2}>
       <FileUpload setBannerImage={setBannerImage} image={bannerImage} />
     </Box>
+        )
+       }
          <div className="mt-5 flex gap-3 w-full ">
                   <div className="w-full">
                     <TextField

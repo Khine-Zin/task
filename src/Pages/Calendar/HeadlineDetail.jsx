@@ -61,10 +61,11 @@ console.log(state)
                 <div className="flex items-center gap-2">
                   {state?.soical_media === "facebook" ? (
                     <FaFacebook />
-                  ) : state?.soical_media === "tiktok" ? (
-                    <FaTiktok />
+                  ) : state?.soical_media === "instagram" ? (
+                     <FaInstagram />
                   ) : (
-                    <FaInstagram />
+                    <FaTiktok />
+                   
                   )}
                   <span>{state?.soical_media}</span>
                 </div>
@@ -74,7 +75,7 @@ console.log(state)
             {
               icon: <HiOutlineCalendar />,
               label: "Deadline",
-              value: formatDate(state?.task?.deadline),
+              value: formatDate(state?.deadline),
             },
             { icon: <PiNotePencilDuotone />, label: "Note", value: state?.note },
             { icon: <HiChartBar />, label: "Category", value: state?.category?.name },

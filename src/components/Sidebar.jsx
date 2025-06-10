@@ -10,6 +10,7 @@ import { useMediaQuery } from '@mui/material';
 import { MdOutlineWorkHistory } from "react-icons/md";
 
 const SideBar = ({ isOpen, setIsOpen,toggleHidden }) => {
+   const role=localStorage.getItem("userRole")
   const Location = useLocation();
   const isTabletOrSmaller = useMediaQuery('(max-width: 420px)');
   const [openIndex, setOpenIndex] = useState(null); // Track which sub-item is open
@@ -34,11 +35,14 @@ const SideBar = ({ isOpen, setIsOpen,toggleHidden }) => {
   return (
     <div
      
-      className={`absolute  z-50 bg-[#000000]  transition-all delay-200 duration-300 flex  ${isOpen ? 'w-62' : 'lg:w-20 '} lg:overflow-scroll flex-shrink-0  text-gray-800 h-screen p-3 lg:p-5 hide-scrollbar`}
+      className={`absolute  z-50 bg-[#000000] ${role !=="admin" && "mt-4"}  transition-all delay-200 duration-300 flex  ${isOpen ? 'w-62' : 'lg:w-20 '} lg:overflow-scroll flex-shrink-0  text-gray-800 h-screen p-3 lg:p-5 hide-scrollbar`}
     >
       <div className="flex flex-col h-full">
         <div className={`mt-16 flex flex-col gap-1 transition-opacity duration-300`}>
-          <motion.div whileHover={{ x: 5 }} onClick={handleClick}>
+         {
+          role==="admin" && (
+            <>
+             <motion.div whileHover={{ x: 5 }} onClick={handleClick}>
             <Link to="/">
               <motion.div
                 className={`flex items-center p-2 gap-3 my-2 text-lg rounded-lg transition-colors mb-2  ${Location.pathname==="/"? "border border-white" :""}`}
@@ -133,7 +137,9 @@ const SideBar = ({ isOpen, setIsOpen,toggleHidden }) => {
                 </div>
               </motion.div>
             </Link>
-          </motion.div>
+          </motion.div></>
+          )
+         }
           {/* <motion.div whileHover={{ x: 5 }}  onClick={handleClick}>
             <Link to="/task">
               <motion.div
@@ -235,7 +241,10 @@ const SideBar = ({ isOpen, setIsOpen,toggleHidden }) => {
          </AnimatePresence>
         </motion.div>
      
-          <motion.div whileHover={{ x: 5 }}  onClick={handleClick}>
+        {
+          role=== "admin" && (
+            <>
+              <motion.div whileHover={{ x: 5 }}  onClick={handleClick}>
             <Link to="/plan">
               <motion.div
                 className={`flex items-center p-2 gap-3 my-2 text-lg rounded-lg transition-colors mb-2  ${Location.pathname==="/plan/detail"||Location.pathname==="/plan"? "border border-white" :""}`}
@@ -283,6 +292,9 @@ const SideBar = ({ isOpen, setIsOpen,toggleHidden }) => {
               </motion.div>
             </Link>
           </motion.div>
+            </>
+          )
+        }
           {/* <motion.div whileHover={{ x: 5 }}  onClick={handleClick}>
             <Link to="/calendar">
               <motion.div
@@ -399,7 +411,10 @@ const SideBar = ({ isOpen, setIsOpen,toggleHidden }) => {
            )}
          </AnimatePresence>
         </motion.div>
-          <motion.div whileHover={{ x: 5 }}  onClick={handleClick}>
+         {
+          role==="admin" && (
+            <>
+             <motion.div whileHover={{ x: 5 }}  onClick={handleClick}>
             <Link to="/report">
               <motion.div
                 className={`flex items-center p-2 gap-3 my-2 text-lg rounded-lg transition-colors mb-2  ${Location.pathname==="/report"||Location.pathname==="/report/detail"? "border border-white" :""}`}
@@ -423,6 +438,9 @@ const SideBar = ({ isOpen, setIsOpen,toggleHidden }) => {
               </motion.div>
             </Link>
           </motion.div>
+            </>
+          )
+         }
           <motion.div whileHover={{ x: 5 }}  onClick={handleClick}>
             <Link to="/history">
               <motion.div

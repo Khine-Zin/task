@@ -478,38 +478,11 @@ setOpenDialog(false)
   
     try {
       // Check the type and send the respective request
-      let response;
-      if (type === "headline") {
-        // API call for headline
-        response = await axios.post(
-          `${SERVER_URL}/task/create-task`, // Replace with the correct URL for headline
-          {
-             user:newUser.user,
-            brand:newUser.brand,
-            soical_media:newUser.soical_media,
-             month:newUser.month,
-             deadline:newUser.deadline,
-           quantity:newUser.quantity,
-           category:newUser.category,
-               note:newUser.note
-          },
-          {
-            headers: {
-              Authorization: token,
-              Accept: 'application/json',
-              'Content-Type': 'application/json',
-              "type":"headline"
-            },
-          }
-        );
-      } else if (type === "content") {
-     
-      
-    
-        response = await axios.post(
+      const response = await axios.post(
           `${SERVER_URL}/task/create-task`, // Replace with the correct URL for content
           {
            task:newUser.task,
+           content_writer:newUser.user,
            note:newUser.note
           },
           {
@@ -521,8 +494,6 @@ setOpenDialog(false)
             },
           }
         );
-      }
-  
       setCreate(false);
   
       if (response?.data?.statusCode === 201) {
@@ -588,37 +559,11 @@ setOpenDialog(false)
    
      try {
       // Check the type and send the respective request
-      let response;
-      if (type === "headline") {
-        // API call for headline
-        response = await axios.put(
-          `${SERVER_URL}/task/update-task/${editUser._id}`, // Replace with the correct URL for headline
-          {
-            user:`${foundUser?._id}`,
-            brand:foundbrand._id,
-            soical_media:editUser.soical_media,
-             month:editUser.month,
-             deadline:editUser.deadline,
-           quantity:editUser.post,
-               note:editUser.note,
-               category:foundCategory._id,
-          },
-          {
-            headers: {
-              Authorization: token,
-              Accept: 'application/json',
-              'Content-Type': 'application/json',
-              "type":"headline"
-            },
-          }
-        );
-      } else if (type === "content") {
-      
-        response = await axios.put(
+     
+      const response = await axios.put(
           `${SERVER_URL}/task/update-task/${editUser._id}`, // Replace with the correct URL for content
           {
-            // user:editUser?.name,
-            // task:editUser?._id,
+           content_writer:editUser?.content_writer,
           note:editUser.note
           },
           {
@@ -630,7 +575,6 @@ setOpenDialog(false)
             },
           }
         );
-      }
   
       setCreate(false);
       fetchData();
@@ -694,68 +638,67 @@ console.log(Content)
   return (
     <div className="mt-24 lg:mx-4 mx-2">
        <div className='hidden lg:block'>
-     <div className='flex justify-between gap-3 items-center mb-5 mt-[100px]'>
+         <div className='flex justify-between gap-3 items-center mb-5 mt-[100px]'>
      <h2 className="text-xl text-gray-700">Total Content: {loading ? "0":total?.total?.content       }</h2>
-     {
-          role ==="admin" && (
+        {
+          role !=="content-writer" && (
             <div className='flex gap-3 items-center'>
-      <div className="relative flex gap-5">
-              <FormControl sx={{ width: 200 }} margin="normal">
-      <InputLabel id="role-label">Select Brand</InputLabel>
-    <Select
-      id="role"
-      value={searchBrand}
-      onChange={(e) => setSearchBrand(e.target.value)}
-      label="Select Brand"
-    >
-      <MenuItem value="All">All</MenuItem>
-      {brand.length === 0 ? (
-        <MenuItem disabled>No option</MenuItem>
-      ) : (
-        brand.map((user) => (
-          <MenuItem key={user._id} value={user.name}>
-            {user.name}
-          </MenuItem>
-        ))
-      )}
-    </Select>
+     <div className="relative flex gap-5">
+          <FormControl sx={{ width: 200 }} margin="normal">
+  <InputLabel id="role-label">Select Brand</InputLabel>
+<Select
+  id="role"
+  value={searchBrand}
+  onChange={(e) => setSearchBrand(e.target.value)}
+  label="Select Brand"
+>
+  <MenuItem value="All">All</MenuItem>
+  {brand.length === 0 ? (
+    <MenuItem disabled>No option</MenuItem>
+  ) : (
+    brand.map((user) => (
+      <MenuItem key={user._id} value={user.name}>
+        {user.name}
+      </MenuItem>
+    ))
+  )}
+</Select>
+
+</FormControl>
+  <Box display="flex" gap={2} >
+      {/* Start Date */}
+      <Box flex={1}>
+       
+      <FormControl fullWidth margin="normal" sx={{ width: '200px' }}>
+
+    <InputLabel id="role-label">Select Content Writer</InputLabel>
+<Select
+  id="role"
+  value={searchUser}
+  onChange={(e) => setSearchUser(e.target.value)}
+  label="Select Content Writer"
+>
+  <MenuItem value="All">All</MenuItem>
+  {userinfo.length === 0 ? (
+    <MenuItem disabled>No option</MenuItem>
+  ) : (
+    userinfo
+    .filter(user => user.role !== "admin" && user.role !== "content-head").map(user => (
+        <MenuItem key={user._id} value={user.name}>
+          {user.name}
+        </MenuItem>
+      ))
+  )}
+</Select>
+
+
+  </FormControl>
+      </Box>
     
-    </FormControl>
-      <Box display="flex" gap={2} >
-          {/* Start Date */}
-          <Box flex={1}>
-           
-          <FormControl fullWidth margin="normal" sx={{ width: '200px' }}>
     
-        <InputLabel id="role-label">Select Content Writer</InputLabel>
-    <Select
-      id="role"
-      value={searchUser}
-      onChange={(e) => setSearchUser(e.target.value)}
-      label="Select Content Writer"
-    >
-      <MenuItem value="All">All</MenuItem>
-      {userinfo.length === 0 ? (
-        <MenuItem disabled>No option</MenuItem>
-      ) : (
-        userinfo
-          .filter(user => user.role !== "admin")
-          .map(user => (
-            <MenuItem key={user._id} value={user.name}>
-              {user.name}
-            </MenuItem>
-          ))
-      )}
-    </Select>
-    
-    
-      </FormControl>
-          </Box>
+    </Box>
         
-        
-        </Box>
-            
-              </div>
+          </div>
 
 
           <Button
@@ -779,8 +722,10 @@ console.log(Content)
         }
       </div>
      </div>
-     <div className='flex justify-between gap-3 items-center mb-5 mt-[100px] lg:hidden'>
-     <h2 className="text-xl text-gray-700">Total Content: {loading ? "0":total?.total?.content       }</h2>
+    {
+      role==="admin" && (
+         <div className='flex justify-between gap-3 items-center mb-5 mt-[100px] lg:hidden'>
+     <h2 className="text-xl text-gray-700">Total Content: {loading ? "0":total?.total?.content }</h2>
         <div className='flex gap-3 items-center'>
           
           {
@@ -804,6 +749,8 @@ console.log(Content)
           }
         </div>
       </div>
+      )
+    }
 
 
 
@@ -813,9 +760,7 @@ console.log(Content)
           <TableRow>
            
             <StyledTableCell align="left">Post No</StyledTableCell>
-            {role === "admin" && (
-              <StyledTableCell align="left">Content Writer</StyledTableCell>
-            )}
+           <StyledTableCell align="left">Content Writer</StyledTableCell>
             <StyledTableCell align="left">Brand Name</StyledTableCell>
             <StyledTableCell align="left">Deadline</StyledTableCell>
             <StyledTableCell align="left">Month</StyledTableCell>
@@ -825,7 +770,7 @@ console.log(Content)
         <TableBody>
   {datacontent?.length === 0 || dataHeadline === undefined ? (
     <StyledTableRow>
-      <StyledTableCell colSpan={role === "admin" ? 6 : 5} align="center">
+      <StyledTableCell colSpan={6} align="center">
         There is no content task
       </StyledTableCell>
     </StyledTableRow>
@@ -833,8 +778,14 @@ console.log(Content)
     datacontent.map((row, index) =>
       row.tasks.map((item, subIndex) => (
         <TableRow key={`${index}-${subIndex}`}>
-          <TableCell align="left">post - {item?.task?.postNumber}</TableCell>
-          <TableCell align="left">{item?.task?.user?.name}</TableCell>
+          <TableCell align="left"> {item?.task?.soical_media === "tiktok-trend"
+    ? `tiktok-trend-${item?.task?.postNumber}`
+    : item?.task?.soical_media === "tiktok-slide"
+    ? `tiktok-slide-${item?.task?.postNumber}`
+    : item?.task?.soical_media === "tiktok-script"
+    ? `tiktok-script-${item?.task?.postNumber}`
+    : `post-${item?.task?.postNumber}`}</TableCell>
+          <TableCell align="left">{item?.content_writer}</TableCell>
           <TableCell align="left">{row?._id?.brand}</TableCell>
           <TableCell align="left">{formatDate(item?.task?.deadline)}</TableCell>
           
@@ -1008,7 +959,13 @@ console.log(Content)
               <FormControlLabel
                 value={post._id}
                 control={<Radio />}
-                label={`Post: ${post.postNumber}`}
+                label= {post?.soical_media === "tiktok-trend"
+    ? `tiktok-trend-${post?.postNumber}`
+    : post?.soical_media === "tiktok-slide"
+    ? `tiktok-slide-${post?.postNumber}`
+    : post?.soical_media === "tiktok-script"
+    ? `tiktok-script-${post?.postNumber}`
+    : `post-${post?.postNumber}`}
               />
             </RadioGroup>
           </div>
@@ -1017,7 +974,29 @@ console.log(Content)
   </div>
 )}
 
-
+ <FormControl fullWidth margin="normal">
+    <InputLabel id="role-label">Select Content Writer</InputLabel>
+    <Select
+            labelId="role-label"
+            id="role"
+            value={newUser.user}
+            onChange={(e) => setNewUser({ ...newUser, user: e.target.value })}
+            label="Select Content Writer"
+          >
+           
+              {userinfo.length ===0 ?(
+                  <MenuItem disabled>No option </MenuItem>
+              ): userinfo?.map((user) => (
+         
+          user?.role !=="admin" && user?.role !=="content-head" && (
+            <MenuItem key={user._id} value={user.name}>
+            {user.name}
+          </MenuItem>
+          )
+         
+        ))}
+          </Select>
+  </FormControl>
  <TextField
               label="Note"
               multiline
@@ -1053,7 +1032,29 @@ console.log(Content)
         <DialogContent style={{ width: '100%' }}>
        
 
+ <FormControl fullWidth margin="normal">
+      <InputLabel id="role-label">Select Content Writer</InputLabel>
+      <Select
+labelId="role-label"
+id="role"
+value={editUser?.content_writer || ''} // Set value dynamically from state
+onChange={(e) => setEditUser({ ...editUser, content_writer: e.target.value})} // Update state on change
+label="Select Content Writer"
+>
+{userinfo.length === 0 ? (
+  <MenuItem disabled>No option</MenuItem>
+) : (
+  userinfo.map((user) =>
+    user?.role !== 'admin' && user?.role !=="content-head" && (
+      <MenuItem key={user._id} value={user.name}>
+        {user.name}
+      </MenuItem>
+    )
+  )
+)}
+</Select>
 
+    </FormControl>
 
         <TextField
               label="Note"

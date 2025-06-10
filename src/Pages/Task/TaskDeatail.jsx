@@ -205,10 +205,11 @@ console.log("state>>>",state)
                 <div className="flex items-center gap-2">
                   {state.soical_media === "facebook" ? (
                     <FaFacebook />
-                  ) : state.soical_media === "tiktok" ? (
-                    <FaTiktok />
+                  ) : state.soical_media === "instagram" ? (
+                   <FaInstagram />
                   ) : (
-                    <FaInstagram />
+                      <FaTiktok />
+                   
                   )}
                   <span>{state.soical_media}</span>
                 </div>
