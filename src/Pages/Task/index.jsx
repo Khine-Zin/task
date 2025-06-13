@@ -893,7 +893,7 @@ const filteredMonth = filtered?.[0]?.months.filter(item => item.year === newUser
                 label="Select Media"
               >
                 <MenuItem value="facebook">Facebook</MenuItem>
-                {/* <MenuItem value="tiktok-slide">Tiktok Slide</MenuItem> */}
+                <MenuItem value="tiktok-slide">Tiktok Slide</MenuItem>
                  <MenuItem value="tiktok-trend">Tiktok Trend</MenuItem>
                 <MenuItem value="tiktok-script">Tiktok Script</MenuItem>
                 <MenuItem value="instagram">Instagram</MenuItem>
@@ -1061,23 +1061,7 @@ label="Select Brand"
 </Select>
     </FormControl> */}
 
-    <FormControl fullWidth margin="normal">
-      <InputLabel id="role-label">Select Media</InputLabel>
-      <Select
-labelId="role-label"
-id="role"
-value={editUser?.soical_media || ''}  // Ensure it reflects the selected value, and fallback to an empty string if not defined
-onChange={(e) => setEditUser({ ...editUser, soical_media: e.target.value })}  // Update state when value changes
-label="Select Media"
->
-<MenuItem value="facebook">Facebook</MenuItem>
-                {/* <MenuItem value="tiktok-slide">Tiktok Slide</MenuItem> */}
-                 <MenuItem value="tiktok-trend">Tiktok Trend</MenuItem>
-                <MenuItem value="tiktok-script">Tiktok Script</MenuItem>
-                <MenuItem value="instagram">Instagram</MenuItem>
-</Select>
-
-    </FormControl>
+  
     <Box display="flex" gap={2} mt={2}>
       {/* Start Date */}
       {/* <Box flex={1}>

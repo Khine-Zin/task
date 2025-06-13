@@ -596,7 +596,7 @@ return false
   }
 
   };
-console.log(see)
+
   const handleEditUserSubmit = async () => {
     setCreate(true);
     const token = localStorage.getItem("token");

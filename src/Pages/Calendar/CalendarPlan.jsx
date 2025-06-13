@@ -316,7 +316,7 @@ setOpenDialog(false)
   
       try {
         // Fetch task data first based on pager.currentPage
-        const taskResponse = await axios.get(`${SERVER_URL}/history/view-history?page=${pager.currentPage}&limit=30&brand=${newUser.brand}&search=${newUser.year}&category=${newUser.month}`, {
+        const taskResponse = await axios.get(`${SERVER_URL}/history/view-history?page=${pager.currentPage}&limit=30&brand=${newUser.brand}&search=${newUser.year}&category=${newUser.month}&social=${newUser?.soical_media}`, {
           headers: {
             'Content-Type': 'application/json',
             Authorization: token,
@@ -348,7 +348,7 @@ setOpenDialog(false)
   };
   React.useEffect(() => {
   
-    if(newUser.brand && newUser.month && newUser.year){
+    if(newUser.brand && newUser.month && newUser.year ){
       const timeoutId = setTimeout(() => {
         fetchDownload();
       }, 100); // Set the delay in milliseconds (e.g., 1000ms = 1 second)
@@ -356,7 +356,7 @@ setOpenDialog(false)
       return () => clearTimeout(timeoutId); // Cleanup the timeout on unmount
     }
      
-   }, [newUser.brand,newUser?.brand,newUser?.month,newUser.year]);
+   }, [newUser.brand,newUser?.brand,newUser?.month,newUser.year,newUser?.soical_media]);
 
 const handleCreateUserSubmit = async () => {
   setCreate(true);
@@ -721,6 +721,23 @@ console.log(download)
                         ))}
                           </Select>
                   </FormControl>
+
+                    <FormControl fullWidth margin="normal">
+                                            <InputLabel id="role-label">Select Media</InputLabel>
+                                            <Select
+                                              labelId="role-label"
+                                              id="role"
+                                              value={newUser.soical_media}
+                                              onChange={(e) => setNewUser({ ...newUser, soical_media: e.target.value })}
+                                              label="Select Media"
+                                            >
+                                              <MenuItem value="facebook">Facebook</MenuItem>
+                                             <MenuItem value="tiktok-slide">Tiktok Slide</MenuItem>
+                                               <MenuItem value="tiktok-trend">Tiktok Trend</MenuItem>
+                                              <MenuItem value="tiktok-script">Tiktok Script</MenuItem>
+                                              <MenuItem value="instagram">Instagram</MenuItem>
+                                            </Select>
+                                          </FormControl>
             
                 <FormControl fullWidth margin="normal">
                <InputLabel id="year-label">Select Year</InputLabel>
@@ -764,7 +781,7 @@ console.log(download)
                </Select>
              </FormControl>
          
-   {newUser.year && newUser.month && !loadingDownload && (
+   {newUser.year && newUser.month && newUser?.soical_media && !loadingDownload && (
     <div className="my-5">
       { download?.length===0 || download==="undefined" ?(
           <div>There is no post</div>

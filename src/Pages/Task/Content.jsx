@@ -252,7 +252,7 @@ const Content= () => {
 
     try {
   
-      const taskResponse = await axios.get(`${SERVER_URL}/task/view-one-task?page=1&limit=150&brand=${newUser.brand}&category=false&search=${newUser.year}&startDate=${newUser.month}`, {
+      const taskResponse = await axios.get(`${SERVER_URL}/task/view-one-task?page=1&limit=150&brand=${newUser.brand}&category=false&search=${newUser.year}&startDate=${newUser.month}&social=${newUser.soical_media}`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: token,
@@ -300,7 +300,7 @@ const filteredMonth = filtered?.[0]?.months.filter(item => item.year === newUser
   
   
  
-  }, [newUser.brand,newUser.month,newUser.year]);
+  }, [newUser.brand,newUser.month,newUser.year,newUser?.soical_media]);
 
   
     React.useEffect(() => {
@@ -911,6 +911,23 @@ console.log(Content)
      )}
    </Select>
  </FormControl>
+
+   <FormControl fullWidth margin="normal">
+               <InputLabel id="role-label">Select Media</InputLabel>
+               <Select
+                 labelId="role-label"
+                 id="role"
+                 value={newUser.soical_media}
+                 onChange={(e) => setNewUser({ ...newUser, soical_media: e.target.value })}
+                 label="Select Media"
+               >
+                 <MenuItem value="facebook">Facebook</MenuItem>
+                
+                  <MenuItem value="tiktok-trend">Tiktok Trend</MenuItem>
+                 <MenuItem value="tiktok-script">Tiktok Script</MenuItem>
+                 <MenuItem value="instagram">Instagram</MenuItem>
+               </Select>
+             </FormControl>
  
     <FormControl fullWidth margin="normal">
    <InputLabel id="month-label">Select Month</InputLabel>
@@ -933,7 +950,7 @@ console.log(Content)
    </Select>
  </FormControl>
 
-{newUser.year && newUser.month && !loading && type === "content" && (
+{newUser.year && newUser.month && newUser?.soical_media && !loading && type === "content" && (
   <div className="my-5">
     {Content==undefined ||Content?.length === 0 ? (
       <div>There is no post</div>

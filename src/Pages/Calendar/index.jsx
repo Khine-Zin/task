@@ -135,7 +135,7 @@ const filteredMonthDownload = filteredDownload?.[0]?.months.filter(item => item.
 
     try {
       // Fetch task data first based on pager.currentPage
-      const taskResponse = await axios.get(`${SERVER_URL}/content-calendar/view-one-content-calendar?page=${pager.currentPage}&limit=30&brand=${newUser.brand}&search=${newUser.year}&category=${newUser.month}`, {
+      const taskResponse = await axios.get(`${SERVER_URL}/content-calendar/view-one-content-calendar?page=${pager.currentPage}&limit=30&brand=${newUser.brand}&search=${newUser.year}&category=${newUser.month}&social=${newUser?.soical_media}`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: token,
@@ -188,15 +188,15 @@ const filteredMonthDownload = filteredDownload?.[0]?.months.filter(item => item.
   
   
     fetchData();
-  }, [pager.currentPage,monthsearch,searchQuery,yearsearch]); // Dependency on pager.currentPage
-
+  }, [pager.currentPage,monthsearch,searchQuery,yearsearch,]); // Dependency on pager.currentPage
+console.log(newUser)
   React.useEffect(() => {
   
    if(newUser.brand && newUser.year && newUser.month){
     fetchDownload()
    }
     
-  }, [newUser.brand,newUser.year,newUser.month]);
+  }, [newUser.brand,newUser.year,newUser.month,newUser?.soical_media]);
   
     React.useEffect(() => {
       const timeoutId = setTimeout(() => {
@@ -266,11 +266,88 @@ const matchedTasks =
 // console.log(matchedTasks)
 
   const handleClick = (user,item,type) => {
- 
+
     setSelectedUser(user)
     setItem(item) 
     setOpenDialog(true);
   };
+
+    const handleConfirm = async () => {
+      setCreate(true);
+      const token = localStorage.getItem("token");
+    
+      try {
+        // Check the type and send the respective request
+        const response = await axios.post(
+            `${SERVER_URL}/task/create-task`, // Replace with the correct URL for content
+            {
+             task:item?._id,
+             content_writer:"Aye Aye",
+             note:"hello"
+            },
+            {
+              headers: {
+                Authorization: token,
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+                  "type":"content"
+              },
+            }
+          );
+        setCreate(false);
+    
+        if (response?.data?.statusCode === 201) {
+          fetchData();
+          toast.success('Successfully Created!', {
+            position: 'top-right',
+            duration: 5000,
+          });
+          fetchData()
+          setOpenDialog(false)
+     
+        } else if (response?.data?.statusCode === 203) {
+          toast.error(response.data?.message || 'Error occurred', {
+            position: 'top-right',
+            duration: 5000,
+          });
+        }
+      } catch (err) {
+        setCreate(false);
+        let errorMessage = 'An error occurred. Please try again later.';
+    
+        if (err.response) {
+          switch (err.response.status) {
+            case 401:
+            case 400:
+              errorMessage = err.response.data?.message || 'Unauthorized';
+              localStorage.clear();
+              setUser(null);
+              navigate("/"); // Redirect to login
+              break;
+            case 500:
+              errorMessage = err.response.data?.message || 'Server error. Please try again later.';
+              break;
+            case 503:
+              errorMessage = 'Service is temporarily unavailable. Please try again later.';
+              break;
+            case 502:
+              errorMessage = 'Bad Gateway: The server is down. Please try again later.';
+              break;
+            default:
+              errorMessage = err.response.data?.message || 'An error occurred.';
+          }
+        } else if (err.request) {
+          errorMessage = 'Network error. Please check your internet connection.';
+        } else {
+          errorMessage = `Error: ${err.message}`;
+        }
+    
+        toast.error(errorMessage, {
+          position: 'top-right',
+          duration: 5000,
+        });
+      }
+    };
 
 
 // console.log(searchQuery)
@@ -297,13 +374,18 @@ const matchedTasks =
           }
       );
   if(response){
-   setCreate(false)
+
+  if(selectedUser==="confirm" && item.soical_media==="tiktok-slide"){
+    handleConfirm()
+  }else{
+     setCreate(false)
    toast.success('Successfully!', {
     position: 'top-right',
     duration: 5000,
 });
 fetchData()
 setOpenDialog(false)
+  }
   }
   } catch (err) {
       let errorMessage = 'An error occurred. Please try again later.';
@@ -727,6 +809,22 @@ setDownload([])
                       ))}
                         </Select>
                 </FormControl>
+                  <FormControl fullWidth margin="normal">
+                          <InputLabel id="role-label">Select Media</InputLabel>
+                          <Select
+                            labelId="role-label"
+                            id="role"
+                            value={newUser.soical_media}
+                            onChange={(e) => setNewUser({ ...newUser, soical_media: e.target.value })}
+                            label="Select Media"
+                          >
+                            <MenuItem value="facebook">Facebook</MenuItem>
+                           <MenuItem value="tiktok-slide">Tiktok Slide</MenuItem>
+                             <MenuItem value="tiktok-trend">Tiktok Trend</MenuItem>
+                            <MenuItem value="tiktok-script">Tiktok Script</MenuItem>
+                            <MenuItem value="instagram">Instagram</MenuItem>
+                          </Select>
+                        </FormControl>
           
               <FormControl fullWidth margin="normal">
              <InputLabel id="year-label">Select Year</InputLabel>
@@ -748,6 +846,8 @@ setDownload([])
                )}
              </Select>
            </FormControl>
+
+          
            
               <FormControl fullWidth margin="normal">
              <InputLabel id="month-label">Select Month</InputLabel>
@@ -770,7 +870,7 @@ setDownload([])
              </Select>
            </FormControl>
        
- {newUser.year && newUser.month && !loading  && (
+ {newUser.year && newUser.month && newUser?.soical_media && !loading  && (
   <div className="my-5">
     {download?.[0]?.tasks?.filter((post) => post.headline)?.length === 0 ? (
       <div>There is no post</div>

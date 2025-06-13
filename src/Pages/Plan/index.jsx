@@ -74,6 +74,7 @@ const [yearsearch,setYearSearch]=React.useState("")
   const [pager, setPager] = React.useState({ currentPage: 1, pageSize: 10 });
   const debounceTimer = React.useRef(null);
   const [bannerImage, setBannerImage] = React.useState("");
+  const [social,setSocail]=React.useState('')
 
 const filtered = brand.filter(item => item.name === searchQuery);
 
@@ -149,13 +150,27 @@ const filteredMonth = filtered?.[0]?.months.filter(item => item.year === yearsea
     });
   };
 
+const fileContent = new Blob(["dummy content"], { type: "image/jpeg" });
+
+const file = new File(
+  [fileContent],
+  "IMG-4b17871b0dd059bc2eb8d34a9f4314d3-V.jpg",
+  {
+    type: "image/jpeg",
+    lastModified: 1746972689590
+  }
+);
+
+
+
 
 
   const handleCreateAccountClick = (row) => {
-  setId(row)
+  setId(row._id);
+  setSocail(row?.task?.soical_media)
     setOpenCreateDialog(true);
   };
-
+console.log(social)
   const handleCreateUserSubmit = async() => {
    setCreate(true)
     const token = localStorage.getItem("token");
@@ -164,7 +179,11 @@ const filteredMonth = filtered?.[0]?.months.filter(item => item.year === yearsea
     try {
       const formData = new FormData();
       formData.append("date", newUser.startDate);
-      formData.append("design",bannerImage);
+     if(social==="tiktok-script"){
+       formData.append("design",file);
+     }else{
+       formData.append("design",bannerImage);
+     }
       
       const response = await axios.post(
         `${SERVER_URL}/plan/create-plan/${id}`,
@@ -387,7 +406,7 @@ console.log(data)
                     </TableCell>
               <StyledTableCell align="left">
                 <IconButton
-                  onClick={() => handleCreateAccountClick(taskItem?._id)}
+                  onClick={() => handleCreateAccountClick(taskItem)}
                   aria-label="update"
                 >
                   <MdCloudUpload />
@@ -445,7 +464,11 @@ console.log(data)
    
     </Box>
   
-    <FileUpload setBannerImage={setBannerImage} image={bannerImage} />
+   {
+    social !=="tiktok-script" && (
+       <FileUpload setBannerImage={setBannerImage} image={bannerImage} />
+    )
+   }
   </DialogContent>
   <DialogActions sx={{ mb: 2, mr: 2 }}>
     <Button onClick={() => {
