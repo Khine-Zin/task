@@ -97,7 +97,13 @@ console.log("state",state)
     {
       state?.task?.soical_media==="facebook" && (
         <>  <div className=" font-bold text-secondaryColor mt-8">Design Brief</div>
-      <p className="text-sm text-bodyColor mt-5 mb-8">{state?.task?.headlinedesign_brief || state.design_brief}</p></>
+      <p className="text-sm text-bodyColor mt-5 mb-8">{state?.task?.headline?.design_brief || state.design_brief}</p></>
+      )
+    }
+     {
+      state?.task?.soical_media==="tiktok-slide" && (
+        <>  <div className=" font-bold text-secondaryColor mt-8">Design Brief</div>
+      <p className="text-sm text-bodyColor mt-5 mb-8">{state?.note}</p></>
       )
     }
 

@@ -16,7 +16,7 @@ import Button from '@mui/material/Button';
 
 import toast, { Toaster } from 'react-hot-toast';  // Import toast and Toaster
 
-import { Box, Checkbox, FormControl, FormControlLabel, FormGroup, InputLabel, MenuItem, Radio, RadioGroup, Select, useMediaQuery } from '@mui/material';
+import { Box, Checkbox, FormControl, FormControlLabel, FormGroup, InputLabel, MenuItem, Radio, RadioGroup, Select, TextField, useMediaQuery } from '@mui/material';
 import axios from 'axios';
 import { SERVER_URL } from '../../api/url';
 import userStore from '../../store/userStore';
@@ -71,6 +71,7 @@ const Task= () => {
   const role = localStorage.getItem("userRole");
   const [type, setType] = React.useState("headline");
   const [monthsearch,setMonthSearch]=React.useState("")
+  const [designBrief,setDesignBrief]=useState("")
 
 
 const [yearsearch,setYearSearch]=useState("")
@@ -283,7 +284,7 @@ const matchedTasks =
             {
              task:item?._id,
              content_writer:"Aye Aye",
-             note:"hello"
+             note:designBrief
             },
             {
               headers: {
@@ -762,21 +763,79 @@ setDownload([])
         </div>
       </div>
 
-      {/* Delete Confirmation Dialog */}
-      <Dialog open={openDialog} onClose={cancelDelete}>
-        <DialogTitle>Confirm </DialogTitle>
-        <DialogContent>
-          Are you sure you want to {selectedUser} this task?
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={cancelDelete} sx={{color:"#666464"}}>
-            Cancel
-          </Button>
-          <Button onClick={confirm} sx={{ color: 'red' }}>
-          {Create ? "loading...":selectedUser}
-          </Button>
-        </DialogActions>
-      </Dialog>
+ {
+  item.soical_media==="tiktok-slide" && (
+       <Dialog open={openDialog} onClose={cancelDelete}  fullWidth maxWidth="sm">
+  <DialogTitle>Confirm</DialogTitle>
+
+  {
+    item.soical_media === "tiktok-slide" ? (
+       <DialogContent style={{ width: '100%' }}>
+       <TextField
+                    label="Note"
+                    multiline
+                    rows={4} // Set the number of visible rows in the textarea
+                    value={newUser.note}
+                    onChange={(e) => setDesignBrief( e.target.value )}
+                    fullWidth
+                    margin="normal"
+                  />
+                  </DialogContent>
+    ) : ( // ✅ Correct syntax here
+      <DialogContent>
+        Are you sure you want to {selectedUser} this task?
+      </DialogContent>
+    )
+  }
+
+  <DialogActions>
+    <Button onClick={cancelDelete} sx={{ color: "#666464" }}>
+      Cancel
+    </Button>
+    <Button onClick={confirm} sx={{ color: 'red' }}>
+      {Create ? "loading..." : selectedUser}
+    </Button>
+  </DialogActions>
+</Dialog>
+  )
+ }
+ {
+  item.soical_media!=="tiktok-slide" && (
+       <Dialog open={openDialog} onClose={cancelDelete} >
+  <DialogTitle>Confirm</DialogTitle>
+
+  {
+    item.soical_media === "tiktok-slide" ? (
+       <DialogContent style={{ width: '100%' }}>
+       <TextField
+                    label="Design Brief"
+                    multiline
+                    rows={4} // Set the number of visible rows in the textarea
+                    value={newUser.note}
+                    onChange={(e) => setDesignBrief( e.target.value )}
+                    fullWidth
+                    margin="normal"
+                  />
+                  </DialogContent>
+    ) : ( // ✅ Correct syntax here
+      <DialogContent>
+        Are you sure you want to {selectedUser} this task?
+      </DialogContent>
+    )
+  }
+
+  <DialogActions>
+    <Button onClick={cancelDelete} sx={{ color: "#666464" }}>
+      Cancel
+    </Button>
+    <Button onClick={confirm} sx={{ color: 'red' }}>
+      {Create ? "loading..." : selectedUser}
+    </Button>
+  </DialogActions>
+</Dialog>
+  )
+ }
+
 
       {/* Create User Form Dialog */}
       <Dialog open={openCreateDialog} onClose={() =>{
