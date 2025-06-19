@@ -399,6 +399,8 @@ console.log(data)
     ? `tiktok-slide-${task?.postNumber}`
     : task?.soical_media === "tiktok-script"
     ? `tiktok-script-${task?.postNumber}`
+     : task?.soical_media === "free"
+    ? `free post-${task?.postNumber}`
     : `post-${task?.postNumber}`}</StyledTableCell>
               <StyledTableCell align="left">{task?.brand?.name}</StyledTableCell>
             <TableCell align="left">
@@ -447,7 +449,7 @@ console.log(data)
 
       {/* Create User Form Dialog */}
       <Dialog open={openCreateDialog} onClose={() => setOpenCreateDialog(false)} fullWidth maxWidth="sm">
-  <DialogTitle>Upload Graphic</DialogTitle>
+  <DialogTitle>{social==="tiktok-script" ? "Calendar Date" :"Upload Graphic"}</DialogTitle>
   <DialogContent style={{ width: "500" }}>
   
   <Box display="flex" gap={2} mt={2}>

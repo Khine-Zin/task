@@ -47,14 +47,13 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 
 
 
-const History = () => {
+const Complete= () => {
 
 
   const [searchQuery, setSearchQuery] = React.useState("");
- const [id,setId]=React.useState("")
+ const [item,setItem]=React.useState("")
  const setUser = userStore((state) => state.setUser);
-  const [openCreateDialog, setOpenCreateDialog] = React.useState(false);
-  const [newUser, setNewUser] = React.useState({ name: '', email: '', role: '', password: '' });
+
 const [yearsearch,setYearSearch]=React.useState("")
 const [post,setPost]=React.useState("")
   const [loading,setLoading]=React.useState(false)
@@ -66,9 +65,7 @@ const [monthsearch,setMonthSearch]=React.useState("")
   const [pager, setPager] = React.useState({ currentPage: 1, pageSize: 9 });
  const [openDialog,setOpenDialog]=React.useState(false)
     const [brand,setBrand]=React.useState([])
-  const [updateBrand,setUpdateBrand]=React.useState("")
-  const [updateYear,setUpdateYear]=React.useState("")
-  const [updateMonth,setUpdateMonth]=React.useState("")
+
   const [updatePost,setUpdatePost]=React.useState([])
   const [social,setSocial]=useState("")
   const formatDate = (dateString) => {
@@ -79,18 +76,15 @@ const [monthsearch,setMonthSearch]=React.useState("")
    const filtered = brand.filter(item => item.name === searchQuery);
 
 const filteredMonth = filtered?.[0]?.months.filter(item => item.year === yearsearch);
-const [firstPost,setFirstPost]=React.useState("")
-const [secondPost,setSecondPost]=React.useState("")
+ const [checked, setChecked] = useState("false");
 
-const filteredPost= updatePost?.[0]?.tasks
-      ?.filter(post => post?.task?._id !== firstPost) // Exclude firstpost
-      ?.sort((a, b) => a.postNumber - b.postNumber)
+
 
   const fetchData= async () => {
     setLoading(true);
     const token = localStorage.getItem("token");
     try {
-      const response = await axios.get(`${SERVER_URL}/history/view-history?page=${pager.currentPage}&limit=${pager.pageSize}&brand=${searchQuery==="All" ? "" :searchQuery}&search=${yearsearch==="All"? "":yearsearch}&category=${monthsearch ==="All" ? "":monthsearch}`, {
+      const response = await axios.get(`${SERVER_URL}/complete/view-complete?page=${pager.currentPage}&limit=${pager.pageSize}&brand=${searchQuery==="All" ? "" :searchQuery}&search=${yearsearch==="All"? "":yearsearch}&category=${monthsearch ==="All" ? "":monthsearch}&status=${checked}`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: token,
@@ -140,58 +134,8 @@ setPostData(allTasks)
       setLoading(false);
     }
   };
-  console.log(social)
-    const fetchDataUpdate= async () => {
-    setLoading(true);
-    const token = localStorage.getItem("token");
-    try {
-      const response = await axios.get(`${SERVER_URL}/history/view-history?page=${pager.currentPage}&limit=30&brand=${updateBrand}&search=${updateYear}&category=${updateMonth}&social=${social}`, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: token,
-        },
-      });
-    setUpdatePost(response?.data?.data?.currentDatas?.[0]?.content)
-    
-    } catch (err) {
-      let errorMessage = 'An error occurred. Please try again later.';
-
-      if (err.response) {
-        switch (err.response.status) {
-          case 401:
-          case 400:
-            errorMessage = err.response.data?.message || 'Your Token is blacklist.';
-            localStorage.clear();
-            setUser(null);
-            navigate("/");
-            break;
-          case 500:
-            errorMessage = err.response.data?.message || 'Server error. Please try again later.';
-            break;
-          case 503:
-            errorMessage = 'Service is temporarily unavailable. Please try again later.';
-            break;
-          case 502:
-            errorMessage = 'Bad Gateway: The server is down. Please try again later.';
-            break;
-          default:
-            errorMessage = err.response.data?.message || 'An error occurred.';
-        }
-      } else if (err.request) {
-        errorMessage = 'Network error. Please check your internet connection.';
-      } else {
-        errorMessage = `Error: ${err.message}`;
-      }
-
-      toast.error(errorMessage, {
-        position: 'top-right',
-        duration: 5000,
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
+ 
+  
   const fetchBrand = async () => {
     setLoading(true);
     const token = localStorage.getItem("token");
@@ -225,28 +169,15 @@ setPostData(allTasks)
 
  const handleChange = (row) => {
   setOpenDialog(true);
-  setUpdateBrand(row?.brand?.name);
-  setUpdateYear(row?.year);
-  setUpdateMonth(row?.month);
-  setFirstPost(row?._id);
-  setSocial(row?.social_media)
-
  
-};
-
-React.useEffect(() => {
-  if (updateBrand && updateMonth && updateYear && social) {
-    fetchDataUpdate();
-  }
-}, [updateBrand, updateMonth, updateYear, social]);
+  setItem(row);
+ };
 
 
-
-console.log(updateBrand,updateMonth,updateYear,social)
 
   React.useEffect(() => {
  fetchData()
-  }, [pager.currentPage,searchQuery,monthsearch,yearsearch]);
+  }, [pager.currentPage,searchQuery,monthsearch,yearsearch,checked]);
 
   const handlePageChange = (direction) => {
     setPager(prev => {
@@ -258,71 +189,77 @@ console.log(updateBrand,updateMonth,updateYear,social)
     });
   };
 
-  const handleCreateUserSubmit = async () => {
-    setCreate(true);
+ const confirm =async () => {
+ 
+    setCreate(true)
     const token = localStorage.getItem("token");
-  
-  
-  
+// if(selectedUser==="confirm"){
+// console.log(item)
+// return false
+// }
+
     try {
       const response = await axios.put(
-        `${SERVER_URL}/history/update-history`,{
-          from:firstPost,
-          to:secondPost
-        },
-        {
-          headers: {
-            Authorization: token,
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-          },
-         
-        }
-        
+          `${SERVER_URL}/complete/update-complete/${item._id}`,{
+            "action":item.isComplete==="false" ? "true":"false",
+            
+          }, {
+              headers: {
+                "Authorization":token,
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json',
+              },
+             
+          }
       );
-  
-      console.log(response)
-setFirstPost("")
-setSecondPost("")
-setOpenDialog(false)
+  if(response){
+
+    setCreate(false)
+   toast.success('Successfully!', {
+    position: 'top-right',
+    duration: 5000,
+});
 fetchData()
-  
-    } catch (err) {
-      setCreate(false);
+setOpenDialog(false)
+  }
+  } catch (err) {
       let errorMessage = 'An error occurred. Please try again later.';
-  
+      setCreate(false)
+     
       if (err.response) {
-        switch (err.response.status) {
-          case 401:
-          case 400:
-            errorMessage = err.response.data?.message || 'Unauthorized';
-            localStorage.clear();
-            setUser(null);
-            navigate("/"); // Redirect to login
-            break;
-          case 500:
-            errorMessage = err.response.data?.message || 'Server error. Please try again later.';
-            break;
-          case 503:
-            errorMessage = 'Service is temporarily unavailable. Please try again later.';
-            break;
-          case 502:
-            errorMessage = 'Bad Gateway: The server is down. Please try again later.';
-            break;
-          default:
-            errorMessage = err.response.data?.message || 'An error occurred.';
-        }
+          switch (err.response.status) {
+              case 401:
+              case 400:
+                  errorMessage = err.response.data?.message || 'Unauthorized';
+                  localStorage.clear();
+                  setUser(null);
+                  navigate("/"); // Redirect to login
+                  break;
+              case 500:
+                  errorMessage = err.response.data?.message || 'Server error. Please try again later.';
+                  break;
+              case 503:
+                  errorMessage = 'Service is temporarily unavailable. Please try again later.';
+                  break;
+              case 502:
+                  errorMessage = 'Bad Gateway: The server is down. Please try again later.';
+                  break;
+              default:
+                  errorMessage = err.response.data?.message || 'An error occurred.';
+          }
       } else if (err.request) {
-        errorMessage = 'Network error. Please check your internet connection.';
+          errorMessage = 'Network error. Please check your internet connection.';
       } else {
-        errorMessage = `Error: ${err.message}`;
+          errorMessage = `Error: ${err.message}`;
       }
-  
+
+   
+      // Error toast
       toast.error(errorMessage, {
-        position: 'top-right',
-        duration: 5000,
+          position: 'top-right',
+          duration: 5000,
       });
-    }
+  }
   };
 
 const filteredTasks = data?.currentDatas?.flatMap((dataItem) =>
@@ -333,13 +270,26 @@ const filteredTasks = data?.currentDatas?.flatMap((dataItem) =>
   )
 ) || [];
 
-console.log(updatePost.length)
+  const handleStatusToggle = () => {
+    setChecked(prev => prev === "true" ? "false" : "true");
+  };
 
   return (
     <div className="mt-24 lg:mx-4 mx-2">
       <div className='hidden lg:block'>
       <div className='flex justify-between gap-3 items-center mb-5 mt-[100px]'>
-      <h2 className="text-xl text-gray-700">Total: {loading ? "0":data.total        }</h2>
+     <div className='flex'>
+       <h2 className="text-xl text-gray-700">Total: {loading ? "0":data.total        }</h2>
+       <div className="flex items-center ml-4 mt-2">
+            <input
+              type="checkbox"
+              checked={checked === "true"}
+              onChange={handleStatusToggle}
+              className="mr-2"
+            />
+            <label className="text-gray-700 text-sm">Confirm</label>
+          </div>
+     </div>
       <div className="relative flex gap-5">
           <FormControl sx={{ width: 200 }} margin="normal">
   <InputLabel id="role-label">Select Brand</InputLabel>
@@ -457,7 +407,7 @@ console.log(updatePost.length)
       </div>
       </div>
       <div className='flex justify-between gap-3 items-center mb-5 mt-[100px] lg:hidden'>
-      <h2 className="text-xl text-gray-700">History</h2>
+      <h2 className="text-xl text-gray-700">Complete</h2>
        
       </div>
       <TableContainer component={Paper}>
@@ -469,7 +419,7 @@ console.log(updatePost.length)
             <StyledTableCell align="left">Month</StyledTableCell>
             <StyledTableCell align="left">Post Deadline</StyledTableCell>
              
-              <StyledTableCell align="left">Action</StyledTableCell>
+              <StyledTableCell align="center">Action</StyledTableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -502,21 +452,37 @@ console.log(updatePost.length)
                              {task?.year} - {["1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th", "10th", "11th", "12th"][task?.month - 1]} Month 
                             </TableCell>
                             <StyledTableCell align="left">{formatDate(taskItem?.design_date)}</StyledTableCell>
-          <StyledTableCell align="left">
-            <Tooltip title={task?.headline || "No headline"}>
-              <IconButton
-                onClick={() => navigate("/history/detail", { state: taskItem })}
-                aria-label="detail"
-              >
-                <Info />
-              </IconButton>
-            </Tooltip>
-             <IconButton
-                onClick={() => handleChange(taskItem?.task)}
-                aria-label="detail"
-              >
-                  <VpnKeyIcon />
-              </IconButton>
+          <StyledTableCell  align="center"
+            sx={{ display: 'flex', justifyContent: 'center', gap: 1 }}>
+              <Button
+                          onClick={() => handleChange(task)}
+                          sx={{
+                            textTransform: 'none',
+                            backgroundColor:task?.isComplete==="true" ?'green' :"gray",
+                            color: 'white',
+                            padding: '2px 4px',
+                            fontSize: '0.75rem',
+                          }}
+                        >
+                         {
+                          task?.isComplete ==="true" ? "Complete" :"Pending"
+                         }
+                        </Button>
+              <Tooltip title={task?.headline ? task?.headline:"No headline" } >
+                     <Button
+                          onClick={() => navigate("/complete/detail", { state: taskItem })}
+                          sx={{
+                            textTransform: 'none',
+                            backgroundColor: 'orange',
+                            color: 'white',
+                            padding: '2px 4px',
+                            fontSize: '0.75rem',
+                          }}
+                        >
+                          Details
+                        </Button>
+                     </Tooltip>
+            
           </StyledTableCell>
         </StyledTableRow>
       );
@@ -540,66 +506,21 @@ console.log(updatePost.length)
         </div>
       </div>
   
-  <Dialog open={openDialog} onClose={() => 
- { 
-  setSocial("")
-  setFirstPost("")
-  setSecondPost("")
-    setOpenDialog(false)}
-    } fullWidth maxWidth="sm">
-                 <DialogTitle>Switch PostNumber</DialogTitle>
+  <Dialog open={openDialog} onClose={() => { setOpenDialog(false)}
+    } >
+                 <DialogTitle>Confirm</DialogTitle>
                  <DialogContent style={{ width: '100%' }}>
-             
-        
-         
- <div className="my-5">
-  {filteredPost?.length ===0 || updatePost === "undefined" ? (
-    <div>There is no post</div>
-  ) : (
-    filteredPost?.map((post) => (
-        <div key={post._id || ""}>
-          <FormGroup>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={secondPost === post?.task?._id}
-                  onChange={() => setSecondPost(post?.task?._id)}
-                />
-              }
-               label={social === "tiktok-trend"
-    ? `tiktok-trend-${post?.task?.postNumber}`
-    : social === "tiktok-slide"
-    ? `tiktok-slide-${post?.task?.postNumber}`
-    : social === "tiktok-script"
-    ? `tiktok-script-${post?.task?.postNumber}`
-     : social === "free"
-    ? `free post-${post?.task?.postNumber}`
-    : `post-${post?.task?.postNumber}`}
-            />
-          </FormGroup>
-        </div>
-      ))
-  )}
-</div>
-
-  
+              Are you sure you want to complete this task?
                  </DialogContent>
-                 <DialogActions sx={{ mb: 2, mr: 2 }}>
-                   <Button onClick={() => {
-                 setSocial("")
-                  setFirstPost("")
-                  setSecondPost("")
-                    setOpenDialog(false)
-                     }} sx={{ color: "#666464" }}>
-                     Cancel
-                   </Button>
-                   <Button
-                     onClick={handleCreateUserSubmit}
-                     sx={{ backgroundColor: "#262323", color: "#ffffff" }}
-                   >
-                   {Create ? "loading...":"Update"}
-                   </Button>
-                 </DialogActions>
+                
+                  <DialogActions>
+                    <Button onClick={()=>setOpenDialog(false)} sx={{ color: "#666464" }}>
+                      Cancel
+                    </Button>
+                    <Button onClick={()=>confirm()} sx={{ color: 'red' }}>
+                      {Create ? "loading..." :"Complete"}
+                    </Button>
+                  </DialogActions>
                </Dialog>
 
      
@@ -607,4 +528,4 @@ console.log(updatePost.length)
   );
 };
 
-export default History;
+export default Complete;

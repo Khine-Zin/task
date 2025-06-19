@@ -65,7 +65,9 @@ console.log(state)
                   ) : state?.task?.soical_media === "instagram" ? (
                       <FaInstagram />
                    
-                  ) : (
+                  ) :state?.task?.soical_media === "free" ? (
+                     <FaFacebook />
+                  ): (
                    <FaTiktok />
                   )}
                   <span>{state?.task?.soical_media}</span>
@@ -100,11 +102,14 @@ console.log(state)
       <div className=" font-bold text-secondaryColor mt-8">Headline</div>
             <p className="text-sm text-bodyColor mt-5 mb-8">{state?.task?.headline || state.headline}</p>
 
+              <div className=" font-bold text-secondaryColor mt-8">Description</div>
+               <p className="text-sm text-bodyColor mt-5 mb-8">{state?.task?.description||state.description }</p>
+      
          
            {
             state?.content && (
              <>
-              <div className=" font-bold text-secondaryColor mt-8">{state?.task?.soical_media ==="facebook" ? "Content" :"Script"}</div>
+              <div className=" font-bold text-secondaryColor mt-8">{state?.task?.soical_media ==="facebook" ? "Content" :state?.task?.soical_media ==="free" ? "Content" :"Script"}</div>
               <p className="text-sm text-bodyColor mt-5 mb-8" dangerouslySetInnerHTML={{ __html:state?.content || "<p>No content available</p>" }}/></>
             )
            }

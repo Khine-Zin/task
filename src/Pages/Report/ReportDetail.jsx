@@ -67,7 +67,9 @@ console.log(state)
                     <FaFacebook />
                   ) : state?.task?.soical_media === "tiktok" ? (
                     <FaTiktok />
-                  ) : (
+                  ) : state?.task?.soical_media === "free" ? (
+                    <FaFacebook />
+                  ) :(
                     <FaInstagram />
                   )}
                   <span>{state?.task?.soical_media}</span>

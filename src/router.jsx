@@ -26,6 +26,12 @@ import Content from "./Pages/Task/content.jsx";
 // import ContentCalendar from "./Pages/Calendar/ContentCalendar.jsx";
 import CalendarPlan from "./Pages/Calendar/CalendarPlan.jsx";
 import ContentPlanDetail from "./Pages/Calendar/ContentPlanDetail.jsx";
+import RetrievedContentHeadline from "./Pages/RetrivedContent/index.jsx";
+import RetrievedHeadlineDetail from "./Pages/RetrivedContent/HeadlineDetail.jsx";
+import RetrievedContent from "./Pages/RetrivedContent/CalendarPlan.jsx";
+import RetrievedContentDetail from "./Pages/RetrivedContent/ContentPlanDetail.jsx";
+import CompleteDetail from "./Pages/Complete/CompleteDetail.jsx";
+import Complete from "./Pages/Complete/index.jsx";
 
 const router = createBrowserRouter([
   {
@@ -197,11 +203,59 @@ const router = createBrowserRouter([
           </ProtectedRoute>
         ),
       },
+       {
+        path: "/retrived",
+        element: (
+          <ProtectedRoute >
+            <RetrievedContentHeadline />
+          </ProtectedRoute>
+        ),
+      },
+        {
+        path: "/retrived/detail",
+        element: (
+          <ProtectedRoute >
+            <RetrievedHeadlineDetail/>
+          </ProtectedRoute>
+        ),
+      },
+        {
+        path: "/retrivedContent",
+        element: (
+          <ProtectedRoute >
+            <RetrievedContent/>
+          </ProtectedRoute>
+        ),
+      },
+        {
+        path: "/retrivedContent/detail",
+        element: (
+          <ProtectedRoute >
+            <RetrievedContentDetail/>
+          </ProtectedRoute>
+        ),
+      },
       {
         path: "/history/detail",
         element: (
           <ProtectedRoute allowedRoles="admin">
             <HistoryDetail />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "/complete/detail",
+        element: (
+          <ProtectedRoute allowedRoles="admin">
+            <CompleteDetail />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "/complete",
+        element: (
+          <ProtectedRoute allowedRoles="admin">
+            <Complete />
           </ProtectedRoute>
         ),
       },

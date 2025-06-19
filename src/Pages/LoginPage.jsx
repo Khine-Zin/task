@@ -36,11 +36,7 @@ const LoginPage = () => {
          if(response.data?.statusCode===202){
             const decoded = jwtDecode(response.data.data?.token);
              
-            
-            console.log(decoded.role)
- 
-           if(decoded?.role!=="content-writer"){
-            setUser(decoded);
+          setUser(decoded);
              localStorage.setItem('userName', decoded.name);
            localStorage.setItem('userEmail', decoded.email);
            localStorage.setItem('token', response.data.data?.token);
@@ -49,12 +45,7 @@ const LoginPage = () => {
                 position: 'top-right',
                 duration: 5000,
             });
-           }else{
-             toast.error(`Permission Denied`, {
-              position: 'top-right',
-              duration: 5000,
-          });
-           }
+            
          }else if(response.data?.statusCode===203){
             toast.error(`${response.data?. message
             }`, {

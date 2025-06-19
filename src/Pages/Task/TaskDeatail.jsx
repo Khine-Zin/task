@@ -50,7 +50,7 @@ const fetchCategory = async () => {
 
     try {
       const response = await axios.get(
-        `${SERVER_URL}/category/view-category?page=1&limit=20`,
+        `${SERVER_URL}/category/view-category`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -207,7 +207,9 @@ console.log("state>>>",state)
                     <FaFacebook />
                   ) : state.soical_media === "instagram" ? (
                    <FaInstagram />
-                  ) : (
+                  ) :state.soical_media === "free" ?(
+                      <FaFacebook />
+                  ): (
                       <FaTiktok />
                    
                   )}
@@ -248,10 +250,10 @@ value={taskData.category } // Set value dynamically from state
 onChange={(e) => setTaskData({ ...taskData, category:e.target.value})} // Update state on change
 label="Select Category"
 >
-{category.length === 0 ? (
+{category?.length === 0 ? (
   <MenuItem disabled>No option</MenuItem>
 ) : (
-  category.map((user) =>
+  category?.map((user) =>
     user?.role !== 'admin' && (
       <MenuItem key={user._id} value={user._id}>
         {user.name}

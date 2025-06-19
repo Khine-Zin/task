@@ -12,9 +12,10 @@ import SmallBreadcrumbs from "../../components/BreadCrumbs";
 
 import { useLocation, useNavigate } from "react-router-dom";
 import userStore from "../../store/userStore";
+import Gallery from "../../components/Gallery";
 
 // Component Start
-const PlanDetail = () => {
+const RetrievedContentDetail = () => {
   const setUser = userStore((state) => state.setUser);
   const location = useLocation();
   const navigate = useNavigate();
@@ -22,7 +23,7 @@ const PlanDetail = () => {
   const [content, setContent] = useState("");
 
 
-console.log("state",state)
+console.log(state)
 
   // Format Date Function
   const formatDate = (dateString) => {
@@ -38,7 +39,7 @@ console.log("state",state)
     <div className="mt-24 lg:mx-4 mx-2 hide-scrollbar flex-row justify-center items-center">
       {/* Breadcrumb */}
       <div className="flex justify-end m-8">
-        <SmallBreadcrumbs title="Plan" ActiveTitle="Details" link="/plan" />
+        <SmallBreadcrumbs title="Retrived" ActiveTitle="Details" link="/retrivedContent" />
       </div>
 
       {/* Title */}
@@ -48,7 +49,7 @@ console.log("state",state)
       <table className="mt-8 font-medium text-bodyColor">
         <tbody>
           {[
-            // { icon: <HiUsers />, label: "Assignee", value: state?.task?.user?.name },
+            { icon: <HiUsers />, label: "Assignee", value: state?.content_writer },
             {
               icon: <HiOutlineBriefcase />,
               label: "Brand Name",
@@ -59,14 +60,15 @@ console.log("state",state)
               label: "Social Media",
               value: (
                 <div className="flex items-center gap-2">
-                  {state.task?.soical_media === "facebook" ? (
+                  {state?.task?.soical_media === "facebook" ? (
                     <FaFacebook />
-                  ) : state?.task?.soical_media === "tiktok" ? (
-                    <FaTiktok />
-                  ) :state?.task?.soical_media === "free" ? (
-                    <FaFacebook />
-                  ): (
-                    <FaInstagram />
+                  ) : state?.task?.soical_media === "instagram" ? (
+                      <FaInstagram />
+                   
+                  ) : state?.task?.soical_media === "free" ?(
+          <FaFacebook />
+                  ) :(
+                   <FaTiktok />
                   )}
                   <span>{state?.task?.soical_media}</span>
                 </div>
@@ -75,8 +77,8 @@ console.log("state",state)
             { icon: <PiListNumbers />, label: "Post No", value: state?.task?.postNumber },
             {
               icon: <HiOutlineCalendar />,
-              label: "Deadline",
-              value: formatDate(state?.task?.deadline),
+              label: "Month",
+              value: formatDate(state?.task?.month),
             },
             { icon: <PiNotePencilDuotone />, label: "Note", value: state?.note },
             { icon: <HiChartBar />, label: "Category", value: state?.task?.category?.name },
@@ -96,18 +98,6 @@ console.log("state",state)
 
       {/* Headline */}
       <div className="mt-10 lg:w-[70%] w-[95%]">
-    {
-      state?.task?.soical_media==="facebook" && (
-        <>  <div className=" font-bold text-secondaryColor mt-8">Design Brief</div>
-      <p className="text-sm text-bodyColor mt-5 mb-8">{ state.design_brief}</p></>
-      )
-    }
-     {
-      state?.task?.soical_media==="tiktok-slide" && (
-        <>  <div className=" font-bold text-secondaryColor mt-8">Design Brief</div>
-      <p className="text-sm text-bodyColor mt-5 mb-8">{state?.design_brief}</p></>
-      )
-    }
 
       <div className=" font-bold text-secondaryColor mt-8">Headline</div>
             <p className="text-sm text-bodyColor mt-5 mb-8">{state?.task?.headline || state.headline}</p>
@@ -116,16 +106,24 @@ console.log("state",state)
            {
             state?.content && (
              <>
-              <div className=" font-bold text-secondaryColor mt-8">{state?.task?.soical_media==="facebook" ? "Content" :state?.task?.soical_media==="free" ? "Content" :"Script"}</div>
+              <div className=" font-bold text-secondaryColor mt-8">{state?.task?.soical_media ==="facebook" ? "Content" :state?.task?.soical_media ==="free" ? "Content" :"Script"}</div>
               <p className="text-sm text-bodyColor mt-5 mb-8" dangerouslySetInnerHTML={{ __html:state?.content || "<p>No content available</p>" }}/></>
             )
            }
     
       </div>
 
+    {
+      state?.task?.soical_media !=="tiktok-script" && (
+         <div className="mt-10">
+     <Gallery image={state?.task?.design}/>
+     </div>
+      )
+    }
+
       <div className="h-[100px]"></div>
     </div>
   );
 };
 
-export default PlanDetail;
+export default RetrievedContentDetail;

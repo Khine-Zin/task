@@ -31,13 +31,9 @@ console.log(isTabletOrSmaller,hidden)
           <SideBar isOpen={isOpen} toggleSidebar={toggleSidebar} setIsOpen={setIsOpen} />
         )
       }
-        {
-        role !=="content-writer" &&  isTabletOrSmaller && hidden && (
-          <SideBar isOpen={isOpen} toggleSidebar={toggleSidebar} setIsOpen={setIsOpen} toggleHidden={toggleHidden}/>
-        )
-      }
+       <SideBar isOpen={isOpen} toggleSidebar={toggleSidebar} setIsOpen={setIsOpen} toggleHidden={toggleHidden}/>
       </div>
-      <div className={`${isOpen ? 'w-[calc(100%-256px)] ml-[256px]' : `w-[calc(100%-96px)] ${role !== "content-writer" &&  !isTabletOrSmaller ? "ml-[80px]" : "ml-0"}`} w-full h-screen relative transition-all delay-200 duration-300`}>
+      <div className={`${isOpen ? 'w-[calc(100%-256px)] ml-[256px]' : `w-[calc(100%-96px)] ${ !isTabletOrSmaller ? "ml-[80px]" : "ml-0"}`} w-full h-screen relative transition-all delay-200 duration-300`}>
         <Header toggleHidden={toggleHidden}/>
         <Outlet />
       

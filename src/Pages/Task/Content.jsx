@@ -783,7 +783,9 @@ console.log(Content)
     : item?.task?.soical_media === "tiktok-slide"
     ? `tiktok-slide-${item?.task?.postNumber}`
     : item?.task?.soical_media === "tiktok-script"
-    ? `tiktok-script-${item?.task?.postNumber}`
+    ? `tiktok-slide-${item?.task?.postNumber}`
+    : item?.task?.soical_media === "free"
+    ? `free post-${item?.task?.postNumber}`
     : `post-${item?.task?.postNumber}`}</TableCell>
           <TableCell align="left">{item?.content_writer}</TableCell>
           <TableCell align="left">{row?._id?.brand}</TableCell>
@@ -793,7 +795,10 @@ console.log(Content)
           {item?.task?.year} - {["1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th", "10th", "11th", "12th"][item?.task?.month - 1]} Month 
          </TableCell>
           <TableCell align="left">
-            <IconButton
+           {
+            role!=="content-writer" && (
+              <>
+               <IconButton
               onClick={(e) => {
                 e.stopPropagation();
                 handleEdit(item, "content");
@@ -811,7 +816,9 @@ console.log(Content)
               aria-label="delete"
             >
               <DeleteIcon />
-            </IconButton>
+            </IconButton></>
+            )
+           }
             <Tooltip title={item?.task?.headline ? item?.task?.headline:"No headline" } >
            <IconButton
               onClick={(e) => {
@@ -922,8 +929,8 @@ console.log(Content)
                  label="Select Media"
                >
                  <MenuItem value="facebook">Facebook</MenuItem>
-                
                   <MenuItem value="tiktok-trend">Tiktok Trend</MenuItem>
+                    <MenuItem value="free">Free</MenuItem>
                  <MenuItem value="tiktok-script">Tiktok Script</MenuItem>
                  <MenuItem value="instagram">Instagram</MenuItem>
                </Select>
@@ -982,6 +989,8 @@ console.log(Content)
     ? `tiktok-slide-${post?.postNumber}`
     : post?.soical_media === "tiktok-script"
     ? `tiktok-script-${post?.postNumber}`
+     : post?.soical_media === "free"
+    ? `free post-${post?.postNumber}`
     : `post-${post?.postNumber}`}
               />
             </RadioGroup>

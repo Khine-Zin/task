@@ -7,6 +7,7 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import TablePagination from '@mui/material/TablePagination';
+import { Button } from '@mui/material';
 
 export default function AccessibleTable({ data = [] }) {
   const [page, setPage] = React.useState(0);
@@ -33,9 +34,10 @@ export default function AccessibleTable({ data = [] }) {
           <TableHead>
             <TableRow>
               <TableCell>Brand Name</TableCell>
-              <TableCell align="left">Headline</TableCell>
-              <TableCell align="left">Content</TableCell>
-              <TableCell align="left">Design</TableCell>
+              <TableCell align="center">Total Post</TableCell>
+               <TableCell align="center">Created Post</TableCell>
+               <TableCell align="center">Finish Post</TableCell>
+              <TableCell align="center">Status</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -47,10 +49,57 @@ export default function AccessibleTable({ data = [] }) {
              </TableRow>
             ):paginatedData?.map((item, index) => (
               <TableRow key={index}>
-                <TableCell>{item?._id?.brand}</TableCell>
-                <TableCell align="left">{item?.total?.headline}</TableCell>
-                <TableCell align="left">{item?.total?.content}</TableCell>
-                <TableCell align="left">{item?.total?.design}</TableCell>
+                <TableCell>{item?.name}</TableCell>
+                <TableCell align="center">{item?.totalPosts}</TableCell>
+                 <TableCell align="center">{item?.tasks}</TableCell>
+                <TableCell align="center">{item?.contentCompleteCount}</TableCell>
+      <TableCell
+  align="center"
+  sx={{ display: 'flex', justifyContent: 'center', gap: 1 }}
+>
+  {item?.remainingDays != null ? (() => {
+    let bgColor = '';
+    const remaining = item.remainingDays;
+    const avg = item.avgPerDay;
+
+    if (remaining <= avg) {
+      bgColor = 'green';
+    } else if (remaining > avg && remaining <= avg + 4) {
+      bgColor = 'orange';
+    } else {
+      bgColor = 'red';
+    }
+
+    return (
+      <Button
+        sx={{
+          textTransform: 'none',
+          backgroundColor: bgColor,
+          color: 'white',
+          padding: '2px 4px',
+          fontSize: '0.75rem',
+        }}
+      >
+        {remaining <= avg ? "Good" :`${remaining-item?.avgPerDay} day`} 
+      </Button>
+    );
+  })() : (
+    <Button
+      variant="outlined"
+      sx={{
+        textTransform: 'none',
+        backgroundColor: 'gray',
+        color: 'white',
+        padding: '2px 4px',
+        fontSize: '0.75rem',
+      }}
+    >
+      Pending
+    </Button>
+  )}
+</TableCell>
+
+
               </TableRow>
             ))}
           </TableBody>

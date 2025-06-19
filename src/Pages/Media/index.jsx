@@ -293,6 +293,8 @@ console.log(data)
     ? `tiktok-slide-${task?.postNumber}`
     : task?.soical_media === "tiktok-script"
     ? `tiktok-script-${task?.postNumber}`
+     : task?.soical_media === "free"
+    ? `free post-${task?.postNumber}`
     : `post-${task?.postNumber}`}</StyledTableCell>
                           <StyledTableCell align="left">{task?.brand?.name}</StyledTableCell>
                          <TableCell align="left">

@@ -156,7 +156,9 @@ console.log("detailstate",state)
                     <FaFacebook />
                   ) : state?.task?.soical_media === "instagram" ? (
                     <FaInstagram />
-                  ) : (
+                  ) :state?.task?.soical_media === "free" ? (
+                     <FaFacebook />
+                  ): (
                      <FaTiktok />
                    
                   )}
@@ -206,20 +208,20 @@ console.log("detailstate",state)
           <Ckeditor value={content} onChange={setContent} />
           </div>
   
-    
-               {
-                state?.task?.soical_media ==="facebook" && (
-                       <TextField
-                     label="Design Brief"
-                     multiline
-                     rows={3} // Set the number of visible rows in the textarea
-                     value={taskData.description}
-                     onChange={(e) => setTaskData({ ...taskData, description: e.target.value })}
-                     fullWidth
-                     margin="normal"
-                   />
-                )
-               }
+    {
+  (state?.task?.soical_media === "facebook" || state?.task?.soical_media === "free") && (
+    <TextField
+      label="Design Brief"
+      multiline
+      rows={3}
+      value={taskData.description}
+      onChange={(e) => setTaskData({ ...taskData, description: e.target.value })}
+      fullWidth
+      margin="normal"
+    />
+  )
+}
+
        {
         state?.task?.status ==="confirm" && (
           <div className="flex justify-end">

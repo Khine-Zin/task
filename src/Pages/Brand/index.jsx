@@ -228,6 +228,7 @@ const handleEditMonth=(user,id)=>{
     ...editUser,
     startMonthDate: user.startDate,
     endMonthDate:user.endDate,
+    count:user.count
   });
 
   setMonth(user._id)
@@ -359,7 +360,8 @@ return false
                 month:1,
                 startDate:newUser.startDate,
                  endDate:newUser.endDate,
-                 "year":`${new Date(newUser.startDate).getFullYear()}`
+                 "year":`${new Date(newUser.startDate).getFullYear()}`,
+                 "count":`${newUser?.count}`
               }
              ],
             //  "start_date":newUser.startDate,
@@ -456,7 +458,8 @@ return false
           {
               "startDate":newUser.startMonthDate,
                  "endDate":newUser.endMonthDate,
-                  "year":`${new Date(newUser.startMonthDate).getFullYear()}`
+                  "year":`${new Date(newUser.startMonthDate).getFullYear()}`,
+                  "count":`${newUser.count}`
             }, 
           {
               headers: {
@@ -535,7 +538,8 @@ return false
           {
               "startDate":editUser.startMonthDate,
                  "endDate":editUser.endMonthDate,
-                   "year":`${new Date(editUser.startMonthDate).getFullYear()}`
+                   "year":`${new Date(editUser.startMonthDate).getFullYear()}`,
+                   "count":`${editUser.count}`
             }, 
           {
               headers: {
@@ -945,6 +949,14 @@ return false
       fullWidth
       margin="normal"
     />
+      <TextField
+      label="Number of post"
+      value={newUser.count}
+      onChange={(e) => setNewUser({ ...newUser, count: e.target.value })}
+      fullWidth
+      margin="normal"
+        type="number"
+    />
 <Box display="flex" gap={2} mt={2}>
   {/* Start Date */}
   <Box flex={1}>
@@ -991,9 +1003,18 @@ return false
 
      <Dialog open={openMonthDialog} onClose={() => setOpenMonthDialog(false)} fullWidth maxWidth="sm">
   <DialogTitle>Add Month</DialogTitle>
-  <DialogContent>
  
+  <DialogContent>
+   <TextField
+      label="Number of post"
+      value={newUser.count}
+      onChange={(e) => setNewUser({ ...newUser, count: e.target.value })}
+      fullWidth
+      margin="normal"
+        type="number"
+    />
 <Box display="flex" gap={2} mt={2}>
+  
   {/* Start Date */}
   <Box flex={1}>
     <InputLabel shrink>Start Date</InputLabel>
@@ -1037,7 +1058,14 @@ return false
    <Dialog open={OpenMonthEditDialog} onClose={() => setOpenMonthEditDialog(false)} fullWidth maxWidth="sm">
   <DialogTitle>Edit Month</DialogTitle>
   <DialogContent>
- 
+  <TextField
+      label="Number of post"
+      value={editUser.count}
+      onChange={(e) => setEditUser({ ...editUser, count: e.target.value })}
+      fullWidth
+      margin="normal"
+        type="number"
+    />
 <Box display="flex" gap={2} mt={2}>
   {/* Start Date */}
   <Box flex={1}>

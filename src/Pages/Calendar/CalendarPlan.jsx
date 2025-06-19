@@ -16,7 +16,7 @@ import Button from '@mui/material/Button';
 
 import toast, { Toaster } from 'react-hot-toast';  // Import toast and Toaster
 
-import { Box, Checkbox, FormControl, FormControlLabel, FormGroup, InputLabel, MenuItem, Radio, RadioGroup, Select, useMediaQuery } from '@mui/material';
+import { Box, Checkbox, FormControl, FormControlLabel, FormGroup, InputLabel, MenuItem, Radio, RadioGroup, Select, TextField, useMediaQuery } from '@mui/material';
 import axios from 'axios';
 import { SERVER_URL } from '../../api/url';
 import userStore from '../../store/userStore';
@@ -73,7 +73,7 @@ const [yearsearch,setYearSearch]=useState("")
   const [type, setType] = React.useState("headline");
   const [loadingDownload,setLoadingDownload]=useState(false)
   const filteredDownload = brand.filter(item => item.name === newUser?.brand);
-
+const [note,setNote]=useState("")
 const filteredMonthDownload = filteredDownload?.[0]?.months.filter(item => item.year === newUser.year);
 
 
@@ -246,7 +246,8 @@ console.log(selectedPosts)
     try {
       const response = await axios.post(
           `${SERVER_URL}/content-calendar/action-content-calendar/${item._id}`,{
-            "action":selectedUser
+            "action":selectedUser,
+            "note":note ? note : item.note
           }, {
               headers: {
                 "Authorization":token,
@@ -262,6 +263,7 @@ console.log(selectedPosts)
     position: 'top-right',
     duration: 5000,
 });
+setNote("")
 fetchData()
 setOpenDialog(false)
   }
@@ -308,6 +310,7 @@ setOpenDialog(false)
 
   const cancelDelete = () => {
     setOpenDialog(false);
+    setNote("")
   };
 
     const fetchDownload = async () => {
@@ -576,7 +579,7 @@ console.log(download)
       <StyledTableCell align="left">Post</StyledTableCell>
         <StyledTableCell align="left">Brand Name</StyledTableCell>
         <StyledTableCell align="left">Month</StyledTableCell>
-        <StyledTableCell align="center">Action</StyledTableCell> {/* Change to 'center' */}
+        <StyledTableCell align="left">Action</StyledTableCell> {/* Change to 'center' */}
       </TableRow>
     </TableHead>
     <TableBody>
@@ -595,15 +598,17 @@ console.log(download)
     : item?.task?.soical_media === "tiktok-slide"
     ? `tiktok-slide-${item?.task?.postNumber}`
     : item?.task?.soical_media === "tiktok-script"
-    ? `tiktok-script-${item?.task?.postNumber}`
+     ? `tiktok-script-${item?.task?.postNumber}`
+    : item?.task?.soical_media === "free"
+    ? `free post-${item?.task?.postNumber}`
     : `post-${item?.task?.postNumber}`}</StyledTableCell>
           <StyledTableCell align="left">{item?.task?.brand?.name}</StyledTableCell>
          <TableCell align="left">
                              {item?.task?.year} - {["1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th", "10th", "11th", "12th"][item?.task?.month - 1]} Month 
                             </TableCell>
           <StyledTableCell
-            align="center"
-            sx={{ display: 'flex', justifyContent: 'center', gap: 1 }}
+            align="left"
+            sx={{ display: 'flex', justifyContent: 'left', gap: 1 }}
           >
             <Button
               onClick={() => handleClick("final", item, "content")}
@@ -619,7 +624,9 @@ console.log(download)
               Confirm
             </Button>
 
-            {/* <Button
+            {
+              item?.task?.soical_media !=="tiktok-slide" && (
+                <Button
               onClick={() => handleClick("revise", item, "content")}
               variant="outlined"
               sx={{
@@ -631,7 +638,9 @@ console.log(download)
               }}
             >
               Revise
-            </Button> */}
+            </Button>
+              )
+            }
 
          <Tooltip title={item?.task?.headline ? item?.task?.headline:"No headline" } >
             <Button
@@ -675,20 +684,55 @@ console.log(download)
       </div>
 
       {/* Delete Confirmation Dialog */}
-      <Dialog open={openDialog} onClose={cancelDelete}>
-        <DialogTitle>Confirm </DialogTitle>
-        <DialogContent>
-          Are you sure you want to confirm this task?
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={cancelDelete} sx={{color:"#666464"}}>
-            Cancel
-          </Button>
-          <Button onClick={confirm} sx={{ color: 'red' }}>
-          {Create ? "loading...":"confirm"}
-          </Button>
-        </DialogActions>
-      </Dialog>
+       {
+              selectedUser==="final" && (
+                   <Dialog open={openDialog} onClose={cancelDelete}  >
+            <DialogTitle>Confirm</DialogTitle>
+          
+             <DialogContent>
+                  Are you sure you want to confirm this task?
+                </DialogContent>
+          
+            <DialogActions>
+              <Button onClick={cancelDelete} sx={{ color: "#666464" }}>
+                Cancel
+              </Button>
+              <Button onClick={confirm} sx={{ color: 'red' }}>
+                {Create ? "loading..." : "Confirm"}
+              </Button>
+            </DialogActions>
+          </Dialog>
+              )
+            }
+            {
+              selectedUser==="revise" && (
+                   <Dialog open={openDialog} onClose={cancelDelete} fullWidth maxWidth="sm">
+            <DialogTitle>Confirm</DialogTitle>
+          
+             <DialogContent style={{ width: '100%' }}>
+                   <TextField
+                                label="If need you can Add Note for reason Revise"
+                                multiline
+                                rows={4} // Set the number of visible rows in the textarea
+                                value={note}
+                                onChange={(e) => setNote(e.target.value )}
+                                fullWidth
+                                margin="normal"
+                              />
+                              </DialogContent>
+          
+            <DialogActions>
+              <Button onClick={cancelDelete} sx={{ color: "#666464" }}>
+                Cancel
+              </Button>
+              <Button onClick={confirm} sx={{ color: 'red' }}>
+                {Create ? "loading..." : selectedUser}
+              </Button>
+            </DialogActions>
+          </Dialog>
+              )
+            }
+          
 
       {/* Create User Form Dialog */}
     <Dialog open={openCreateDialog} onClose={() =>{
@@ -734,6 +778,7 @@ console.log(download)
                                               <MenuItem value="facebook">Facebook</MenuItem>
                                              <MenuItem value="tiktok-slide">Tiktok Slide</MenuItem>
                                                <MenuItem value="tiktok-trend">Tiktok Trend</MenuItem>
+                                                <MenuItem value="free">Free</MenuItem>
                                               <MenuItem value="tiktok-script">Tiktok Script</MenuItem>
                                               <MenuItem value="instagram">Instagram</MenuItem>
                                             </Select>
@@ -804,6 +849,8 @@ console.log(download)
     ? `tiktok-slide-${post?.task?.postNumber}`
     : post?.task?.social_media === "tiktok-script"
     ? `tiktok-script-${post?.task?.postNumber}`
+     : post?.task?.social_media === "free"
+    ? `free-${post?.task?.postNumber}`
     : `post-${post?.task?.postNumber}`}
                 />
               </FormGroup>

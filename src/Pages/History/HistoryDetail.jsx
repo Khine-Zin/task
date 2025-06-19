@@ -34,7 +34,7 @@ const HistoryDetail = () => {
         total:state.total_reach,
         category:state?.task?.category?._id,
         description:state?.task?.description,
-        design_brief:state?.design_brief,
+        design_brief:state?.design_brief || state?.note,
         design_date:state?.design_date
 
       })
@@ -46,13 +46,7 @@ const HistoryDetail = () => {
       const handleSubmit = async () => {
         setCreate(true);
         const token = localStorage.getItem("token");
-      if(content?.length <100){
-        toast.error("Content is need at least 100 word", {
-          position: "top-right",
-          duration: 5000,
-        });
-        return false
-      }
+    
         try {
           const formData = new FormData();
       
@@ -73,8 +67,10 @@ const HistoryDetail = () => {
               formData.append("design_date", data?.design_date);
         }
           formData.append("content", content); // if this is a file or text
-          if(bannerImage){
-            formData.append("image", bannerImage);
+          if(state?.task?.social_media!=="tiktok-script"){
+            if(bannerImage){
+              formData.append("image", bannerImage);
+            }
            }
           const response = await axios.put(
             `${SERVER_URL}/history/edit-history/${state._id}`,
@@ -229,7 +225,9 @@ const HistoryDetail = () => {
                       ) : state?.task?.social_media === "instagram" ? (
                           <FaInstagram />
                        
-                      ) : (
+                      ) :state?.task?.social_media === "free" ?(
+                          <FaFacebook />
+                      ): (
                         <FaTiktok />
                       )}
                       <span>{state?.task?.social_media}</span>
@@ -299,19 +297,23 @@ const HistoryDetail = () => {
                               fullWidth
                               margin="normal"
                             />
-                            {
-                              state?.task?.social_media!=="tiktok-script" && (
-                                <> 
-                                <TextField
-                              label="Design Brief"
-                              multiline
-                              rows={3} // Set the number of visible rows in the textarea
-                              value={data.design_brief}
-                              onChange={(e) => setData({ ...data, design_brief: e.target.value })}
-                              fullWidth
-                              margin="normal"
-                            />
-                                <div className="mt-5">
+                           {state?.task?.social_media !== "tiktok-script" &&
+ state?.task?.social_media !== "tiktok-trend" && (
+  <>
+    <TextField
+      label="Design Brief"
+      multiline
+      rows={3}
+      value={data.design_brief}
+      onChange={(e) => setData({ ...data, design_brief: e.target.value })}
+      fullWidth
+      margin="normal"
+    />
+  </>
+)}
+
+
+                             <div className="mt-5">
                                <Box flex={1}>
                                 <InputLabel shrink>Design Date</InputLabel>
                                 <Datepicker
@@ -320,15 +322,20 @@ const HistoryDetail = () => {
                                   name="startDate"
                                 />
                               </Box>
-                            </div></>
-                                  
-                              )
-                            }
+                            </div>
                            
-         <div  className=" font-bold text-secondaryColor mb-3 mt-8">
+        
+         {
+          state?.task?.social_media!=="tiktok-slide" && (
+            <>
+             <div  className=" font-bold text-secondaryColor mb-3 mt-8">
           {state?.task?.social_media ==="facebook" ? "Content" :"Script"}
+          
           </div>
-          <Ckeditor value={content} onChange={setContent} />
+           <Ckeditor value={content} onChange={setContent} /></>
+            
+          )
+         }
        {
         state?.task?.social_media !=="tiktok-script" && (
              <Box mt={2}>

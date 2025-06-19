@@ -14,7 +14,7 @@ console.log("image",image)
     setSelectedImage(imageSrc);
     setOpen(true);
   };
-  const url=`https://task-management-htjk.onrender.com/${image}`;
+  const url=`https://localhost:5000/upload/${image}`;
 
   // Function to close modal
   const handleClose = () => {

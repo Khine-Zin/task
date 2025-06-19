@@ -67,7 +67,7 @@ const Task= () => {
   const [brand,setBrand]=React.useState([])
 
   const [pager, setPager] = React.useState({ currentPage: 1, pageSize: 9});
-  const debounceTimer = React.useRef(null);
+  const [note,setNote]=useState("")
   const role = localStorage.getItem("userRole");
   const [type, setType] = React.useState("headline");
   const [monthsearch,setMonthSearch]=React.useState("")
@@ -256,7 +256,7 @@ console.log(newUser)
     });
   };
 
-console.log(download)
+
 const matchedTasks =
   monthsearch !== ""
     ? dataHeadline?.[0]?.tasks?.filter(
@@ -284,7 +284,8 @@ const matchedTasks =
             {
              task:item?._id,
              content_writer:"Aye Aye",
-             note:designBrief
+             note:item.note,
+             design_brief:designBrief
             },
             {
               headers: {
@@ -304,6 +305,7 @@ const matchedTasks =
             duration: 5000,
           });
           fetchData()
+          setDesignBrief("")
           setOpenDialog(false)
      
         } else if (response?.data?.statusCode === 203) {
@@ -364,7 +366,8 @@ const matchedTasks =
     try {
       const response = await axios.post(
           `${SERVER_URL}/content-calendar/action-content-calendar/${item._id}`,{
-            "action":selectedUser
+            "action":selectedUser,
+             "note":note ? note :item.note
           }, {
               headers: {
                 "Authorization":token,
@@ -379,6 +382,7 @@ const matchedTasks =
   if(selectedUser==="confirm" && item.soical_media==="tiktok-slide"){
     handleConfirm()
   }else{
+    setNote("")
      setCreate(false)
    toast.success('Successfully!', {
     position: 'top-right',
@@ -431,6 +435,7 @@ setOpenDialog(false)
 
   const cancelDelete = () => {
     setOpenDialog(false);
+    setNote("")
   };
 
   const handleDownload = () => {
@@ -685,6 +690,8 @@ setDownload([])
     ? `tiktok-slide-${item?.postNumber}`
     : item?.soical_media === "tiktok-script"
     ? `tiktok-script-${item?.postNumber}`
+     : item?.soical_media === "free"
+    ? `free post-${item?.postNumber}`
     : `post-${item?.postNumber}`}</StyledTableCell>
           <StyledTableCell align="left">{item?.brand?.name}</StyledTableCell>
            <TableCell align="left">
@@ -764,29 +771,21 @@ setDownload([])
       </div>
 
  {
-  item.soical_media==="tiktok-slide" && (
+  item.soical_media==="tiktok-slide" && selectedUser==="confirm" && (
        <Dialog open={openDialog} onClose={cancelDelete}  fullWidth maxWidth="sm">
   <DialogTitle>Confirm</DialogTitle>
 
-  {
-    item.soical_media === "tiktok-slide" ? (
-       <DialogContent style={{ width: '100%' }}>
+   <DialogContent style={{ width: '100%' }}>
        <TextField
-                    label="Note"
+                    label="Design Brief"
                     multiline
                     rows={4} // Set the number of visible rows in the textarea
-                    value={newUser.note}
+                    value={designBrief}
                     onChange={(e) => setDesignBrief( e.target.value )}
                     fullWidth
                     margin="normal"
                   />
                   </DialogContent>
-    ) : ( // ✅ Correct syntax here
-      <DialogContent>
-        Are you sure you want to {selectedUser} this task?
-      </DialogContent>
-    )
-  }
 
   <DialogActions>
     <Button onClick={cancelDelete} sx={{ color: "#666464" }}>
@@ -804,25 +803,9 @@ setDownload([])
        <Dialog open={openDialog} onClose={cancelDelete} >
   <DialogTitle>Confirm</DialogTitle>
 
-  {
-    item.soical_media === "tiktok-slide" ? (
-       <DialogContent style={{ width: '100%' }}>
-       <TextField
-                    label="Design Brief"
-                    multiline
-                    rows={4} // Set the number of visible rows in the textarea
-                    value={newUser.note}
-                    onChange={(e) => setDesignBrief( e.target.value )}
-                    fullWidth
-                    margin="normal"
-                  />
-                  </DialogContent>
-    ) : ( // ✅ Correct syntax here
-      <DialogContent>
+   <DialogContent>
         Are you sure you want to {selectedUser} this task?
       </DialogContent>
-    )
-  }
 
   <DialogActions>
     <Button onClick={cancelDelete} sx={{ color: "#666464" }}>
@@ -835,7 +818,34 @@ setDownload([])
 </Dialog>
   )
  }
+ {
+   selectedUser==="revise" && (
+       <Dialog open={openDialog} onClose={cancelDelete}  fullWidth maxWidth="sm">
+  <DialogTitle>Confirm</DialogTitle>
 
+   <DialogContent style={{ width: '100%' }}>
+       <TextField
+                    label="If need you can Add Note for reason Revise"
+                    multiline
+                    rows={4} // Set the number of visible rows in the textarea
+                    value={note}
+                    onChange={(e) => setNote( e.target.value )}
+                    fullWidth
+                    margin="normal"
+                  />
+                  </DialogContent>
+
+  <DialogActions>
+    <Button onClick={cancelDelete} sx={{ color: "#666464" }}>
+      Cancel
+    </Button>
+    <Button onClick={confirm} sx={{ color: 'red' }}>
+      {Create ? "loading..." : selectedUser}
+    </Button>
+  </DialogActions>
+</Dialog>
+  )
+ }
 
       {/* Create User Form Dialog */}
       <Dialog open={openCreateDialog} onClose={() =>{
@@ -880,6 +890,7 @@ setDownload([])
                             <MenuItem value="facebook">Facebook</MenuItem>
                            <MenuItem value="tiktok-slide">Tiktok Slide</MenuItem>
                              <MenuItem value="tiktok-trend">Tiktok Trend</MenuItem>
+                              <MenuItem value="free">Free</MenuItem>
                             <MenuItem value="tiktok-script">Tiktok Script</MenuItem>
                             <MenuItem value="instagram">Instagram</MenuItem>
                           </Select>
@@ -955,6 +966,8 @@ setDownload([])
     ? `tiktok-slide-${post?.postNumber}`
     : post?.soical_media === "tiktok-script"
     ? `tiktok-script-${post?.postNumber}`
+     : post?.soical_media === "free"
+    ? `free post-${post?.postNumber}`
     : `post-${post?.postNumber}`}
               />
             </FormGroup>

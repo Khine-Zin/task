@@ -8,6 +8,8 @@ import { FaListCheck } from "react-icons/fa6";
 import { IoMegaphoneOutline } from "react-icons/io5";
 import { useMediaQuery } from '@mui/material';
 import { MdOutlineWorkHistory } from "react-icons/md";
+import { GoTasklist } from "react-icons/go";
+import { FaRegCheckCircle } from "react-icons/fa";
 
 const SideBar = ({ isOpen, setIsOpen,toggleHidden }) => {
    const role=localStorage.getItem("userRole")
@@ -319,7 +321,105 @@ const SideBar = ({ isOpen, setIsOpen,toggleHidden }) => {
               </motion.div>
             </Link>
           </motion.div> */}
-          <motion.div  whileHover={{ x: 5 }} >
+            {
+          role==="content-head" && (
+              <motion.div  whileHover={{ x: 5 }} >
+           
+           <motion.div onClick={()=>handleToggle(3)}  className={`cursor-pointer flex items-center p-2 gap-3 my-2 text-lg rounded-lg transition-colors mb-2  ${Location.pathname==="/retrived"||Location.pathname==="/retrivedContent" || Location.pathname==="/retrived/detail" || Location.pathname==="/retrivedContent/detail"? "border border-white" :""}`}>
+           <GoTasklist size={24} className="text-white"/>
+             <div className={`flex justify-between items-center w-full ${isOpen ? "" : "hidden"}`} >
+               <AnimatePresence>
+                 {isOpen && (
+                   <motion.span 
+                     className='whitespace-nowrap text-white'
+                     initial={{ opacity: 0, width: 0 }} 
+                     animate={{ opacity: 1, width: "auto" }}
+                     exit={{ opacity: 0, width: 0 }}
+                     transition={{ duration: 0.2, delay: 0.2 }}>
+                 Retrieved Task
+                   </motion.span>
+                 )}
+               </AnimatePresence>
+             
+                 <motion.div className={`ml-auto transition-transform duration-300 ${openIndex===3? 'rotate-90' : ''} ${!isOpen && "hidden"}`}>
+                   <HiChevronRight size={20} className="text-white"/>
+                 </motion.div>
+           
+             </div>
+           </motion.div>
+        
+
+         <AnimatePresence>
+           {isOpen && openIndex===3 &&  (
+             <motion.div
+               initial={{ opacity: 0, height: 0 }}
+               animate={{ opacity: 1, height: "auto" }}
+               exit={{ opacity: 0, height: 0 }}
+               transition={{ duration: 0.2 }}
+             >
+            <Link to="/retrived">
+                   <motion.div whileHover={{ x: 5 }}
+                       onClick={()=>{setIsOpen(false)}} className={`flex text-gray-100 items-center pl-8 p-2 gap-3 my-2 rounded-lg transition-colors ${Location.pathname==="/calendar"? "text-white font-bold" :"hover:bg-gray-200 hover:text-black"}`}>
+                     <AnimatePresence>
+                       {isOpen && (
+                         <motion.span  
+                           className='whitespace-nowrap'
+                           initial={{ opacity: 0, width: 0 }} 
+                           animate={{ opacity: 1, width: "auto" }}
+                           exit={{ opacity: 0, width: 0 }}
+                           transition={{ duration: 0.2, delay: 0.2 }}>
+                          Headline
+                         </motion.span>
+                       )}
+                     </AnimatePresence>
+                   </motion.div>
+             </Link>
+            
+            {/* <Link to="/calendarContent">
+                   <motion.div whileHover={{ x: 5 }}
+                    onClick={()=>{setIsOpen(false)}} className={`flex text-gray-100 items-center pl-8 p-2 gap-3 my-2 rounded-lg transition-colors ${Location.pathname==="/content"? "text-white font-bold" :"hover:bg-gray-200 hover:text-black"}`}>
+                     <AnimatePresence>
+                       {isOpen && (
+                         <motion.span  
+                           className='whitespace-nowrap'
+                           initial={{ opacity: 0, width: 0 }} 
+                           animate={{ opacity: 1, width: "auto" }}
+                           exit={{ opacity: 0, width: 0 }}
+                           transition={{ duration: 0.2, delay: 0.2 }}>
+                      Content
+                         </motion.span>
+                       )}
+                     </AnimatePresence>
+                   </motion.div>
+             </Link> */}
+            
+             <Link to="/retrivedContent">
+                   <motion.div whileHover={{ x: 5 }}
+                    onClick={()=>{setIsOpen(false)}} className={`flex text-gray-100 items-center pl-8 p-2 gap-3 my-2 rounded-lg transition-colors ${Location.pathname==="/calendarPlan"? "text-white font-bold" :"hover:bg-gray-200 hover:text-black"}`}>
+                     <AnimatePresence>
+                       {isOpen && (
+                         <motion.span  
+                           className='whitespace-nowrap'
+                           initial={{ opacity: 0, width: 0 }} 
+                           animate={{ opacity: 1, width: "auto" }}
+                           exit={{ opacity: 0, width: 0 }}
+                           transition={{ duration: 0.2, delay: 0.2 }}>
+                     Content
+                         </motion.span>
+                       )}
+                     </AnimatePresence>
+                   </motion.div>
+             </Link>
+        
+             </motion.div>
+           )}
+         </AnimatePresence>
+        </motion.div>
+          )
+        }
+        {
+          role!=="content-writer" && (
+              <motion.div  whileHover={{ x: 5 }} >
            
            <motion.div onClick={()=>handleToggle(2)}  className={`cursor-pointer flex items-center p-2 gap-3 my-2 text-lg rounded-lg transition-colors mb-2  ${Location.pathname==="/calendar/headline"||Location.pathname==="/calendarContent" || Location.pathname==="/calendarPlan" || Location.pathname==="/calendarContent/detail"||Location.pathname==="/calendar"||Location.pathname==="/calendar/content"? "border border-white" :""}`}>
            <HiOutlineClock size={24} className="text-white"/>
@@ -411,6 +511,9 @@ const SideBar = ({ isOpen, setIsOpen,toggleHidden }) => {
            )}
          </AnimatePresence>
         </motion.div>
+          )
+        }
+       
          {
           role==="admin" && (
             <>
@@ -441,7 +544,37 @@ const SideBar = ({ isOpen, setIsOpen,toggleHidden }) => {
             </>
           )
          }
-          <motion.div whileHover={{ x: 5 }}  onClick={handleClick}>
+          {
+          role==="admin" && (
+             <motion.div whileHover={{ x: 5 }}  onClick={handleClick}>
+            <Link to="/complete">
+              <motion.div
+                className={`flex items-center p-2 gap-3 my-2 text-lg rounded-lg transition-colors mb-2  ${Location.pathname==="/complete"||Location.pathname==="/complete/detail"? "border border-white" :""}`}
+              >
+                <FaRegCheckCircle size={24} className="text-white"/>
+                <div className={`flex justify-between items-center w-full ${isOpen ? "" : "hidden"}`}>
+                  <AnimatePresence>
+                    {isOpen && (
+                      <motion.span
+                        className='whitespace-nowrap text-white'
+                        initial={{ opacity: 0, width: 0 }}
+                        animate={{ opacity: 1, width: "auto" }}
+                        exit={{ opacity: 0, width: 0 }}
+                        transition={{ duration: 0.2, delay: 0.2 }}
+                      >
+                    Complete
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </motion.div>
+            </Link>
+          </motion.div>
+          )
+         }
+         {
+          role!=="content-writer" && (
+             <motion.div whileHover={{ x: 5 }}  onClick={handleClick}>
             <Link to="/history">
               <motion.div
                 className={`flex items-center p-2 gap-3 my-2 text-lg rounded-lg transition-colors mb-2  ${Location.pathname==="/history"||Location.pathname==="/history/detail"? "border border-white" :""}`}
@@ -465,6 +598,9 @@ const SideBar = ({ isOpen, setIsOpen,toggleHidden }) => {
               </motion.div>
             </Link>
           </motion.div>
+          )
+         }
+         
           <div className='h-[100px]'></div>
         </div>
       </div>

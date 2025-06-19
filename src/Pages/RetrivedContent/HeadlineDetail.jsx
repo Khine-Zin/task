@@ -14,7 +14,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import userStore from "../../store/userStore";
 
 // Component Start
-const PlanDetail = () => {
+const RetrievedHeadlineDetail = () => {
   const setUser = userStore((state) => state.setUser);
   const location = useLocation();
   const navigate = useNavigate();
@@ -22,12 +22,12 @@ const PlanDetail = () => {
   const [content, setContent] = useState("");
 
 
-console.log("state",state)
 
+console.log(state)
   // Format Date Function
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString("en-GB", {
-    
+      day: "2-digit",
       month: "short",
       year: "numeric",
     });
@@ -38,7 +38,7 @@ console.log("state",state)
     <div className="mt-24 lg:mx-4 mx-2 hide-scrollbar flex-row justify-center items-center">
       {/* Breadcrumb */}
       <div className="flex justify-end m-8">
-        <SmallBreadcrumbs title="Plan" ActiveTitle="Details" link="/plan" />
+        <SmallBreadcrumbs title="Retrived" ActiveTitle="Details" link="/retrived" />
       </div>
 
       {/* Title */}
@@ -48,38 +48,39 @@ console.log("state",state)
       <table className="mt-8 font-medium text-bodyColor">
         <tbody>
           {[
-            // { icon: <HiUsers />, label: "Assignee", value: state?.task?.user?.name },
+            { icon: <HiUsers />, label: "Assignee", value: state?.user?.name || state?.task?.user?.name },
             {
               icon: <HiOutlineBriefcase />,
               label: "Brand Name",
-              value: state?.task?.brand?.name,
+              value: state?.brand?.name || state?.task?.brand?.name,
             },
             {
               icon: <IoShareSocialOutline />,
               label: "Social Media",
               value: (
                 <div className="flex items-center gap-2">
-                  {state.task?.soical_media === "facebook" ? (
+                  {state?.soical_media === "facebook" ? (
                     <FaFacebook />
-                  ) : state?.task?.soical_media === "tiktok" ? (
-                    <FaTiktok />
-                  ) :state?.task?.soical_media === "free" ? (
-                    <FaFacebook />
+                  ) : state?.soical_media === "instagram" ? (
+                     <FaInstagram />
+                  ) :state?.soical_media === "free" ?(
+                     <FaFacebook />
                   ): (
-                    <FaInstagram />
+                    <FaTiktok />
+                   
                   )}
-                  <span>{state?.task?.soical_media}</span>
+                  <span>{state?.soical_media}</span>
                 </div>
               ),
             },
-            { icon: <PiListNumbers />, label: "Post No", value: state?.task?.postNumber },
+            { icon: <PiListNumbers />, label: "Post No", value: state?.postNumber },
             {
               icon: <HiOutlineCalendar />,
               label: "Deadline",
-              value: formatDate(state?.task?.deadline),
+              value: formatDate(state?.deadline),
             },
             { icon: <PiNotePencilDuotone />, label: "Note", value: state?.note },
-            { icon: <HiChartBar />, label: "Category", value: state?.task?.category?.name },
+            { icon: <HiChartBar />, label: "Category", value: state?.category?.name },
           ].map((row, index) => (
             <tr key={index} className="border-none ">
               <td className="flex items-center gap-2 lg:w-[200px] w-[130px] p-3">
@@ -96,36 +97,23 @@ console.log("state",state)
 
       {/* Headline */}
       <div className="mt-10 lg:w-[70%] w-[95%]">
-    {
-      state?.task?.soical_media==="facebook" && (
-        <>  <div className=" font-bold text-secondaryColor mt-8">Design Brief</div>
-      <p className="text-sm text-bodyColor mt-5 mb-8">{ state.design_brief}</p></>
-      )
-    }
-     {
-      state?.task?.soical_media==="tiktok-slide" && (
-        <>  <div className=" font-bold text-secondaryColor mt-8">Design Brief</div>
-      <p className="text-sm text-bodyColor mt-5 mb-8">{state?.design_brief}</p></>
-      )
-    }
 
       <div className=" font-bold text-secondaryColor mt-8">Headline</div>
             <p className="text-sm text-bodyColor mt-5 mb-8">{state?.task?.headline || state.headline}</p>
 
-         
-           {
-            state?.content && (
-             <>
-              <div className=" font-bold text-secondaryColor mt-8">{state?.task?.soical_media==="facebook" ? "Content" :state?.task?.soical_media==="free" ? "Content" :"Script"}</div>
-              <p className="text-sm text-bodyColor mt-5 mb-8" dangerouslySetInnerHTML={{ __html:state?.content || "<p>No content available</p>" }}/></>
-            )
-           }
-    
-      </div>
+     </div>
+
+     <div className="mt-10 lg:w-[70%] w-[95%]">
+
+<div className=" font-bold text-secondaryColor mt-8">Description</div>
+      <p className="text-sm text-bodyColor mt-5 mb-8">{ state.description}</p>
+
+</div>
+      
 
       <div className="h-[100px]"></div>
     </div>
   );
 };
 
-export default PlanDetail;
+export default RetrievedHeadlineDetail;

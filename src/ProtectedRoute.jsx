@@ -20,9 +20,18 @@ export const ProtectedRoute = ({  children }) => {
     if ( window.location.pathname==="/") {
       return <Navigate to="/task" />; 
     }
+    
     return children;
   }
+if (userRole === 'content-writer') {
 
+    
+    if ( window.location.pathname==="/") {
+      return <Navigate to="/task" />; 
+    }
+    
+    return children;
+  }
 
 
   // If the user doesn't have the proper role, redirect to home page or an error page

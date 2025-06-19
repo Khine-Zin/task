@@ -79,6 +79,7 @@ const Task= () => {
   const [Content,setContent]=React.useState([])
   const [brandview,setBrandView]=React.useState("")
   const role = localStorage.getItem("userRole");
+  const email = localStorage.getItem("userEmail");
   const [type, setType] = React.useState("headline");
   const [month,setMonth]=useState("")
   const formatDate = (dateString) => {
@@ -740,6 +741,8 @@ const filteredMonth = filtered?.[0]?.months.filter(item => item.year === newUser
     ? `tiktok-trend-${item?.postNumber}`
     : item?.soical_media === "tiktok-slide"
     ? `tiktok-slide-${item?.postNumber}`
+    : item?.soical_media === "free"
+     ? `free post-${item?.postNumber}`
     : item?.soical_media === "tiktok-script"
     ? `tiktok-script-${item?.postNumber}`
     : `post-${item?.postNumber}`}
@@ -754,7 +757,10 @@ const filteredMonth = filtered?.[0]?.months.filter(item => item.year === newUser
 </TableCell>
 
         <TableCell align="left">
-          <IconButton
+         {
+          role!=="content-writer" && (
+            <>
+             <IconButton
             onClick={(e) => {
               e.stopPropagation();
               handleEdit(item, "headline");
@@ -773,6 +779,9 @@ const filteredMonth = filtered?.[0]?.months.filter(item => item.year === newUser
           >
             <DeleteIcon />
           </IconButton>
+            </>
+          )
+         }
           <IconButton
             onClick={(e) => {
               e.stopPropagation();
@@ -896,6 +905,7 @@ const filteredMonth = filtered?.[0]?.months.filter(item => item.year === newUser
                 <MenuItem value="tiktok-slide">Tiktok Slide</MenuItem>
                  <MenuItem value="tiktok-trend">Tiktok Trend</MenuItem>
                 <MenuItem value="tiktok-script">Tiktok Script</MenuItem>
+                 <MenuItem value="free">Free</MenuItem>
                 <MenuItem value="instagram">Instagram</MenuItem>
               </Select>
             </FormControl>

@@ -63,7 +63,9 @@ console.log(state)
                     <FaFacebook />
                   ) : state?.soical_media === "instagram" ? (
                      <FaInstagram />
-                  ) : (
+                  ) :state?.soical_media === "free" ? (
+                    <FaFacebook />
+                  ): (
                     <FaTiktok />
                    
                   )}
